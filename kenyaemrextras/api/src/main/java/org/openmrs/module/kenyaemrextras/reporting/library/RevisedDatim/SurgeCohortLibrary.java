@@ -1,0 +1,110 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
+package org.openmrs.module.kenyaemrextras.reporting.library.RevisedDatim;
+
+import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+/**
+ * Created by dev on 1/10/18.
+ */
+
+/**
+ * Library of cohort definitions used specifically in Datim Reports
+ */
+@Component
+public class SurgeCohortLibrary {
+	
+	/**
+	 * Patients currently on ART TX_Curr Datim indicator
+	 * 
+	 * @return
+	 */
+	public CohortDefinition currentOnArt() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		
+		String sqlQuery = "select patient_id from(\n"
+		        + "select fup.visit_date,fup.patient_id, min(e.visit_date) as enroll_date,\n"
+		        + "      max(fup.visit_date) as latest_vis_date,\n"
+		        + "      mid(max(concat(fup.visit_date,fup.next_appointment_date)),11) as latest_tca,\n"
+		        + "      max(d.visit_date) as date_discontinued,\n"
+		        + "      d.patient_id as disc_patient,\n"
+		        + "    de.patient_id as started_on_drugs\n"
+		        + "  from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "  join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+		        + "  join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+		        + "  left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and date(date_started) <= date(:endDate)\n"
+		        + "  left outer JOIN\n"
+		        + "  (select patient_id, visit_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "  where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
+		        + "  group by patient_id\n"
+		        + "  ) d on d.patient_id = fup.patient_id\n"
+		        + "  where fup.visit_date <= date(:endDate)\n"
+		        + "  group by patient_id\n"
+		        + "  having (started_on_drugs is not null and started_on_drugs <> \"\") and ( \n"
+		        + "  ( (disc_patient is null and date_add(date(latest_tca), interval 30 DAY)  >= date(:endDate)) or (date(latest_tca) > date(date_discontinued) and date(latest_vis_date)> date(date_discontinued) and date_add(date(latest_tca), interval 30 DAY)  >= date(:endDate) ))\n"
+		        + "  )\n" + ") t;";
+		
+		cd.setName("TX_CURR");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("currently on ART");
+		return cd;
+	}
+
+	/**
+	 * returns a list of those who started drugs during a period
+	 * @return
+	 */
+	public CohortDefinition newOnArt() {
+		
+		String sqlQuery = "select net.patient_id   \n"
+		        + "                 from (   \n"
+		        + "                 select e.patient_id,e.date_started,   \n"
+		        + "                 e.gender,  \n"
+		        + "                 e.dob,  \n"
+		        + "                 d.visit_date as dis_date,   \n"
+		        + "                 if(d.visit_date is not null, 1, 0) as TOut,  \n"
+		        + "                 e.regimen, e.regimen_line, e.alternative_regimen,   \n"
+		        + "                 mid(max(concat(fup.visit_date,fup.next_appointment_date)),11) as latest_tca,   \n"
+		        + "                 max(if(enr.date_started_art_at_transferring_facility is not null and enr.facility_transferred_from is not null, 1, 0)) as TI_on_art,  \n"
+		        + "                 max(if(enr.transfer_in_date is not null, 1, 0)) as TIn,   \n"
+		        + "                 max(fup.visit_date) as latest_vis_date  \n"
+		        + "                 from (select e.patient_id,p.dob,p.Gender,min(e.date_started) as date_started,   \n"
+		        + "                 mid(min(concat(e.date_started,e.regimen_name)),11) as regimen,   \n"
+		        + "                 mid(min(concat(e.date_started,e.regimen_line)),11) as regimen_line,   \n"
+		        + "                 max(if(discontinued,1,0))as alternative_regimen   \n"
+		        + "                 from kenyaemr_etl.etl_drug_event e \n"
+		        + "                 join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id \n"
+		        + "                 where e.program = 'HIV' \n"
+		        + "                 group by e.patient_id) e   \n"
+		        + "                 left outer join kenyaemr_etl.etl_patient_program_discontinuation d on d.patient_id=e.patient_id and d.program_name='HIV'  \n"
+		        + "                 left outer join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id=e.patient_id   \n"
+		        + "                 left outer join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id=e.patient_id   \n"
+		        + "                 where date(e.date_started) between :startDate and :endDate \n"
+		        + "                 group by e.patient_id   \n" + "                 having TI_on_art=0  \n"
+		        + "                 )net;";
+
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		cd.setName("TX_New");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("Newly Started ART");
+		return cd;
+		
+	}
+	
+}
