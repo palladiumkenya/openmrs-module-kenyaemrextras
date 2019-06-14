@@ -17,9 +17,8 @@ import org.openmrs.module.kenyacore.report.builder.AbstractReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.reporting.ColumnParameters;
 import org.openmrs.module.kenyaemr.reporting.EmrReportingUtils;
-import org.openmrs.module.kenyaemr.reporting.library.ETLReports.RevisedDatim.DatimIndicatorLibrary;
 import org.openmrs.module.kenyaemr.reporting.library.shared.common.CommonDimensionLibrary;
-import org.openmrs.module.kenyaemrextras.reporting.library.RevisedDatim.SurgeIndicatorLibrary;
+import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.SurgeIndicatorLibrary;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -88,14 +87,19 @@ public class SurgeReportBuilder extends AbstractReportBuilder {
 		List<ColumnParameters> disaggregation = Arrays.asList(colTotal);
 		
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-		String endDateParams = "endDate=${endDate}";
 		
 		EmrReportingUtils.addRow(cohortDsd, "TX_New", "Newly Started ART",
-		    ReportUtils.map(datimIndicators.newlyStartedARTByAgeSex(), indParams), disaggregation, Arrays.asList("25"));
+		    ReportUtils.map(datimIndicators.newOnArt(), indParams), disaggregation, Arrays.asList("25"));
 		
 		//Number of Adults and Children with HIV infection receiving ART By Age/Sex Disagreggation
 		EmrReportingUtils.addRow(cohortDsd, "TX_CURR", "Adults and Children with HIV infection receiving ART",
 		    ReportUtils.map(datimIndicators.currentlyOnArt(), indParams), disaggregation, Arrays.asList("25"));
+		
+		EmrReportingUtils.addRow(cohortDsd, "LTFU_RECENT", "LTFU in the previous reporting period",
+		    ReportUtils.map(datimIndicators.ltfuRecent(), indParams), disaggregation, Arrays.asList("01"));
+		
+		EmrReportingUtils.addRow(cohortDsd, "LTFU_RTC", "LTFU returned to care during the reporting period",
+		    ReportUtils.map(datimIndicators.ltfuRTC(), indParams), disaggregation, Arrays.asList("01"));
 		
 		return cohortDsd;
 		

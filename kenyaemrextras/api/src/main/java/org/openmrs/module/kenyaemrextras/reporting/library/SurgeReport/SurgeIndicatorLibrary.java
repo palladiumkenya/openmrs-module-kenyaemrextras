@@ -7,7 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.kenyaemrextras.reporting.library.RevisedDatim;
+package org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport;
 
 import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -42,9 +42,29 @@ public class SurgeIndicatorLibrary {
 	 * 
 	 * @return the indicator
 	 */
-	public CohortIndicator newlyStartedARTByAgeSex() {
+	public CohortIndicator newOnArt() {
 		return cohortIndicator("Newly Started ART",
 		    ReportUtils.<CohortDefinition> map(surgeCohorts.newOnArt(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Disaggregated by Age / Sex
+	 * 
+	 * @return the indicator
+	 */
+	public CohortIndicator ltfuRecent() {
+		return cohortIndicator("Patients who are turned to LTFU during the reporting period",
+		    ReportUtils.<CohortDefinition> map(surgeCohorts.ltfuRecent(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Disaggregated by Age / Sex
+	 * 
+	 * @return the indicator
+	 */
+	public CohortIndicator ltfuRTC() {
+		return cohortIndicator("Patients who returned to care during the reporting period after being LTFU",
+		    ReportUtils.<CohortDefinition> map(surgeCohorts.ltfuRTC(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 }
