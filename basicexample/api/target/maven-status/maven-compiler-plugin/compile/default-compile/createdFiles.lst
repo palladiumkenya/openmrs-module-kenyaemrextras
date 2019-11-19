@@ -1,8 +1,0 @@
-org\openmrs\module\basicexample\api\dao\BasicexampleDao.class
-org\openmrs\module\basicexample\api\SurgeryService.class
-org\openmrs\module\basicexample\api\impl\SurgeryServiceImpl.class
-org\openmrs\module\basicexample\BasicexampleConfig.class
-org\openmrs\module\basicexample\api\impl\BasicexampleServiceImpl.class
-org\openmrs\module\basicexample\BasicexampleActivator.class
-org\openmrs\module\basicexample\api\BasicexampleService.class
-org\openmrs\module\basicexample\Item.class
