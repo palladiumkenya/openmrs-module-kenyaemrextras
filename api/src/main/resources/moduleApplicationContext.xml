@@ -34,7 +34,14 @@
         </property>
         <property name="target">
             <bean class="org.openmrs.module.kenyaemrextras.api.impl.KenyaemrextrasServiceImpl">
-                <property name="dao" ref="kenyaemrextras.KenyaemrextrasDao" />
+                <property name="dao" >
+                    <bean class="org.openmrs.module.kenyaemrextras.api.dao.KenyaemrextrasDao">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory" />
+
+                        </property>
+                    </bean>
+                </property>
             </bean>
         </property>
         <property name="preInterceptors">

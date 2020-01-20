@@ -9,10 +9,8 @@
  */
 package org.openmrs.module.kenyaemrextras.api.impl;
 
-import org.openmrs.api.APIException;
 import org.openmrs.api.UserService;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.kenyaemrextras.Item;
 import org.openmrs.module.kenyaemrextras.api.KenyaemrextrasService;
 import org.openmrs.module.kenyaemrextras.api.dao.KenyaemrextrasDao;
 
@@ -36,17 +34,4 @@ public class KenyaemrextrasServiceImpl extends BaseOpenmrsService implements Ken
 		this.userService = userService;
 	}
 	
-	@Override
-	public Item getItemByUuid(String uuid) throws APIException {
-		return dao.getItemByUuid(uuid);
-	}
-	
-	@Override
-	public Item saveItem(Item item) throws APIException {
-		if (item.getOwner() == null) {
-			item.setOwner(userService.getUser(1));
-		}
-		
-		return dao.saveItem(item);
-	}
 }
