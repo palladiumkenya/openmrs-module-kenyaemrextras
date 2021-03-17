@@ -188,10 +188,14 @@ public class SurgeCohortLibrary {
 		        + ") d on d.patient_id = fup.patient_id\n"
 		        + "where fup.visit_date <= date(:endDate)\n"
 		        + "group by patient_id\n"
-		        + "having (\n"
-		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) > 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
-		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))) t\n"
-		        + "inner join kenyaemr_etl.etl_patient_hiv_followup r on r.patient_id=t.patient_id and date(r.visit_date) between date(:startDate) and date(:endDate);\n";
+		        + "having ((\n"
+		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) > 30)\n"
+		        + "and\n"
+		        + "((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
+		        + "and\n"
+		        + "(date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))\n"
+		        + "or (date(d.effective_disc_date) < date(:startDate) and d.discontinuation_reason =5240))) t\n"
+		        + "inner join kenyaemr_etl.etl_patient_hiv_followup r on r.patient_id=t.patient_id and date(r.visit_date) between date(:startDate) and date(:endDate);";
 		
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("LTFU_RTC");
