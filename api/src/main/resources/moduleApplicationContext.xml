@@ -67,6 +67,7 @@
         <property name="commonReports">
             <set>
                 <ref bean="kenyaemrextras.common.report.weeklysurge"/>
+                <ref bean="kenyaemrextras.common.report.monthlySurgeReport"/>
             </set>
         </property>
     </bean>
@@ -75,6 +76,17 @@
         <property name="targetUuid" value="d8244ec6-3663-4ebc-8db5-7bb09b83aad7" />
         <property name="name" value="Weekly LEAP (Surge) Report" />
         <property name="description" value="A weekly report on LEAP (Surge) indicators" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set></property>
+        <property name="template" value="kenyaemr:moh731.xls" />
+    </bean>
+
+    <bean id="kenyaemr.common.report.monthlySurgeReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="5f52fc9d-09f3-4dd9-ba9b-d4060df0408a" />
+        <property name="name" value="Monthly LEAP (Surge) Report" />
+        <property name="description" value="A monthly report on LEAP (Surge) linelist" />
         <property name="apps">
             <set>
                 <ref bean="kenyaemr.app.reports" />
