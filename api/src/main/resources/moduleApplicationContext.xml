@@ -83,7 +83,7 @@
         <property name="template" value="kenyaemr:moh731.xls" />
     </bean>
 
-    <bean id="kenyaemr.common.report.monthlySurgeReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+    <bean id="kenyaemrextras.common.report.monthlySurgeReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="5f52fc9d-09f3-4dd9-ba9b-d4060df0408a" />
         <property name="name" value="Monthly LEAP (Surge) Report" />
         <property name="description" value="A monthly report on LEAP (Surge) linelist" />
@@ -91,6 +91,7 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-        <property name="template" value="kenyaemr:moh731.xls" />
+        <property name="template" value="kenyaemrextras:surgeTemplate.xls" />
+        <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients " />
     </bean>
 </beans>
