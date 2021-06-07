@@ -20,6 +20,8 @@ import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
 import org.openmrs.module.kenyaemr.Dictionary;
+import org.openmrs.module.kenyaemr.calculation.library.NumberOfDaysLateCalculation;
+import org.openmrs.module.kenyaemr.calculation.library.TelephoneNumberCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.hiv.BMIAtLastVisitCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.hiv.IPTOutcomeCalculation;
@@ -37,6 +39,7 @@ import org.openmrs.module.kenyaemr.calculation.library.hiv.art.ViralLoadResultCa
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.DateOfDeathCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.DateOfLastCTXCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.PatientCheckOutStatusCalculation;
+import org.openmrs.module.kenyaemr.calculation.library.rdqa.PatientProgramEnrollmentCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.ValueAtDateOfOtherPatientCalculationCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.VisitsForAPatientCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.rdqa.WeightAtArtStartDateCalculation;
@@ -50,12 +53,15 @@ import org.openmrs.module.kenyaemr.reporting.calculation.converter.IPTOutcomeDat
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.ObsDatetimeConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.ObsValueDatetimeConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.ObsValueNumericConverter;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.PatientProgramEnrollmentConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.RDQACalculationResultConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.RDQASimpleObjectRegimenConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.WHOStageDataConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.WeightConverter;
+import org.openmrs.module.kenyaemr.reporting.cohort.definition.ANCRegisterCohortDefinition;
 import org.openmrs.module.kenyaemr.reporting.cohort.definition.RDQAActiveCohortDefinition;
 import org.openmrs.module.kenyaemr.reporting.cohort.definition.RDQACohortDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.CalculationResultConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.CalculationResultDateYYMMDDConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.TBScreeningConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.TBScreeningAtLastVisitDataDefinition;
@@ -66,6 +72,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.MonthlySurg
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.MonthlySurgeTxCurrCohortDefinition;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
+import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.TimeQualifier;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.BirthdateConverter;
@@ -94,99 +101,64 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-@Builds({ "kenyaemr.common.report.monthlySurgeReport" })
+@Builds({ "kenyaemrextras.common.report.monthlySurgeReport" })
 public class MonthlySurgeReportBuilder extends AbstractHybridReportBuilder {
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	
-	@Autowired
-	private RDQAIndicatorLibrary rdqa;
-	
-	@Autowired
-	private ETLPmtctIndicatorLibrary pmtctIndicators;
-	
-	@Autowired
-	private ETLMoh731IndicatorLibrary hivIndicators;
-	
-	/**
-	 * @see org.openmrs.module.kenyacore.report.builder.AbstractCohortReportBuilder#addColumns(org.openmrs.module.kenyacore.report.CohortReportDescriptor,
-	 *      org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition)
-	 */
-	@Override
-	protected void addColumns(HybridReportDescriptor report, PatientDataSetDefinition dsd) {
-		
-		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
-		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
-		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
-		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
-		        upn.getName(), upn), identifierFormatter);
-		
-		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
-		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
-		dsd.setName("TX_CURR");
-		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-		dsd.addColumn("Name", nameDef, "");
-		dsd.addColumn("Unique Patient No", identifierDef, "");
-		dsd.addColumn("Sex", new GenderDataDefinition(), "", new GenderConverter());
-		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-		dsd.addColumn("Art Start Date",
-		    new CalculationDataDefinition("Art Start Date", new InitialArtStartDateCalculation()), "",
-		    new DateArtStartDateConverter());
-		dsd.addColumn(
-		    "Current WHO Stage",
-		    new ObsForPersonDataDefinition("Last WHO Stage", TimeQualifier.LAST, Dictionary
-		            .getConcept(Dictionary.CURRENT_WHO_STAGE), null, null), "", new WHOStageDataConverter());
-		dsd.addColumn("Current Regimen",
-		    new CalculationDataDefinition("Current Regimen", new CurrentArtRegimenCalculation()), "", null);
-		dsd.addColumn("Next Appointment Date", new ObsForPersonDataDefinition("Next Appointment Date", TimeQualifier.LAST,
-		        Dictionary.getConcept(Dictionary.RETURN_VISIT_DATE), null, null), "", new ObsValueDatetimeConverter());
-		
-	}
-	
 	@Override
 	protected Mapped<CohortDefinition> buildCohort(HybridReportDescriptor descriptor, PatientDataSetDefinition dsd) {
-		CohortDefinition cd = new MonthlySurgeTxCurrCohortDefinition();
-		cd.setName("TX CURR Patients");
-		return ReportUtils.map(cd, "");
+		return activePatientsCohort();
 	}
 	
-	protected Mapped<CohortDefinition> txCurrPatientsCohort() {
+	protected Mapped<CohortDefinition> activePatientsCohort() {
 		CohortDefinition cd = new MonthlySurgeTxCurrCohortDefinition();
-		cd.setName("TX Curr Patients");
-		return ReportUtils.map(cd, "");
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("txCurrPatients");
+		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
 	}
 	
-	protected Mapped<CohortDefinition> ltfuRecentCohort() {
+	protected Mapped<CohortDefinition> ltfuRecentPatientsCohort() {
 		CohortDefinition cd = new MonthlySurgeLtfuCohortDefinition();
-		cd.setName("LTFU Recent Patients");
-		return ReportUtils.map(cd, "");
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("ltfuRecentPatients");
+		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
 	}
 	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
 		
-		PatientDataSetDefinition tx_curr = txCurrDataSetDefinition("TX_CURR");
-		tx_curr.addRowFilter(txCurrPatientsCohort());
-		DataSetDefinition txCurrDSD = tx_curr;
+		PatientDataSetDefinition activePatients = activePatientsDataSetDefinition();
+		activePatients.addRowFilter(activePatientsCohort());
+		DataSetDefinition activePatientsDSD = activePatients;
 		
-		PatientDataSetDefinition ltfuRecentPatients = ltfuRecentDataSetDefinition("LTFU_RECENT");
-		ltfuRecentPatients.addRowFilter(ltfuRecentCohort());
-		DataSetDefinition ltfuPatientsDSD = ltfuRecentPatients;
+		PatientDataSetDefinition ltfuRecentPatients = ltfuRecentPatientsDataSetDefinition();
+		ltfuRecentPatients.addRowFilter(ltfuRecentPatientsCohort());
+		DataSetDefinition ltfuRecentPatientsDSD = ltfuRecentPatients;
 		
-		return Arrays.asList(ReportUtils.map(txCurrDSD, ""), ReportUtils.map(ltfuPatientsDSD, ""));
+		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(ltfuRecentPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
 	}
 	
-	protected PatientDataSetDefinition txCurrDataSetDefinition(String datasetName) {
-		
-		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+	@Override
+	protected List<Parameter> getParameters(ReportDescriptor reportDescriptor) {
+		return Arrays.asList(new Parameter("startDate", "Start Date", Date.class), new Parameter("endDate", "End Date",
+		        Date.class), new Parameter("dateBasedReporting", "", String.class));
+	}
+	
+	protected PatientDataSetDefinition activePatientsDataSetDefinition() {
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition("txCurrPatients");
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		String defParam = "startDate=${startDate}";
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-		
-		Concept startIptConcept = Dictionary.getConcept("1265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		Concept iptOutcomeConcept = Dictionary.getConcept("160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
@@ -207,14 +179,12 @@ public class MonthlySurgeReportBuilder extends AbstractHybridReportBuilder {
 		return dsd;
 	}
 	
-	protected PatientDataSetDefinition ltfuRecentDataSetDefinition(String datasetName) {
-		
-		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
-		
+	protected PatientDataSetDefinition ltfuRecentPatientsDataSetDefinition() {
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition("ltfuRecentPatients");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		Concept startIptConcept = Dictionary.getConcept("1265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		String defParam = "startDate=${startDate}";
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
@@ -228,6 +198,9 @@ public class MonthlySurgeReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Unique Patient No", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", new GenderConverter());
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		dsd.addColumn("Art Start Date",
+		    new CalculationDataDefinition("Art Start Date", new InitialArtStartDateCalculation()), "",
+		    new DateArtStartDateConverter());
 		dsd.addColumn("Current Regimen",
 		    new CalculationDataDefinition("Current Regimen", new CurrentArtRegimenCalculation()), "", null);
 		dsd.addColumn("Next Appointment Date", new CalculationDataDefinition("Next Appointment Date",
@@ -236,5 +209,4 @@ public class MonthlySurgeReportBuilder extends AbstractHybridReportBuilder {
 		
 		return dsd;
 	}
-	
 }
