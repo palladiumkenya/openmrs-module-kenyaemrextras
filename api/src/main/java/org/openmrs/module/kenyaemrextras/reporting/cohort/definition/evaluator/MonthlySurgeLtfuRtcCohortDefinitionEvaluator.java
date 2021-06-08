@@ -13,12 +13,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyaemr.api.KenyaEmrService;
-import org.openmrs.module.kenyaemr.metadata.RDQAMetadata;
-import org.openmrs.module.kenyaemr.reporting.cohort.definition.RDQACohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.MonthlySurgeLtfuCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.MonthlySurgeTxCurrCohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.MonthlySurgeLtfuRtcCohortDefinition;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.evaluator.CohortDefinitionEvaluator;
@@ -28,19 +24,15 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
- * Evaluator for patients eligible for LTFU Monthly Surge
+ * Evaluator for patients eligible for LTFU Rtc Monthly Surge
  */
-@Handler(supports = { MonthlySurgeLtfuCohortDefinition.class })
-public class MonthlySurgeLtfuCohortDefinitionEvaluator implements CohortDefinitionEvaluator {
+@Handler(supports = { MonthlySurgeLtfuRtcCohortDefinition.class })
+public class MonthlySurgeLtfuRtcCohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -50,11 +42,10 @@ public class MonthlySurgeLtfuCohortDefinitionEvaluator implements CohortDefiniti
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
 		
-		MonthlySurgeLtfuCohortDefinition definition = (MonthlySurgeLtfuCohortDefinition) cohortDefinition;
+		MonthlySurgeLtfuRtcCohortDefinition definition = (MonthlySurgeLtfuRtcCohortDefinition) cohortDefinition;
 		if (definition == null)
 			return null;
-		
-		String qry = " select t.patient_id\n"
+		String qry = "select t.patient_id\n"
 		        + "from(\n"
 		        + "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
 		        + "greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
@@ -76,10 +67,14 @@ public class MonthlySurgeLtfuCohortDefinitionEvaluator implements CohortDefiniti
 		        + ") d on d.patient_id = fup.patient_id\n"
 		        + "where fup.visit_date <= date(:endDate)\n"
 		        + "group by patient_id\n"
-		        + "having (\n"
-		        + "(datediff(:endDate, date(latest_tca)) between 31 and 62)\n"
-		        + "and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
-		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))) t;\n";
+		        + "having ((\n"
+		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) > 30)\n"
+		        + "and\n"
+		        + "((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
+		        + "and\n"
+		        + "(date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))\n"
+		        + "or (date(d.effective_disc_date) < date(:startDate) and d.discontinuation_reason =5240))) t\n"
+		        + "inner join kenyaemr_etl.etl_patient_hiv_followup r on r.patient_id=t.patient_id and date(r.visit_date) between date(:startDate) and date(:endDate);";
 		
 		Cohort newCohort = new Cohort();
 		SqlQueryBuilder builder = new SqlQueryBuilder();
