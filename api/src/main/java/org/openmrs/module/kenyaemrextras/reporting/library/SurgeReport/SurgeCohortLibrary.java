@@ -186,7 +186,7 @@ public class SurgeCohortLibrary {
 		        + "where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
 		        + "group by patient_id\n"
 		        + ") d on d.patient_id = fup.patient_id\n"
-		        + "where fup.visit_date <= date(:endDate)\n"
+		        + "where fup.visit_date <= date(:startDate)\n"
 		        + "group by patient_id\n"
 		        + "having ((\n"
 		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) > 30)\n"
