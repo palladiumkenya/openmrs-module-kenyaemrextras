@@ -92,6 +92,6 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:surgeTemplate.xls" />
-        <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients " />
+        <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients | sheet:3,row:4,dataset:ltfuRtcPatients | sheet:4,row:4,dataset:newArtPatients" />
     </bean>
 </beans>
