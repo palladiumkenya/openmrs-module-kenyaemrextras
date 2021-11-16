@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAWeightDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates nutrition assessment Data Definition
+ * Evaluates DQA weight Data Definition
  */
-@Handler(supports = LastNutritionAssessmentDataDefinition.class, order = 50)
-public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQAWeightDataDefinition.class, order = 50)
+public class DQAWeightDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,13 +36,8 @@ public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select fup.patient_id,\n"
-		        + "case mid(max(concat(fup.visit_date, fup.nutritional_status)), 11)\n"
-		        + "              when 1115 then \"Normal\"\n"
-		        + "              when 163302 then \"Severe acute malnutrition\"\n"
-		        + "              when 163303 then \"Moderate acute malnutrition\"\n"
-		        + "              when 114413 then \"Overweight/Obese\"\n"
-		        + "              else \"\" end as nutrition_assessment from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
+		String qry = "select fup.patient_id,\n" + " mid(max(concat(fup.visit_date, fup.weight)), 11) as weight "
+		        + " from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
 		        + "\tGROUP BY fup.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();

@@ -20,6 +20,7 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -35,15 +36,21 @@ public class LastDSDModelDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select fup.patient_id,\n" + "case mid(max(concat(fup.visit_date, fup.differentiated_care)), 11)\n"
-		        + "              when 164942 then \"Standard Care\"\n" + "              when 164943 then \"Fast Track\"\n"
+		String qry = "select fup.patient_id,\n"
+		        + "case mid(max(concat(fup.visit_date, fup.differentiated_care)), 11)\n"
+		        + "              when 164942 then \"Standard Care\"\n"
+		        + "              when 164943 then \"Fast Track\"\n"
 		        + "              when 164944 then \"Community ART Distribution - HCW Led\"\n"
 		        + "              when 164945 then \"Community ART Distribution - Peer Led\"\n"
 		        + "              when 164946 then \"Facility ART Distribution Group\"\n"
-		        + "              else \"\" end as dsd from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "              else \"\" end as dsd from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
 		        + "\tGROUP BY fup.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
+		Date startDate = (Date) context.getParameterValue("startDate");
+		Date endDate = (Date) context.getParameterValue("endDate");
+		queryBuilder.addParameter("endDate", endDate);
+		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);

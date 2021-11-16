@@ -15,6 +15,7 @@ import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyaemr.api.KenyaEmrService;
+import org.openmrs.module.kenyaemrextras.reporting.PersistedCohort;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAActiveCohortDefinition;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -146,25 +147,28 @@ public class DQAActiveCohortDefinitionEvaluator implements CohortDefinitionEvalu
 		
 		m.put("startDate", startDate);
 		TreeMap<Double, Integer> pmtctMap = (TreeMap<Double, Integer>) makePatientDataMapFromSQL(pmtctQry, m);
-		
+		Map<Integer, String> buildingCohort = new HashMap<Integer, String>();
 		if (pedsMap != null) {
 			for (Double rand : pedsMap.keySet()) {
 				newCohort.addMember(pedsMap.get(rand));
+				buildingCohort.put(pedsMap.get(rand), "Child below 15");
 			}
 		}
 		
 		if (generalPopMap != null) {
 			for (Double rand : generalPopMap.keySet()) {
 				newCohort.addMember(generalPopMap.get(rand));
+				buildingCohort.put(generalPopMap.get(rand), "Adult above 14");
 			}
 		}
 		
 		if (pmtctMap != null) {
 			for (Double rand : pmtctMap.keySet()) {
 				newCohort.addMember(pmtctMap.get(rand));
+				buildingCohort.put(pmtctMap.get(rand), "PMTCT");
 			}
 		}
-		
+		PersistedCohort.evaluatedCohort = buildingCohort;
 		return new EvaluatedCohort(newCohort, definition, context);
 	}
 	

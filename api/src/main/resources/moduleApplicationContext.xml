@@ -105,6 +105,6 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
-        <property name="repeatingSection" value="sheet:1,row:9,dataset:activePatients" />
+        <property name="repeatingSection" value="sheet:1,row:9,dataset:activePatients | sheet:2,row:9,dataset:activePatientsDqa" />
     </bean>
 </beans>
