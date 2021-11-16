@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACurrentRegimenDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates nutrition assessment Data Definition
+ * Evaluates current regimen Data Definition
  */
-@Handler(supports = LastNutritionAssessmentDataDefinition.class, order = 50)
-public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQACurrentRegimenDataDefinition.class, order = 50)
+public class DQACurrentRegimenDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,14 +36,9 @@ public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select fup.patient_id,\n"
-		        + "case mid(max(concat(fup.visit_date, fup.nutritional_status)), 11)\n"
-		        + "              when 1115 then \"Normal\"\n"
-		        + "              when 163302 then \"Severe acute malnutrition\"\n"
-		        + "              when 163303 then \"Moderate acute malnutrition\"\n"
-		        + "              when 114413 then \"Overweight/Obese\"\n"
-		        + "              else \"\" end as nutrition_assessment from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
-		        + "\tGROUP BY fup.patient_id;";
+		String qry = "select d.patient_id, mid(max(concat(d.date_started, d.regimen)), 11) as regimenName\n"
+		        + "\t from kenyaemr_etl.etl_drug_event d\n"
+		        + "\t where d.program='HIV' and date(d.date_started) <= date(:endDate)\n" + "\t group by d.patient_id ";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

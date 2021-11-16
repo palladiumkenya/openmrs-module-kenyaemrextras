@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQALastVisitDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -26,8 +26,8 @@ import java.util.Map;
 /**
  * Evaluates nutrition assessment Data Definition
  */
-@Handler(supports = LastNutritionAssessmentDataDefinition.class, order = 50)
-public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQALastVisitDataDefinition.class, order = 50)
+public class DQALastVisitDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,12 +37,7 @@ public class LastNutritionAssessmentDataEvaluator implements PersonDataEvaluator
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select fup.patient_id,\n"
-		        + "case mid(max(concat(fup.visit_date, fup.nutritional_status)), 11)\n"
-		        + "              when 1115 then \"Normal\"\n"
-		        + "              when 163302 then \"Severe acute malnutrition\"\n"
-		        + "              when 163303 then \"Moderate acute malnutrition\"\n"
-		        + "              when 114413 then \"Overweight/Obese\"\n"
-		        + "              else \"\" end as nutrition_assessment from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
+		        + "           max(date(fup.visit_date)) as last_visit_date from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
 		        + "\tGROUP BY fup.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
