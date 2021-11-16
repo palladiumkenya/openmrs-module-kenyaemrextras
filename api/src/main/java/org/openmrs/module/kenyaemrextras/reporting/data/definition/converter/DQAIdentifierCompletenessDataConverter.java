@@ -26,11 +26,11 @@ public class DQAIdentifierCompletenessDataConverter implements DataConverter {
 			return "No";
 		}
 		List<Object> idList = (List<Object>) obj;
-		System.out.print("List 1: " + idList.get(0));
+		String val = null;
+		if (idList != null && idList.get(0) != null) {
+			val = String.valueOf(idList.get(0));
+		}
 		
-		String val = String.valueOf(obj);
-		System.out.print("Idnentifier: " + val);
-		System.out.println(", Idnentifier: " + val.length());
 		if (StringUtils.isBlank(val)) {
 			return "No";
 		}
