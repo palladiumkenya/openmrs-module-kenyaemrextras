@@ -37,7 +37,7 @@ public class LastAppointmentPeriodDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select fup.patient_id,\n"
-		        + "TIMESTAMPDIFF(MONTH, left(max(concat(fup.visit_date,fup.next_appointment_date)),10) ,mid(max(concat(fup.visit_date,fup.next_appointment_date)),11)) as appointment_duration "
+		        + "TIMESTAMPDIFF(DAY, left(max(concat(fup.visit_date,fup.next_appointment_date)),10) ,mid(max(concat(fup.visit_date,fup.next_appointment_date)),11)) as appointment_duration "
 		        + " from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate) \n"
 		        + "\tGROUP BY fup.patient_id;";
 		
