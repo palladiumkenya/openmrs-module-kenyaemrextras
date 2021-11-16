@@ -10,24 +10,24 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.PersistedCohort;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACohortCategoryDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
-import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Evaluates ever on IPT Data Definition
+ * Evaluates cohort category Data Definition
  */
-@Handler(supports = EverOnIPTDataDefinition.class, order = 50)
-public class EverOnIptDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQACohortCategoryDataDefinition.class, order = 50)
+public class DQACohortCategoryDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,20 +36,13 @@ public class EverOnIptDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select fup.patient_id,\n" + "case mid(max(concat(fup.visit_date, fup.ever_on_ipt)), 11)\n"
-		        + "              when 1065 then 'Yes'\n" + "              when 1066 then 'No'\n"
-		        + "              else '' end as ipt_initiated from kenyaemr_etl.etl_patient_hiv_followup fup "
-		        + " where date(fup.visit_date) <= date(:endDate)\n" + "\tGROUP BY fup.patient_id;";
+		Map<String, Object> m = new HashMap<String, Object>();
+		Map<Integer, Object> data = new HashMap<Integer, Object>();
 		
-		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
+		for (Map.Entry<Integer, String> entry : PersistedCohort.evaluatedCohort.entrySet()) {
+			data.put(entry.getKey(), entry.getValue());
+		}
 		
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
-		
-		queryBuilder.append(qry);
-		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);
 		return c;
 	}
