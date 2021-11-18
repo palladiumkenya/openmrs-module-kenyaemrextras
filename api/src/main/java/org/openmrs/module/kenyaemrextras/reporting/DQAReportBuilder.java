@@ -33,9 +33,11 @@ import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQA
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
+import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.BirthdateConverter;
 import org.openmrs.module.reporting.data.converter.DataConverter;
+import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
@@ -134,6 +136,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
 		
 		DQAWeightDataDefinition weightDataDefinition = new DQAWeightDataDefinition();
 		weightDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -217,6 +220,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", new DQADefaultYesDataConverter());
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new DQADefaultYesDataConverter());
+		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
 		
 		DQAWeightDataDefinition weightDataDefinition = new DQAWeightDataDefinition();
 		weightDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -267,7 +271,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
+		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams,
+		    new DQADefaultDataCompletenessDataConverter());
 		
 		DQALastVisitDataDefinition lastVisitDateDataDefinition = new DQALastVisitDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
