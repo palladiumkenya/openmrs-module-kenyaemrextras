@@ -81,7 +81,6 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-        <property name="template" value="kenyaemr:moh731.xls" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.monthlySurgeReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">

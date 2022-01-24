@@ -76,7 +76,7 @@ public class SurgeReportBuilder extends AbstractReportBuilder {
 	 */
 	protected DataSetDefinition careAndTreatmentDataSet() {
 		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
-		cohortDsd.setName("3");
+		cohortDsd.setName("WeeklySurge");
 		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cohortDsd.addDimension("age", ReportUtils.map(commonDimensions.datimFineAgeGroups(), "onDate=${endDate}"));
