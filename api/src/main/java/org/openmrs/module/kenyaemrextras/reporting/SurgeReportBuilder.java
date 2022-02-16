@@ -72,8 +72,9 @@ public class SurgeReportBuilder extends AbstractReportBuilder {
 	/**
 	 * Creates the dataset for section #3: Care and Treatment
 	 * 
-	 * @return the dataset
+	 * @return the dataset here
 	 */
+
 	protected DataSetDefinition careAndTreatmentDataSet() {
 		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
 		cohortDsd.setName("WeeklySurge");
