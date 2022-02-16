@@ -121,8 +121,7 @@ public class SurgeCohortLibrary {
 	 */
 	public CohortDefinition ltfuRecent() {
 		
-		String sqlQuery = " select t.patient_id\n"
-		        + "from(\n"
+		String sqlQuery = " select t.patient_id from(\n"
 		        + "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
 		        + "greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
 		        + "greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
@@ -141,12 +140,11 @@ public class SurgeCohortLibrary {
 		        + "where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
 		        + "group by patient_id\n"
 		        + ") d on d.patient_id = fup.patient_id\n"
-		        + "where fup.visit_date <= date(:endDate)\n"
+		        + "where fup.visit_date <= date(:endDate) and (datediff(:endDate, date(greatest(fup.next_appointment_date, ifnull(d.visit_date,'0000-00-00')))) between 31 and 37)\n"
 		        + "group by patient_id\n"
 		        + "having (\n"
-		        + "(datediff(:endDate, date(latest_tca)) between 31 and 37)\n"
-		        + "and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
-		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))) t;\n";
+		        + "((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
+		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))) t;";
 		
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("LTFU_Recent");
