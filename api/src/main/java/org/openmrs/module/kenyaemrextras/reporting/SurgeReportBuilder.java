@@ -72,7 +72,7 @@ public class SurgeReportBuilder extends AbstractReportBuilder {
 	/**
 	 * Creates the dataset for section #3: Care and Treatment
 	 * 
-	 * @return the dataset
+	 * @return The dataset
 	 */
 
 	protected DataSetDefinition careAndTreatmentDataSet() {
