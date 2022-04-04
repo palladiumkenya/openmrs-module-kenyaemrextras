@@ -68,6 +68,7 @@
             <set>
                 <ref bean="kenyaemrextras.common.report.weeklysurge"/>
                 <ref bean="kenyaemrextras.common.report.monthlySurgeReport"/>
+                <ref bean="kenyaemr.extras.report.dqaReport"/>
             </set>
         </property>
     </bean>
@@ -80,7 +81,6 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-        <property name="template" value="kenyaemr:moh731.xls" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.monthlySurgeReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
@@ -93,5 +93,17 @@
             </set></property>
         <property name="template" value="kenyaemrextras:surgeTemplate.xls" />
         <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients | sheet:3,row:4,dataset:ltfuRtcPatients | sheet:4,row:4,dataset:newArtPatients" />
+    </bean>
+
+    <bean id="kenyaemr.extras.report.dqaReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="80bdfe91-10fc-49d3-86c5-f3898c496219" />
+        <property name="name" value="DQA Report (2021)" />
+        <property name="description" value="A report for DQA" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set></property>
+        <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
+        <property name="repeatingSection" value="sheet:1,row:9,dataset:activePatients | sheet:2,row:9,dataset:activePatientsDqa" />
     </bean>
 </beans>
