@@ -19,7 +19,7 @@ jobs:
         script: |
           git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras      
           cd /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras
-          git pull origin master
+          git pull origin 1.0.6
           git status
           mvn clean install -DskipTests
           sudo rm -rf /var/lib/OpenMRS/modules/kenyaemrextras-*.omod 
