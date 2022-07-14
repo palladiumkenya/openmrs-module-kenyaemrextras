@@ -13,6 +13,8 @@ import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.stereotype.Component;
+import org.openmrs.module.kenyacore.report.ReportUtils;
+import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 
 import java.util.Date;
 
@@ -152,52 +154,122 @@ public class SurgeCohortLibrary {
 	}
 	
 	/**
-	 * returns a list of those who returned to care but were previously LTFU during the reporting
-	 * period
+	 * Returns a list of those who returned to care within the reporting period (between Last Sunday
+	 * of the reporting date and the reporting date) after previously being LTFU
 	 * 
 	 * @return
 	 */
 	public CohortDefinition ltfuRTC() {
-		
-		String sqlQuery = "select t.patient_id\n"
-		        + "from(\n"
-		        + "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
-		        + "greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
-		        + "greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
-		        + "greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
-		        + "d.patient_id as disc_patient,\n"
-		        + "d.effective_disc_date as effective_disc_date,\n"
-		        + "max(d.visit_date) as date_discontinued,\n"
-		        + "d.discontinuation_reason,\n"
-		        + "de.patient_id as started_on_drugs\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
-		        + "join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
-		        + "left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and date(date_started) <= date(curdate())\n"
-		        + "left outer JOIN\n"
-		        + "(select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date,discontinuation_reason from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
-		        + "group by patient_id\n"
-		        + ") d on d.patient_id = fup.patient_id\n"
-		        + "where fup.visit_date <= date(:startDate)\n"
-		        + "group by patient_id\n"
-		        + "having ((\n"
-		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) > 30)\n"
-		        + "and\n"
-		        + "((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
-		        + "and\n"
-		        + "(date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null))\n"
-		        + "or (date(d.effective_disc_date) < date(:startDate) and d.discontinuation_reason =5240))) t\n"
-		        + "inner join kenyaemr_etl.etl_patient_hiv_followup r on r.patient_id=t.patient_id and date(r.visit_date) between date(:startDate) and date(:endDate);";
-		
+		CompositionCohortDefinition cd = new CompositionCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.addSearch("patientsWithHIVVisitWithinReportingPeriod",
+		    ReportUtils.map(patientsWithHIVVisitWithinReportingPeriod(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("ltfuBeforeLastLastSundayOfPeriod",
+		    ReportUtils.map(ltfuBeforeLastLastSundayOfPeriod(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("patientsDiscWithinPeriodFutureDiscDate",
+		    ReportUtils.map(patientsDiscWithinPeriodFutureDiscDate(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("ltfuBeforeLastLastSundayOfPeriod AND (patientsWithHIVVisitWithinReportingPeriod OR patientsDiscWithinPeriodFutureDiscDate)");
+		return cd;
+	}
+	
+	/**
+	 * Returns a list of patients who had HIV follow-up visit between last Sunday and reporting date
+	 * 
+	 * @return
+	 */
+	public CohortDefinition patientsWithHIVVisitWithinReportingPeriod() {
+		String sqlQuery = "select f.patient_id from kenyaemr_etl.etl_patient_hiv_followup f where date(f.visit_date) between date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY)\n"
+		        + "    and date(:endDate);";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		cd.setName("LTFU_RTC");
+		cd.setName("patientsWithHIVVisit");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("Patients who were previously lost to followup and returned to care during the reporting week.");
+		cd.setDescription("Patients who had HIV follow-up visit between last Sunday and reporting date");
 		return cd;
-		
+	}
+	
+	/**
+	 * Returns a list of patients who were LTFU before reporting period and came for discontinuation
+	 * (like Transfer Out) but were given a future effective disc date
+	 * 
+	 * @return
+	 */
+	public CohortDefinition patientsDiscWithinPeriodFutureDiscDate() {
+		String sqlQuery = "select d.patient_id from kenyaemr_etl.etl_patient_program_discontinuation d where date(d.visit_date) between date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY)\n"
+		        + "      and date(:endDate) and date(d.effective_discontinuation_date) > date(:endDate);";
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		cd.setName("patientsDiscWithinPeriodFutureDiscDate");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("Patients disc within period with future effective disc date");
+		return cd;
+	}
+	
+	/**
+	 * Returns a list of those who were LTFU as of last Sunday with reference to report end date
+	 * Compares with LTFU with date range report bt here there is no start date and end date is
+	 * strictly last Sunday of the reporting period
+	 * 
+	 * @return
+	 */
+	public CohortDefinition ltfuBeforeLastLastSundayOfPeriod() {
+		String sqlQuery = "select t.patient_id\n" +
+				"        from (\n" +
+				"        select fup.visit_date,\n" +
+				"        date(d.visit_date),\n" +
+				"        fup.patient_id,\n" +
+				"        max(e.visit_date)                                               as enroll_date,\n" +
+				"        greatest(max(e.visit_date),\n" +
+				"                 ifnull(max(date(e.transfer_in_date)), '0000-00-00'))   as latest_enrolment_date,\n" +
+				"        greatest(max(fup.visit_date),\n" +
+				"                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_vis_date,\n" +
+				"        max(fup.visit_date)                                             as max_fup_vis_date,\n" +
+				"        greatest(mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11),\n" +
+				"                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_tca,\n" +
+				"        mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_fup_tca,\n" +
+				"        date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY ) as last_sunday,\n" +
+				"        d.patient_id                                                    as disc_patient,\n" +
+				"        d.effective_disc_date                                           as effective_disc_date,\n" +
+				"        d.visit_date                                                    as date_discontinued,\n" +
+				"        d.discontinuation_reason,\n" +
+				"        de.patient_id                                                   as started_on_drugs\n" +
+				"        from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
+				"          join kenyaemr_etl.etl_patient_demographics p on p.patient_id = fup.patient_id\n" +
+				"          join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id = e.patient_id\n" +
+				"          left outer join kenyaemr_etl.etl_drug_event de\n" +
+				"                          on e.patient_id = de.patient_id and de.program = 'HIV' and\n" +
+				"                             date(date_started) <= date(curdate())\n" +
+				"          left outer JOIN\n" +
+				"        (select patient_id,\n" +
+				"              coalesce(max(date(effective_discontinuation_date)), max(date(visit_date))) as visit_date,\n" +
+				"              max(date(effective_discontinuation_date))                                  as effective_disc_date,\n" +
+				"              discontinuation_reason\n" +
+				"        from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"        where date(visit_date) <= date(:endDate)\n" +
+				"         and program_name = 'HIV'\n" +
+				"        group by patient_id\n" +
+				"        ) d on d.patient_id = fup.patient_id\n" +
+				"        where fup.visit_date <= date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY)\n" +
+				"        group by patient_id\n" +
+				"        having (\n" +
+				"                (timestampdiff(DAY, date(latest_fup_tca), date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )) > 30) and\n" +
+				"                (\n" +
+				"                        (date(enroll_date) >= date(d.visit_date) and\n" +
+				"                         date(max_fup_vis_date) >= date(d.visit_date) and\n" +
+				"                         date(latest_fup_tca) > date(d.visit_date))\n" +
+				"                        or disc_patient is null\n" +
+				"                        or (date(d.visit_date) < date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )\n" +
+				"                                and d.discontinuation_reason = 5240))))t;";
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		cd.setName("ltfuBeforeLastLastSundayOfPeriod");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("Patients who were LTFU as of last Sunday with reference to report end date");
+		return cd;
 	}
 	
 }
