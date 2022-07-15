@@ -95,7 +95,7 @@ public class SurgeReportBuilder extends AbstractReportBuilder {
 		EmrReportingUtils.addRow(cohortDsd, "TX_CURR", "Adults and Children with HIV infection receiving ART",
 		    ReportUtils.map(datimIndicators.currentlyOnArt(), indParams), disaggregation, Arrays.asList("25"));
 		
-		EmrReportingUtils.addRow(cohortDsd, "LTFU_RECENT", "LTFU in the previous reporting period",
+		EmrReportingUtils.addRow(cohortDsd, "LTFU_RECENT", "LTFU within the reporting period",
 		    ReportUtils.map(datimIndicators.ltfuRecent(), indParams), disaggregation, Arrays.asList("01"));
 		
 		EmrReportingUtils.addRow(cohortDsd, "LTFU_RTC", "LTFU returned to care during the reporting period",
