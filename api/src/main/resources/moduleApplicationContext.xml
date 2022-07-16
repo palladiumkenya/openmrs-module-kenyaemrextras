@@ -69,6 +69,7 @@
                 <ref bean="kenyaemrextras.common.report.weeklysurge"/>
                 <ref bean="kenyaemrextras.common.report.monthlySurgeReport"/>
                 <ref bean="kenyaemr.extras.report.dqaReport"/>
+                <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
             </set>
         </property>
     </bean>
