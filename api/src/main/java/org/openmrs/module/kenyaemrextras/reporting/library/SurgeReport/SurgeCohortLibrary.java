@@ -216,53 +216,53 @@ public class SurgeCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition ltfuBeforeLastLastSundayOfPeriod() {
-		String sqlQuery = "select t.patient_id\n" +
-				"        from (\n" +
-				"        select fup.visit_date,\n" +
-				"        date(d.visit_date),\n" +
-				"        fup.patient_id,\n" +
-				"        max(e.visit_date)                                               as enroll_date,\n" +
-				"        greatest(max(e.visit_date),\n" +
-				"                 ifnull(max(date(e.transfer_in_date)), '0000-00-00'))   as latest_enrolment_date,\n" +
-				"        greatest(max(fup.visit_date),\n" +
-				"                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_vis_date,\n" +
-				"        max(fup.visit_date)                                             as max_fup_vis_date,\n" +
-				"        greatest(mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11),\n" +
-				"                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_tca,\n" +
-				"        mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_fup_tca,\n" +
-				"        date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY ) as last_sunday,\n" +
-				"        d.patient_id                                                    as disc_patient,\n" +
-				"        d.effective_disc_date                                           as effective_disc_date,\n" +
-				"        d.visit_date                                                    as date_discontinued,\n" +
-				"        d.discontinuation_reason,\n" +
-				"        de.patient_id                                                   as started_on_drugs\n" +
-				"        from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
-				"          join kenyaemr_etl.etl_patient_demographics p on p.patient_id = fup.patient_id\n" +
-				"          join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id = e.patient_id\n" +
-				"          left outer join kenyaemr_etl.etl_drug_event de\n" +
-				"                          on e.patient_id = de.patient_id and de.program = 'HIV' and\n" +
-				"                             date(date_started) <= date(curdate())\n" +
-				"          left outer JOIN\n" +
-				"        (select patient_id,\n" +
-				"              coalesce(max(date(effective_discontinuation_date)), max(date(visit_date))) as visit_date,\n" +
-				"              max(date(effective_discontinuation_date))                                  as effective_disc_date,\n" +
-				"              discontinuation_reason\n" +
-				"        from kenyaemr_etl.etl_patient_program_discontinuation\n" +
-				"        where date(visit_date) <= date(:endDate)\n" +
-				"         and program_name = 'HIV'\n" +
-				"        group by patient_id\n" +
-				"        ) d on d.patient_id = fup.patient_id\n" +
-				"        where fup.visit_date <= date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY)\n" +
-				"        group by patient_id\n" +
-				"        having (\n" +
-				"                (timestampdiff(DAY, date(latest_fup_tca), date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )) > 30) and\n" +
-				"                (\n" +
-				"                        (date(enroll_date) >= date(d.visit_date) and\n" +
-				"                         date(max_fup_vis_date) >= date(d.visit_date) and\n" +
-				"                         date(latest_fup_tca) > date(d.visit_date))\n" +
-				"                        or disc_patient is null\n" +
-				"                        or (date(d.visit_date) < date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )\n" +
-				"                                and d.discontinuation_reason = 5240))))t;";
+		String sqlQuery = "select t.patient_id\n"
+		        + "        from (\n"
+		        + "        select fup.visit_date,\n"
+		        + "        date(d.visit_date),\n"
+		        + "        fup.patient_id,\n"
+		        + "        max(e.visit_date)                                               as enroll_date,\n"
+		        + "        greatest(max(e.visit_date),\n"
+		        + "                 ifnull(max(date(e.transfer_in_date)), '0000-00-00'))   as latest_enrolment_date,\n"
+		        + "        greatest(max(fup.visit_date),\n"
+		        + "                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_vis_date,\n"
+		        + "        max(fup.visit_date)                                             as max_fup_vis_date,\n"
+		        + "        greatest(mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11),\n"
+		        + "                 ifnull(max(d.visit_date), '0000-00-00'))               as latest_tca,\n"
+		        + "        mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_fup_tca,\n"
+		        + "        date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY ) as last_sunday,\n"
+		        + "        d.patient_id                                                    as disc_patient,\n"
+		        + "        d.effective_disc_date                                           as effective_disc_date,\n"
+		        + "        d.visit_date                                                    as date_discontinued,\n"
+		        + "        d.discontinuation_reason,\n"
+		        + "        de.patient_id                                                   as started_on_drugs\n"
+		        + "        from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "          join kenyaemr_etl.etl_patient_demographics p on p.patient_id = fup.patient_id\n"
+		        + "          join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id = e.patient_id\n"
+		        + "          left outer join kenyaemr_etl.etl_drug_event de\n"
+		        + "                          on e.patient_id = de.patient_id and de.program = 'HIV' and\n"
+		        + "                             date(date_started) <= date(curdate())\n"
+		        + "          left outer JOIN\n"
+		        + "        (select patient_id,\n"
+		        + "              coalesce(max(date(effective_discontinuation_date)), max(date(visit_date))) as visit_date,\n"
+		        + "              max(date(effective_discontinuation_date))                                  as effective_disc_date,\n"
+		        + "              discontinuation_reason\n"
+		        + "        from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "        where date(visit_date) <= date(:endDate)\n"
+		        + "         and program_name = 'HIV'\n"
+		        + "        group by patient_id\n"
+		        + "        ) d on d.patient_id = fup.patient_id\n"
+		        + "        where fup.visit_date <= date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY)\n"
+		        + "        group by patient_id\n"
+		        + "        having (\n"
+		        + "                (timestampdiff(DAY, date(latest_fup_tca), date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )) > 30) and\n"
+		        + "                (\n"
+		        + "                        (date(enroll_date) >= date(d.visit_date) and\n"
+		        + "                         date(max_fup_vis_date) >= date(d.visit_date) and\n"
+		        + "                         date(latest_fup_tca) > date(d.visit_date))\n"
+		        + "                        or disc_patient is null\n"
+		        + "                        or (date(d.visit_date) < date(date(:endDate) - INTERVAL WEEKDAY(date(:endDate)) % 7 + 1 DAY )\n"
+		        + "                                and d.discontinuation_reason = 5240))))t;";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("ltfuBeforeLastLastSundayOfPeriod");
 		cd.setQuery(sqlQuery);
