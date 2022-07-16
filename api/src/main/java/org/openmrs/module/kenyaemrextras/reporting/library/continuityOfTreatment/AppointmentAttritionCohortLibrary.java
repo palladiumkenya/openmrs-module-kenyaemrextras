@@ -28,6 +28,11 @@ import java.util.Date;
 @Component
 public class AppointmentAttritionCohortLibrary {
 	
+	/**
+	 * Total number of appointments within period
+	 * 
+	 * @return
+	 */
 	public CohortDefinition totalAppointments() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
@@ -56,6 +61,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Total number of clients with missed appointments within period
+	 * 
+	 * @return
+	 */
 	public CohortDefinition missedAppointmentsSql() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
@@ -105,7 +115,7 @@ public class AppointmentAttritionCohortLibrary {
 	}
 	
 	/**
-	 * Missed appointment with n days
+	 * SQL for RTC clients within 7 days of missed appointment
 	 * 
 	 * @return
 	 */
@@ -166,6 +176,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Returns booked clients who RTC within 7 days after missed appointment
+	 * 
+	 * @return
+	 */
 	public CohortDefinition rtcWithin7Days() {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -176,6 +191,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * SQL for clients who RTC after between 8 and 30 days after missed appointment
+	 * 
+	 * @return
+	 */
 	public CohortDefinition rtcBetween8And30DaysSql() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
@@ -233,6 +253,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Returns booked clients who RTC after between 8 and 30 days after missed appointment
+	 * 
+	 * @return
+	 */
 	public CohortDefinition rtcBetween8And30Days() {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -244,6 +269,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Returns number of Clients who are LTFU withing the reporting period
+	 * 
+	 * @return
+	 */
 	public CohortDefinition iitOver30Days() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
@@ -296,6 +326,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * SQL for clients who RTC >30 days after missed appointment
+	 * 
+	 * @return
+	 */
 	public CohortDefinition rtcOver30DaysSql() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
@@ -353,6 +388,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Returns booked clients who RTC >30 days after missed appointment
+	 * 
+	 * @return
+	 */
 	public CohortDefinition rtcOver30Days() {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -363,6 +403,11 @@ public class AppointmentAttritionCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Returns number of Clients who are LTFU and yet to RTC as of reporting date
+	 * 
+	 * @return
+	 */
 	public CohortDefinition currentIIT() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select t.patient_id\n"
