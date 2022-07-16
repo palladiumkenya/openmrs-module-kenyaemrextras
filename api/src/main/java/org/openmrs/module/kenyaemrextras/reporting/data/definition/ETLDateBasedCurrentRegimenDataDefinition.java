@@ -15,33 +15,33 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
- *  Last VL Date Data Definition
+ * Current regimen Data Definition
  */
-@Caching(strategy=ConfigurationPropertyCachingStrategy.class)
-public class ETLLastVLDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
-
-    public static final long serialVersionUID = 1L;
-
-    /**
-     * Default Constructor
-     */
-    public ETLLastVLDateDataDefinition() {
-        super();
-    }
-
-    /**
-     * Constructor to populate name only
-     */
-    public ETLLastVLDateDataDefinition(String name) {
-        super(name);
-    }
-
-    //***** INSTANCE METHODS *****
-
-    /**
-     * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
-     */
-    public Class<?> getDataType() {
-        return Double.class;
-    }
+@Caching(strategy = ConfigurationPropertyCachingStrategy.class)
+public class ETLDateBasedCurrentRegimenDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+	
+	public static final long serialVersionUID = 1L;
+	
+	/**
+	 * Default Constructor
+	 */
+	public ETLDateBasedCurrentRegimenDataDefinition() {
+		super();
+	}
+	
+	/**
+	 * Constructor to populate name only
+	 */
+	public ETLDateBasedCurrentRegimenDataDefinition(String name) {
+		super(name);
+	}
+	
+	//***** INSTANCE METHODS *****
+	
+	/**
+	 * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
+	 */
+	public Class<?> getDataType() {
+		return Double.class;
+	}
 }

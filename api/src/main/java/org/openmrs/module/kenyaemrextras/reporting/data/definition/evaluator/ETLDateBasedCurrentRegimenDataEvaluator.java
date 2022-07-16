@@ -12,6 +12,7 @@ package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.AgeAtReportingDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLCurrentRegimenDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedCurrentRegimenDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -27,28 +28,25 @@ import java.util.Map;
 /**
  * Evaluates Current regimen Data Definition date based
  */
-@Handler(supports= ETLCurrentRegimenDataDefinition.class, order=50)
-public class ETLCurrentRegimenDataEvaluator implements PersonDataEvaluator {
-
-    @Autowired
-    private EvaluationService evaluationService;
-
-    public EvaluatedPersonData evaluate(PersonDataDefinition definition, EvaluationContext context) throws EvaluationException {
-        EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
-
-        String qry = "select patient_id,mid(max(concat(visit_date,regimen, \"\" )),11) as regimen from kenyaemr_etl.etl_drug_event\n" +
-                "where program ='HIV' and date(date_started) <= date(:endDate)\n" +
-                "GROUP BY patient_id;";
-
-        SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-        queryBuilder.append(qry);
-        Date endDate = (Date) context.getParameterValue("endDate");
-        queryBuilder.addParameter("endDate", endDate);
-        Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
-        c.setData(data);
-        return c;
-    }
+@Handler(supports = ETLDateBasedCurrentRegimenDataDefinition.class, order = 50)
+public class ETLDateBasedCurrentRegimenDataEvaluator implements PersonDataEvaluator {
+	
+	@Autowired
+	private EvaluationService evaluationService;
+	
+	public EvaluatedPersonData evaluate(PersonDataDefinition definition, EvaluationContext context)
+	        throws EvaluationException {
+		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
+		
+		String qry = "select patient_id,mid(max(concat(visit_date,regimen, \"\" )),11) as regimen from kenyaemr_etl.etl_drug_event\n"
+		        + "where program ='HIV' and date(date_started) <= date(:endDate)\n" + "GROUP BY patient_id;";
+		
+		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
+		queryBuilder.append(qry);
+		Date endDate = (Date) context.getParameterValue("endDate");
+		queryBuilder.addParameter("endDate", endDate);
+		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
+		c.setData(data);
+		return c;
+	}
 }
-
-
-
