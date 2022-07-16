@@ -107,8 +107,7 @@
         <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
         <property name="repeatingSection" value="sheet:1,row:9,dataset:activePatients | sheet:2,row:9,dataset:activePatientsDqa" />
     </bean>
-
-    <bean id="kenyaemrextras.common.report.appointmentAndAttrition" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+    <bean id="kenyaemrextras.common.report.appointmentAndAttrition" class="org.openmrs.module.kenyacore.report.IndicatorReportDescriptor">
         <property name="targetUuid" value="b4a2e43a-4a8b-451a-8a3a-af84bfedec03" />
         <property name="name" value="Appointment and Attrition Report" />
         <property name="description" value="A report on appointments, attrition and return to care details" />
@@ -116,7 +115,7 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-        <property name="template" value="kenyaemrextras:appointments_attrition.xls" />
-        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition | sheet:3,row:6,dataset:missedAppointments | sheet:4,row:6,dataset:missedAppointmentsUnder7DaysRTC | sheet:5,row:6,dataset:missedAppointments8To30DaysRTC | sheet:6,row:6,dataset:missedAppointmentsOver30DaysRTC" />
+<!--        <property name="template" value="kenyaemrextras:surgeTemplate.xls" />
+        <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients | sheet:3,row:4,dataset:ltfuRtcPatients | sheet:4,row:4,dataset:newArtPatients" />-->
     </bean>
 </beans>
