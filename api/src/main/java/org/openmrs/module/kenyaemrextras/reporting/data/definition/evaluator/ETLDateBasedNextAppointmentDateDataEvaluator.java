@@ -11,6 +11,7 @@ package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLNextAppointmentDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedNextAppointmentDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -26,25 +27,27 @@ import java.util.Map;
 /**
  * Evaluates Next Appointment Data Definition
  */
-@Handler(supports= ETLNextAppointmentDateDataDefinition.class, order=50)
-public class ETLNextAppointmentDateDataEvaluator implements PersonDataEvaluator {
-
-    @Autowired
-    private EvaluationService evaluationService;
-
-    public EvaluatedPersonData evaluate(PersonDataDefinition definition, EvaluationContext context) throws EvaluationException {
-        EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
-
-        String qry = "select patient_id,\n" +
-                "date(mid(max(concat(visit_date,next_appointment_date, \"\" )),11)) as next_appointment_date from kenyaemr_etl.etl_patient_hiv_followup\n" +
-                "\tGROUP BY patient_id;";
-
-        SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-        queryBuilder.append(qry);
-        Date endDate = (Date) context.getParameterValue("endDate");
-        queryBuilder.addParameter("endDate", endDate);
-        Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
-        c.setData(data);
-        return c;
-    }
+@Handler(supports = ETLDateBasedNextAppointmentDateDataDefinition.class, order = 50)
+public class ETLDateBasedNextAppointmentDateDataEvaluator implements PersonDataEvaluator {
+	
+	@Autowired
+	private EvaluationService evaluationService;
+	
+	public EvaluatedPersonData evaluate(PersonDataDefinition definition, EvaluationContext context)
+	        throws EvaluationException {
+		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
+		
+		String qry = "select patient_id,\n"
+		        + "  date(mid(max(concat(visit_date,next_appointment_date, \"\" )),11)) as next_appointment_date\n"
+		        + "from kenyaemr_etl.etl_patient_hiv_followup where date(visit_date) <= date(:endDate)\n"
+		        + "GROUP BY patient_id;";
+		
+		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
+		queryBuilder.append(qry);
+		Date endDate = (Date) context.getParameterValue("endDate");
+		queryBuilder.addParameter("endDate", endDate);
+		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
+		c.setData(data);
+		return c;
+	}
 }

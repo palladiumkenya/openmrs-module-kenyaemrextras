@@ -15,33 +15,33 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
- *  Last Appointment Data Definition
+ * Last VL Date Data Definition
  */
-@Caching(strategy=ConfigurationPropertyCachingStrategy.class)
-public class ETLNextAppointmentDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
-
-    public static final long serialVersionUID = 1L;
-
-    /**
-     * Default Constructor
-     */
-    public ETLNextAppointmentDateDataDefinition() {
-        super();
-    }
-
-    /**
-     * Constructor to populate name only
-     */
-    public ETLNextAppointmentDateDataDefinition(String name) {
-        super(name);
-    }
-
-    //***** INSTANCE METHODS *****
-
-    /**
-     * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
-     */
-    public Class<?> getDataType() {
-        return Double.class;
-    }
+@Caching(strategy = ConfigurationPropertyCachingStrategy.class)
+public class ETLDateBasedLastVLDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+	
+	public static final long serialVersionUID = 1L;
+	
+	/**
+	 * Default Constructor
+	 */
+	public ETLDateBasedLastVLDateDataDefinition() {
+		super();
+	}
+	
+	/**
+	 * Constructor to populate name only
+	 */
+	public ETLDateBasedLastVLDateDataDefinition(String name) {
+		super(name);
+	}
+	
+	//***** INSTANCE METHODS *****
+	
+	/**
+	 * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
+	 */
+	public Class<?> getDataType() {
+		return Double.class;
+	}
 }
