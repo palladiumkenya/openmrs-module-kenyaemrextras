@@ -70,27 +70,31 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 	
 	protected DataSetDefinition appointmentAndAttrition() {
 		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
-		cohortDsd.setName("AppointmentsAndAttritionAndRTC");
+		cohortDsd.setName("Appointments, Attrition and Return to care");
 		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		String indParams = "startDate=${startDate},endDate=${endDate}";
 		
-		cohortDsd.addColumn("Total_Appointments", "Total Number of Appointments",
+		cohortDsd.addColumn("Appointments scheduled within reporting period", "",
 		    ReportUtils.map(cot.totalAppointments(), indParams), "");
-		cohortDsd.addColumn("Missed_Appointments", "Total number of Missed Appointments",
+		cohortDsd.addColumn("Missed appointments within reporting period", "",
 		    ReportUtils.map(cot.missedAppointments(), indParams), "");
-		cohortDsd.addColumn("RTC_Within_7_Days", "Returned to Care within 7 days",
+		cohortDsd.addColumn(
+		    "Clients who were missed appointment and returned to care within 7 days since their interruption", "",
 		    ReportUtils.map(cot.rtcWithin7Days(), indParams), "");
-		cohortDsd.addColumn("RTC_After_8_TO_30_Days", "Returned to Care after 8 to 30 days of missed appointment",
+		cohortDsd.addColumn(
+		    "Clients who were missed appointment and returned to care after 7 to 30 days since their interruption", "",
 		    ReportUtils.map(cot.rtcBetween8And30Days(), indParams), "");
-		cohortDsd.addColumn("IIT_Within_Reporting_period",
-		    "Missed appointment for more than 30 days and not yet returned to care as of end date",
+		cohortDsd.addColumn("Clients who have missed an appointment for more than 30 days", "",
 		    ReportUtils.map(cot.iitOver30Days(), indParams), "");
-		cohortDsd.addColumn("RTC_Over_30_Days_From_Missed_App",
-		    "Returned to care after more than 30 days since their interruption",
+		cohortDsd.addColumn(
+		    "Clients who were missed appointment and returned to care after 30 days since their interruption", "",
 		    ReportUtils.map(cot.rtcOver30Days(), indParams), "");
-		cohortDsd.addColumn("ALL_IIT", "All Current IIT", ReportUtils.map(cot.currentIIT(), indParams), "");
+		cohortDsd
+		        .addColumn(
+		            "Clients who have missed appointment for more than 30 days and have not yet returned to care as of reporting date",
+		            "", ReportUtils.map(cot.currentIIT(), indParams), "");
 		return cohortDsd;
 	}
 	
