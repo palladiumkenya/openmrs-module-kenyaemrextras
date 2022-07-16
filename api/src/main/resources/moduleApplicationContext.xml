@@ -117,6 +117,6 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:appointments_attrition.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:appointmentAndAttrition" />
+        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition" />
     </bean>
 </beans>
