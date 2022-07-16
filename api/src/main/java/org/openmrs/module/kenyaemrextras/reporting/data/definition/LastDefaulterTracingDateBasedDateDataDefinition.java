@@ -15,33 +15,33 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
- *  Last visit date Data Definition
+ * Last defaulter tracing date data definition
  */
-@Caching(strategy=ConfigurationPropertyCachingStrategy.class)
-public class ETLLastVisitDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
-
-    public static final long serialVersionUID = 1L;
-
-    /**
-     * Default Constructor
-     */
-    public ETLLastVisitDateDataDefinition() {
-        super();
-    }
-
-    /**
-     * Constructor to populate name only
-     */
-    public ETLLastVisitDateDataDefinition(String name) {
-        super(name);
-    }
-
-    //***** INSTANCE METHODS *****
-
-    /**
-     * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
-     */
-    public Class<?> getDataType() {
-        return Double.class;
-    }
+@Caching(strategy = ConfigurationPropertyCachingStrategy.class)
+public class LastDefaulterTracingDateBasedDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+	
+	public static final long serialVersionUID = 1L;
+	
+	/**
+	 * Default Constructor
+	 */
+	public LastDefaulterTracingDateBasedDateDataDefinition() {
+		super();
+	}
+	
+	/**
+	 * Constructor to Last defaulter tracing date
+	 */
+	public LastDefaulterTracingDateBasedDateDataDefinition(String name) {
+		super(name);
+	}
+	
+	//***** INSTANCE METHODS *****
+	
+	/**
+	 * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
+	 */
+	public Class<?> getDataType() {
+		return String.class;
+	}
 }
