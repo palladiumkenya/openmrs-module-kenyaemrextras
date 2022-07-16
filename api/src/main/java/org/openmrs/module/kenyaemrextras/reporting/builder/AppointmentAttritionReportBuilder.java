@@ -11,10 +11,8 @@ package org.openmrs.module.kenyaemrextras.reporting.builder;
 
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonAttributeType;
-import org.openmrs.module.kenyacore.report.HybridReportDescriptor;
 import org.openmrs.module.kenyacore.report.ReportDescriptor;
 import org.openmrs.module.kenyacore.report.ReportUtils;
-import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.AbstractReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
@@ -25,48 +23,30 @@ import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.PatientProgramEnrollmentConverter;
-import org.openmrs.module.kenyaemr.reporting.cohort.definition.ANCRegisterCohortDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.*;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.anc.*;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.AgeAtReportingDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
-import org.openmrs.module.kenyaemr.reporting.library.pmtct.ANCIndicatorLibrary;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.AppointmentsAndAttritionCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DaysMissedAppointmentDateBasedDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedCurrentRegimenDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedLastVLDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedLastVLResultDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedLastVisitDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedNextAppointmentDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastDefaulterTracingDateBasedDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.ReturnToCareDateBasedDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.TracingNumberDateBasedDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.TracingOutcomeDateBasedDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.TracingTypeDateBasedDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.library.continuityOfTreatment.AppointmentAttritionIndicatorLibrary;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
-import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
-import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.BirthdateConverter;
 import org.openmrs.module.reporting.data.converter.DataConverter;
 import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
-import org.openmrs.module.reporting.data.encounter.definition.EncounterDatetimeDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
-import org.openmrs.module.reporting.data.patient.definition.PatientIdDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
 import org.openmrs.module.reporting.data.person.definition.*;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
-import org.openmrs.module.reporting.dataset.definition.EncounterDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.rmi.runtime.Log;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -89,13 +69,14 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
-		return Arrays.asList(ReportUtils.map(appointmentAndAttrition(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(appointmentsAttritionDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"));
+		return Arrays.asList(
+		    ReportUtils.map(appointmentsAttritionDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(appointmentAndAttritionIndicators(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
-	protected DataSetDefinition appointmentAndAttrition() {
+	protected DataSetDefinition appointmentAndAttritionIndicators() {
 		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
-		cohortDsd.setName("Appointments, Attrition and Return to care");
+		cohortDsd.setName("Appointments-Attrition-Return-To-Care");
 		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -199,7 +180,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
-		CohortDefinition cd = new AppointmentsAndAttritionCohortDefinition();
+		AppointmentsAndAttritionCohortDefinition cd = new AppointmentsAndAttritionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
