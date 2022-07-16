@@ -69,7 +69,7 @@
                 <ref bean="kenyaemrextras.common.report.weeklysurge"/>
                 <ref bean="kenyaemrextras.common.report.monthlySurgeReport"/>
                 <ref bean="kenyaemr.extras.report.dqaReport"/>
-                <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
+                <ref bean="kenyaemr.extras.common.report.appointmentsAndAttrition"/>
             </set>
         </property>
     </bean>
@@ -117,5 +117,18 @@
             </set></property>
 <!--        <property name="template" value="kenyaemrextras:surgeTemplate.xls" />
         <property name="repeatingSection" value="sheet:1,row:4,dataset:txCurrPatients | sheet:2,row:4,dataset:ltfuRecentPatients | sheet:3,row:4,dataset:ltfuRtcPatients | sheet:4,row:4,dataset:newArtPatients" />-->
+    </bean>
+</beans>
+
+    <bean id="kenyaemr.extras.common.report.appointmentsAndAttrition" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="6cccee26-fb8d-4d92-9d56-8253be4de4de" />
+        <property name="name" value="Appointments and attrition report" />
+        <property name="description" value="Appointments and attrition report" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set></property>
+        <property name="template" value="kenyaemrextras:appointments_attrition.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:patientsAppointments" />
     </bean>
 </beans>
