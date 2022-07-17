@@ -70,7 +70,7 @@ public class MissedAppointmentsRTCOver30DaysCohortDefinitionEvaluator implements
 		        + "      where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
 		        + "      group by patient_id\n"
 		        + "      ) d on d.patient_id = fup.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n"
+		        + "      where fup.visit_date <= date(:endDate) and fup.next_appointment_date between date(:startDate) AND date(:endDate)\n"
 		        + "      group by patient_id\n"
 		        + "      having (\n"
 		        + "      (timestampdiff(DAY,date(latest_tca),date(:endDate)) between 1 and 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
