@@ -23,7 +23,8 @@ jobs:
           sudo chown -R cicd2:cicd2 openmrs-module-kenyaemrextras
           git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras 
           git clone https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
-          git status
+          git status 
+          cd /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras
           mvn clean install -DskipTests
           sudo rm -rf /var/lib/OpenMRS/modules/kenyaemrextras-*.omod 
           sudo cp /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras/omod/target/kenyaemrextras-*.omod /var/lib/OpenMRS/modules/
