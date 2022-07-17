@@ -20,6 +20,7 @@ jobs:
           cd /apps/github-workflows/kenyaemr-modules
           sudo rm -rf openmrs-module-kenyaemrextras
           sudo mkdir openmrs-module-kenyaemrextras
+          sudo chown -R cicd2:cicd2 openmrs-module-kenyaemrextras
           git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras 
           git clone https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
           git status
