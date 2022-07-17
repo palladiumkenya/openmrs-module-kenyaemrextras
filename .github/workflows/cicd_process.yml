@@ -17,10 +17,11 @@ jobs:
         port: ${{ secrets.PORT }}
         command_timeout: 200m
         script: |
-          git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras      
           cd /apps/github-workflows/kenyaemr-modules
           sudo rm -rf openmrs-module-kenyaemrextras
-          git clone https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git
+          sudo mkdir openmrs-module-kenyaemrextras
+          git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras 
+          git clone https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
           git status
           mvn clean install -DskipTests
           sudo rm -rf /var/lib/OpenMRS/modules/kenyaemrextras-*.omod 
