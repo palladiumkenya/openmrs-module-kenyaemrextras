@@ -142,6 +142,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -152,6 +153,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -181,9 +183,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
@@ -226,6 +227,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -236,6 +238,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -265,9 +268,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
@@ -310,6 +312,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -320,6 +323,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -349,9 +353,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
@@ -394,6 +397,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -404,6 +408,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -433,9 +438,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
@@ -478,6 +482,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -488,6 +493,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -517,9 +523,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
@@ -562,6 +567,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
 		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
 		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
@@ -572,6 +578,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
 		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
@@ -601,9 +608,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
-		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, "endDate=${endDate}", new DateConverter(
-		        DATE_FORMAT));
-		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
 		
