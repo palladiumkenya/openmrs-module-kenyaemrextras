@@ -74,7 +74,7 @@ public class MissedAppointmentAndAttritionCohortDefinitionEvaluator implements C
 		        + "        group by patient_id\n"
 		        + "        having\n"
 		        + "            ((min_f1_visit_date > latest_tca or min_f1_visit_date is null) and latest_tca between date(:startDate) AND date(:endDate)\n"
-		        + "                and timestampdiff(DAY,date(latest_tca),date(:endDate)) between 1 and 30 and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
+		        + "                and timestampdiff(DAY,date(latest_tca),date(:endDate)) > 1 and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "                and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null)\n"
 		        + "                )\n" + "    )t;";
 		
