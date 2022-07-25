@@ -37,10 +37,9 @@ public class ETLDateBasedNextAppointmentDateDataEvaluator implements PersonDataE
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select patient_id,\n"
-		        + "  date(mid(max(concat(visit_date,next_appointment_date, \"\" )),11)) as next_appointment_date\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup where date(visit_date) <= date(:endDate)\n"
-		        + "GROUP BY patient_id;";
+		String qry = "select patient_id,date(mid(max(concat(visit_date,next_appointment_date, \"\" )),11)) as next_appointment_date\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup where date(visit_date) <= date(:endDate) and next_appointment_date <= date(:endDate)\n"
+		        + "    GROUP BY patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
