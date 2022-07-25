@@ -162,7 +162,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
@@ -240,7 +240,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
@@ -325,7 +325,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
@@ -410,7 +410,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
@@ -495,7 +495,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
@@ -580,7 +580,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Appointment Date", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
