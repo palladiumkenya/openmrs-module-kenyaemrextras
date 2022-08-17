@@ -92,7 +92,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-		
+		cohortDsd.addColumn("Clients currently on ART", "",
+		    ReportUtils.map(moh731IndicatorLibrary.currentlyOnArt(), indParams), "");
 		cohortDsd.addColumn("Appointments scheduled within reporting period", "",
 		    ReportUtils.map(cot.totalAppointments(), indParams), "");
 		cohortDsd.addColumn("Missed appointments within reporting period", "",
@@ -112,8 +113,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		        .addColumn(
 		            "Clients who have missed appointment for more than 30 days and have not yet returned to care as of reporting date",
 		            "", ReportUtils.map(cot.currentIIT(), indParams), "");
-		cohortDsd.addColumn("Clients currently on ART", "",
-		    ReportUtils.map(moh731IndicatorLibrary.currentlyOnArt(), indParams), "");
+		
 		return cohortDsd;
 	}
 	
