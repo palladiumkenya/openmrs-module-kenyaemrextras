@@ -47,6 +47,7 @@ import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.openmrs.module.kenyaemr.reporting.library.ETLReports.MOH731.ETLMoh731IndicatorLibrary;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -60,6 +61,9 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 	
 	@Autowired
 	private AppointmentAttritionIndicatorLibrary cot;
+	
+	@Autowired
+	private ETLMoh731IndicatorLibrary moh731IndicatorLibrary;
 	
 	@Override
 	protected List<Parameter> getParameters(ReportDescriptor reportDescriptor) {
@@ -108,6 +112,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		        .addColumn(
 		            "Clients who have missed appointment for more than 30 days and have not yet returned to care as of reporting date",
 		            "", ReportUtils.map(cot.currentIIT(), indParams), "");
+		cohortDsd.addColumn("Clients currently on ART", "",
+		    ReportUtils.map(moh731IndicatorLibrary.currentlyOnArt(), indParams), "");
 		return cohortDsd;
 	}
 	
