@@ -47,6 +47,7 @@ import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.openmrs.module.kenyaemr.reporting.library.ETLReports.MOH731Greencard.ETLMoh731GreenCardIndicatorLibrary;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -60,6 +61,9 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 	
 	@Autowired
 	private AppointmentAttritionIndicatorLibrary cot;
+	
+	@Autowired
+	private ETLMoh731GreenCardIndicatorLibrary moh731IndicatorLibrary;
 	
 	@Override
 	protected List<Parameter> getParameters(ReportDescriptor reportDescriptor) {
@@ -88,7 +92,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-		
+		cohortDsd.addColumn("Clients currently on ART", "",
+		    ReportUtils.map(moh731IndicatorLibrary.currentlyOnArt(), indParams), "");
 		cohortDsd.addColumn("Appointments scheduled within reporting period", "",
 		    ReportUtils.map(cot.totalAppointments(), indParams), "");
 		cohortDsd.addColumn("Missed appointments within reporting period", "",
@@ -108,6 +113,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		        .addColumn(
 		            "Clients who have missed appointment for more than 30 days and have not yet returned to care as of reporting date",
 		            "", ReportUtils.map(cot.currentIIT(), indParams), "");
+		
 		return cohortDsd;
 	}
 	
