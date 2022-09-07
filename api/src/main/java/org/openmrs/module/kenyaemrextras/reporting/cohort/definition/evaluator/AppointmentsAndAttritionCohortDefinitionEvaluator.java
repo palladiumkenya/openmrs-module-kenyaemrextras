@@ -62,7 +62,7 @@ public class AppointmentsAndAttritionCohortDefinitionEvaluator implements Cohort
 		        + "          where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
 		        + "          group by patient_id\n"
 		        + "          ) d on d.patient_id = fup.patient_id\n"
-		        + " where fup.visit_date <= date(:endDate) and fup.next_appointment_date between date(:startDate) AND date(:endDate)\n"
+		        + " where fup.next_appointment_date between date(:startDate) AND date(:endDate)\n"
 		        + "            group by patient_id\n"
 		        + "    having (max(e.visit_date) >= date(disc_date) or disc_patient is null or disc_date >= date(:endDate))\n"
 		        + ") t;";

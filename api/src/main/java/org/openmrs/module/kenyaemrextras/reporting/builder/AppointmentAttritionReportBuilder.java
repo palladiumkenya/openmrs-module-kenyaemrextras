@@ -79,10 +79,10 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		    missedAppointmentsUnder7DaysRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsUnder8To30DaysRTCDataSetDefinitionColumns(),
-		        "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedAppointmentsUnderOver30DaysRTCDataSetDefinitionColumns(),
 		        "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
-		        missedAppointmentOver30DaysIITDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"));
+		        missedAppointmentsOver30DaysRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(missedAppointmentOver30DaysIITDataSetDefinitionColumns(),
+		        "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	protected DataSetDefinition appointmentAndAttritionIndicators() {
@@ -143,6 +143,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -168,7 +169,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Appointment Date", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
@@ -207,6 +208,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -246,7 +248,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
@@ -293,6 +295,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -332,7 +335,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
@@ -379,6 +382,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -418,7 +422,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
@@ -439,7 +443,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		return dsd;
 	}
 	
-	protected DataSetDefinition missedAppointmentsUnderOver30DaysRTCDataSetDefinitionColumns() {
+	protected DataSetDefinition missedAppointmentsOver30DaysRTCDataSetDefinitionColumns() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
 		dsd.setName("missedAppointmentsOver30DaysRTC");
 		dsd.setDescription("Missed appointments and RTC after 30 days");
@@ -465,6 +469,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -504,7 +509,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
@@ -551,6 +556,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
 		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
 		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -590,7 +596,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
 		        DATE_FORMAT));
 		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
