@@ -62,8 +62,10 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("txNew", ReportUtils.map(datimCohortLibrary.txNew(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txNew");
+		cd.addSearch("currentlyOnArt",
+		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("artStartDate", ReportUtils.map(artStartDate(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("currentlyOnArt AND artStartDate");
 		return cd;
 	}
 	
@@ -123,8 +125,6 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("onTreatmentAtleast6Months",
 		    ReportUtils.map(datimCohortLibrary.patientInTXAtleast6Months(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("onTreatmentAtleast6Months",
-		    ReportUtils.map(datimCohortLibrary.patientInTXAtleast6Months(), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("vlWithinLast3Months",
 		    ReportUtils.map(vlWithinLast3Months(), "startDate=${startDate},endDate=${endDate}"));
 		cd.setCompositionString("txCurr AND onTreatmentAtleast6Months AND vlWithinLast3Months");
@@ -137,9 +137,11 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition moreThan1MonthMMD() {
-		String sqlQuery = "select f.patient_id from (select f.patient_id,timestampdiff(MONTH,max(f.visit_date),mid(max(concat(f.visit_date,f.next_appointment_date)),11)) \n"
-		        + "    months_tca from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "      where f.visit_date <=date(:endDate) and f.next_appointment_date is not null group by f.patient_id having months_tca > 1)f;";
+		String sqlQuery = "select a.patient_id from (SELECT patient_id, TIMESTAMPDIFF(MONTH, date(max(visit_date)), date(mid(max(concat(visit_date,next_appointment_date )),11))) as months_of_prescription\n"
+		        + "                       FROM kenyaemr_etl.etl_patient_hiv_followup\n"
+		        + "                       WHERE next_appointment_date is not null\n"
+		        + "        GROUP BY patient_id\n"
+		        + "        having months_of_prescription > 1)a;";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("moreThan1MonthMMD");
 		cd.setQuery(sqlQuery);
@@ -234,13 +236,11 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("currentlyOnArt",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("partiallyVaccinated",
-		    ReportUtils.map(carCohorts.partiallyVaccinated(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("fullyVaccinated",
-		    ReportUtils.map(carCohorts.fullyVaccinated(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("notVaccinatedForCovid",
+		    ReportUtils.map(carCohorts.notVaccinatedForCovid19(), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("covidVaccineAgeCohort",
 		    ReportUtils.map(carCohorts.covidVaccineAgeCohort(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("(currentlyOnArt AND covidVaccineAgeCohort) AND NOT (partiallyVaccinated OR fullyVaccinated)");
+		cd.setCompositionString("(currentlyOnArt AND covidVaccineAgeCohort) AND NOT notVaccinatedForCovid");
 		return cd;
 	}
 	
@@ -257,6 +257,26 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setDescription("Number of tests captured in eHTS from the HTS Register");
+		return cd;
+	}
+	
+	/**
+	 * Number started ART within period
+	 * 
+	 * @return
+	 */
+	public CohortDefinition artStartDate() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select a.patient_id from (select de.patient_id,\n"
+		        + " if(enr.date_started_art_at_transferring_facility is not null,enr.date_started_art_at_transferring_facility,\n"
+		        + "    min(de.date_started)) as art_start_date\n" + "from kenyaemr_etl.etl_drug_event de\n"
+		        + "    left outer join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id=de.patient_id\n"
+		        + "GROUP BY de.patient_id\n" + "having art_start_date between date(:startDate) and date(:endDate))a;";
+		cd.setName("artStartDate");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("Number started ART within period");
 		return cd;
 	}
 	
@@ -359,7 +379,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 */
 	public CohortDefinition agedAtleast18() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 185;";
+		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 18;";
 		cd.setName("agedAtleast18");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -396,7 +416,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("Clients with NUPI");
+		cd.setDescription("Clients with National ID");
 		return cd;
 	}
 	
@@ -470,11 +490,10 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition vlTestsOrdered() {
-		String queryString = "select od.patient_id from\n" +
-				"    kenyaemr_order_entry_lab_manifest_order o\n" +
-				"        inner join orders od on od.order_id = o.order_id\n" +
-				"        inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n" +
-				"where o.sample_collection_date between date(:startDate) and date(:endDate);";
+		String queryString = "select od.patient_id from\n" + "    kenyaemr_order_entry_lab_manifest_order o\n"
+		        + "        inner join orders od on od.order_id = o.order_id\n"
+		        + "        inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n"
+		        + "where o.sample_collection_date between date(:startDate) and date(:endDate);";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("vlTestsOrdered");
 		cd.setQuery(queryString);
@@ -490,12 +509,10 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition vlTestsWithResults() {
-		String queryString = "select od.patient_id from\n" +
-				"kenyaemr_order_entry_lab_manifest_order o\n" +
-				"    inner join orders od on od.order_id = o.order_id\n" +
-				"    inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n" +
-				"where o.sample_collection_date between date(:startDate) and date(:endDate)\n" +
-				"and result is not null;";
+		String queryString = "select od.patient_id from kenyaemr_order_entry_lab_manifest_order o\n"
+		        + "    inner join orders od on od.order_id = o.order_id\n"
+		        + "    inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n"
+		        + "where o.sample_collection_date between date(:startDate) and date(:endDate) and result is not null;";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("vlTestsWithResults");
 		cd.setQuery(queryString);
@@ -505,4 +522,85 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		return cd;
 	}
 	
+	/**
+	 * Clients with unsuppressed repeat VL within the period
+	 * 
+	 * @return
+	 */
+	public CohortDefinition unsuppressedRepeatVL() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select a.patient_id\n"
+		        + "from (select b.patient_id,\n"
+		        + "             max(b.visit_date)                                                       as vl_date,\n"
+		        + "             mid(max(concat(b.visit_date, b.lab_test)), 11)                          as lab_test,\n"
+		        + "             mid(max(concat(b.visit_date, b.order_reason)), 11)                      as order_reason,\n"
+		        + "             if(mid(max(concat(b.visit_date, b.lab_test)), 11) = 856, mid(max(concat(b.visit_date, b.test_result)), 11),\n"
+		        + "                if(mid(max(concat(b.visit_date, b.lab_test)), 11) = 1305 and\n"
+		        + "                   mid(max(concat(visit_date, test_result)), 11) = 1302, 'LDL', '')) as vl_result\n"
+		        + "      from (select x.patient_id   as patient_id,\n"
+		        + "                   x.visit_date   as visit_date,                    x.lab_test     as lab_test,\n"
+		        + "                   x.test_result  as test_result,\n"
+		        + "                   x.order_reason as order_reason\n"
+		        + "            from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "            where x.lab_test in (1305, 856)             group by x.patient_id, x.visit_date\n"
+		        + "            order by visit_date desc) b       group by patient_id\n" + "      having vl_date between\n"
+		        + "          date_sub(date(:endDate), interval 12 MONTH) and date(:endDate)\n"
+		        + "         and vl_result >= 1000          and order_reason = 843)a;";
+		cd.setName("unsuppressedRepeatVL");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("unsuppressedRepeatVL");
+		return cd;
+	}
+	
+	/**
+	 * Clients with enhanced adherence encounter within the reporting period
+	 * 
+	 * @return
+	 */
+	public CohortDefinition enhancedAdherence() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select a.patient_id from kenyaemr_etl.etl_enhanced_adherence a where date(a.visit_date) between date_sub(date(:endDate), interval 12 MONTH) and date(:endDate);";
+		cd.setName("enhancedAdherence");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("enhancedAdherence");
+		return cd;
+	}
+	
+	/**
+	 * Children (<18 years) with unsuppressed VL
+	 * 
+	 * @return
+	 */
+	public CohortDefinition unsuppressedVLPeds() {
+		CompositionCohortDefinition cd = new CompositionCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.addSearch("txCurrPeds", ReportUtils.map(txCurrPeds(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("enhancedAdherence", ReportUtils.map(enhancedAdherence(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("unsuppressedRepeatVL",
+		    ReportUtils.map(unsuppressedRepeatVL(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurrPeds AND enhancedAdherence AND unsuppressedRepeatVL");
+		return cd;
+	}
+	
+	/**
+	 * Adults (18+ years) with unsuppressed VL
+	 * 
+	 * @return
+	 */
+	public CohortDefinition unsuppressedVLAdults() {
+		CompositionCohortDefinition cd = new CompositionCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.addSearch("txCurrAdults", ReportUtils.map(txCurrAdults(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("enhancedAdherence", ReportUtils.map(enhancedAdherence(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("unsuppressedRepeatVL",
+		    ReportUtils.map(unsuppressedRepeatVL(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurrAdults AND enhancedAdherence AND unsuppressedRepeatVL");
+		return cd;
+	}
 }
