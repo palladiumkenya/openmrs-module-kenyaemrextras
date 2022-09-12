@@ -11,6 +11,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.library;
 
 import org.openmrs.module.kenyacore.report.ReportUtils;
+import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.indicator.CohortIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,13 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	
 	@Autowired
 	private FacilityClinicalAssessmentCohortLibrary cohortLibrary;
+	
+	/**
+	 * TX_NEW
+	 */
+	public CohortIndicator txNew() {
+		return cohortIndicator("TX_New", ReportUtils.map(cohortLibrary.txNew(), "startDate=${startDate},endDate=${endDate}"));
+	}
 	
 	/**
 	 * TX_CURR who have been on treatment for at least six months
@@ -194,5 +202,25 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	public CohortIndicator vlTestsOrdered() {
 		return cohortIndicator("Number of VL tests ordered",
 		    ReportUtils.map(cohortLibrary.vlTestsOrdered(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Children (<18 years) with unsuppressed VL
+	 * 
+	 * @return
+	 */
+	public CohortIndicator unsuppressedVLPeds() {
+		return cohortIndicator("Children (<18 years) with unsuppressed VL",
+		    ReportUtils.map(cohortLibrary.unsuppressedVLPeds(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Adults (18+ years) with unsuppressed VL
+	 * 
+	 * @return
+	 */
+	public CohortIndicator unsuppressedVLAdults() {
+		return cohortIndicator("Adults (18+ years) with unsuppressed VL",
+		    ReportUtils.map(cohortLibrary.unsuppressedVLAdults(), "startDate=${startDate},endDate=${endDate}"));
 	}
 }
