@@ -15,7 +15,6 @@ import org.openmrs.module.kenyacore.report.builder.AbstractReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.MOH731Greencard.ETLMoh731GreenCardIndicatorLibrary;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.RevisedDatim.DatimIndicatorLibrary;
-import org.openmrs.module.kenyaemrextras.reporting.library.FacilityClinicalAssessmentCohortLibrary;
 import org.openmrs.module.kenyaemrextras.reporting.library.FacilityClinicalAssessmentIndicatorLibrary;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
@@ -74,8 +73,13 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		    ReportUtils.map(datimIndicators.txML(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_RTT", "",
 		    ReportUtils.map(datimIndicators.txRTT(), "startDate=${startDate},endDate=${endDate}"), "");
+		cohortDsd
+		        .addColumn("Eligible for VL test", "", ReportUtils.map(assessmentIndicatorLibrary.eligibleForVlTest(),
+		            "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("VL Uptake", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.vlUptake(), "startDate=${startDate},endDate=${endDate}"), "");
+		cohortDsd.addColumn("Suppressed VL", "",
+		    ReportUtils.map(assessmentIndicatorLibrary.suppressedVL(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("DSD (MMD)", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.dsd(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("OTZ", "",
@@ -93,10 +97,11 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		cohortDsd.addColumn("PrEP denominator", "",
 		    ReportUtils.map(datimIndicators.newlyEnrolledInPrEP(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("KP numerator", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsMonthly(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("KP denominator", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsQuarterly(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsNumerator(), "startDate=${startDate},endDate=${endDate}"),
 		    "");
+		/*cohortDsd.addColumn("KP denominator", "",
+		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsQuarterly(), "startDate=${startDate},endDate=${endDate}"),
+		    "");*/
 		cohortDsd.addColumn("MCH", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.activeInMCH(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TB", "",
