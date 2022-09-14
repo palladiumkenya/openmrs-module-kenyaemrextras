@@ -11,7 +11,6 @@
 package org.openmrs.module.kenyaemrextras.reporting.library;
 
 import org.openmrs.module.kenyacore.report.ReportUtils;
-import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.indicator.CohortIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,13 +34,35 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	}
 	
 	/**
-	 * TX_CURR who have been on treatment for at least six months
+	 * TX_CURR who have been on treatment for at least six months and eligible for VL test
+	 * 
+	 * @return the indicator
+	 */
+	public CohortIndicator eligibleForVlTest() {
+		return cohortIndicator("TX_CURR who have been on treatment for at least six months",
+		    ReportUtils.map(cohortLibrary.eligibleForVlTest(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * TX_CURR who have been on treatment for at least six months and had a VL test result within
+	 * the reporting period
 	 * 
 	 * @return the indicator
 	 */
 	public CohortIndicator vlUptake() {
-		return cohortIndicator("TX_CURR who have been on treatment for at least six months",
+		return cohortIndicator(
+		    "TX_CURR who have been on treatment for at least six months and had a VL test result within the reporting period",
 		    ReportUtils.map(cohortLibrary.vlUptake(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * TX_CURR who had Suppressed VL test result within reporting period
+	 * 
+	 * @return
+	 */
+	public CohortIndicator suppressedVL() {
+		return cohortIndicator("TX_CURR who had Suppressed VL test result within reporting period",
+		    ReportUtils.map(cohortLibrary.suppressedVL(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	/**
@@ -109,9 +130,9 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	 * 
 	 * @return
 	 */
-	public CohortIndicator kpClientsMonthly() {
+	public CohortIndicator kpClientsNumerator() {
 		return cohortIndicator("Number of clients newly initiated on PrEP ",
-		    ReportUtils.map(cohortLibrary.kpClientsMonthly(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(cohortLibrary.kpClientsNumerator(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	/**
@@ -121,7 +142,7 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	 */
 	public CohortIndicator kpClientsQuarterly() {
 		return cohortIndicator("Number of KP clients Quarterly ",
-		    ReportUtils.map(cohortLibrary.kpClientsDatim(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(cohortLibrary.kpClientsQuarterly(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	/**
