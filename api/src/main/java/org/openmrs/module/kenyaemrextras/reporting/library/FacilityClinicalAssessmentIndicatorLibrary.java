@@ -27,10 +27,10 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	private FacilityClinicalAssessmentCohortLibrary cohortLibrary;
 	
 	/**
-	 * TX_NEW
+	 * TX_ML
 	 */
-	public CohortIndicator txNew() {
-		return cohortIndicator("TX_New", ReportUtils.map(cohortLibrary.txNew(), "startDate=${startDate},endDate=${endDate}"));
+	public CohortIndicator txML() {
+		return cohortIndicator("TX_ML", ReportUtils.map(cohortLibrary.txML(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	/**
@@ -150,9 +150,9 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	 * 
 	 * @return
 	 */
-	public CohortIndicator activeInMCH() {
+	public CohortIndicator activeInMCHAndTXCurr() {
 		return cohortIndicator("TX_CURR who are active in PMTCT",
-		    ReportUtils.map(cohortLibrary.activeInMCH(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(cohortLibrary.activeInMCHAndTXCurr(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	/**

@@ -20,7 +20,6 @@ import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.openmrs.module.kenyaemr.calculation.library.tb.InTbProgramCalculation;
-import org.openmrs.module.kenyaemr.calculation.library.ActiveInMCHProgramCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.otz.OnOTZProgramCalculation;
 import org.openmrs.module.kenyaemr.calculation.library.ovc.OnOVCProgramCalculation;
 
@@ -38,6 +37,9 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	@Autowired
 	private PublicHealthActionCohortLibrary carCohorts;
 	
+	@Autowired
+	private PublicHealthActionCohortLibrary publicHealthActionCohortLibrary;
+	
 	/**
 	 * TX_CURR
 	 * 
@@ -54,45 +56,21 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * TX_NEW
-	 * 
-	 * @return
-	 */
-	public CohortDefinition txNew() {
-		CompositionCohortDefinition cd = new CompositionCohortDefinition();
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("currentlyOnArt",
-		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("artStartDate", ReportUtils.map(artStartDate(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("currentlyOnArt AND artStartDate");
-		return cd;
-	}
-	
-	/**
 	 * TX_ML
 	 * 
 	 * @return
 	 */
-	public CohortDefinition txml() {
-		CompositionCohortDefinition cd = new CompositionCohortDefinition();
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addSearch("txml", ReportUtils.map(txml(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txml");
-		return cd;
-	}
-	
-	/**
-	 * TX_RTT
-	 * 
-	 * @return
-	 */
-	public CohortDefinition txRTT() {
+	public CohortDefinition txML() {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("txRTT", ReportUtils.map(txRTT(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txRTT");
+		cd.addSearch("txMLIITUnder3MonthsInTx",
+		    ReportUtils.map(datimCohortLibrary.txMLIITUnder3MonthsInTx(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("txMLIIT3To5MonthsInTx",
+		    ReportUtils.map(datimCohortLibrary.txMLIIT3To5MonthsInTx(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("txMLIITAtleast6MonthsInTx",
+		    ReportUtils.map(datimCohortLibrary.txMLIITAtleast6MonthsInTx(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txMLIITUnder3MonthsInTx OR txMLIIT3To5MonthsInTx OR txMLIITAtleast6MonthsInTx");
 		return cd;
 	}
 	
@@ -196,26 +174,6 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * TX_CURR with MMD (Multi-month dispense) >= 3 months
-	 * 
-	 * @return
-	 */
-	public CohortDefinition atleast3MonthsMMD() {
-		String sqlQuery = "select a.patient_id from (SELECT patient_id, TIMESTAMPDIFF(MONTH, date(max(visit_date)), date(mid(max(concat(visit_date,next_appointment_date )),11))) as months_of_prescription\n"
-		        + "                       FROM kenyaemr_etl.etl_patient_hiv_followup\n"
-		        + "                       WHERE next_appointment_date is not null\n"
-		        + "        GROUP BY patient_id\n"
-		        + "        having months_of_prescription >= 3)a;";
-		SqlCohortDefinition cd = new SqlCohortDefinition();
-		cd.setName("moreThan1MonthMMDatleast3MonthsMMD");
-		cd.setQuery(sqlQuery);
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("TX_CURR with MMD (Multi-month dispense) 3+ months");
-		return cd;
-	}
-	
-	/**
 	 * TX_CURR with MMD (Multi-month dispense)
 	 * 
 	 * @return
@@ -226,8 +184,30 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurr",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("atleast3MonthsMMD", ReportUtils.map(atleast3MonthsMMD(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txCurr AND atleast3MonthsMMD");
+		cd.addSearch("currentlyOnART3To5MonthsMMD",
+		    ReportUtils.map(datimCohortLibrary.currentlyOnART3To5MonthsMMD(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("currentlyOnART6MonthsAndAboveMMD", ReportUtils.map(
+		    datimCohortLibrary.currentlyOnART6MonthsAndAboveMMD(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurr AND (currentlyOnART3To5MonthsMMD OR currentlyOnART6MonthsAndAboveMMD)");
+		return cd;
+	}
+	
+	/**
+	 * Clients active in OTZ
+	 * 
+	 * @return
+	 */
+	public CohortDefinition inOtz() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select pp.patient_id from patient_program pp\n"
+		        + "        inner join program p on p.program_id = pp.program_id\n"
+		        + "      where date(pp.date_completed) is null and p.name ='OVC'\n" + "      group by pp.patient_id\n"
+		        + "      having max(date(pp.date_enrolled)) <= date(:endDate);";
+		cd.setName("inOtz");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("inOtz");
 		return cd;
 	}
 	
@@ -237,18 +217,32 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition otz() {
-		CalculationCohortDefinition inOtz = new CalculationCohortDefinition(new OnOTZProgramCalculation());
-		inOtz.setName("Clients in OTZ");
-		inOtz.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		inOtz.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurr",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("inOtz", ReportUtils.map(inOtz, "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("inOtz", ReportUtils.map(inOtz(), "startDate=${startDate},endDate=${endDate}"));
 		cd.setCompositionString("txCurr AND inOtz");
+		return cd;
+	}
+	
+	/**
+	 * Clients active in OVC
+	 * 
+	 * @return
+	 */
+	public CohortDefinition clientsActiveInOVC() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select pp.patient_id from patient_program pp\n"
+		        + "        inner join program p on p.program_id = pp.program_id\n"
+		        + "      where date(pp.date_completed) is null and p.name ='OVC'\n" + "      group by pp.patient_id\n"
+		        + "      having max(date(pp.date_enrolled)) <= date(:endDate);";
+		cd.setName("clientsActiveInOVC");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("clientsActiveInOVC");
 		return cd;
 	}
 	
@@ -258,34 +252,48 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition ovc() {
-		CalculationCohortDefinition inOVC = new CalculationCohortDefinition(new OnOVCProgramCalculation());
-		inOVC.setName("Clients in OVC");
-		inOVC.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		inOVC.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurr",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("inOVC", ReportUtils.map(inOVC, "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txCurr AND inOVC");
+		cd.addSearch("clientsActiveInOVC",
+		    ReportUtils.map(clientsActiveInOVC(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurr AND clientsActiveInOVC");
 		return cd;
 	}
 	
 	/**
-	 * Clients aged 15+ years as of reporting date
+	 * Age cohort eligible for reporting in this context
 	 * 
 	 * @return
 	 */
 	public CohortDefinition covidVaccineAgeCohort() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 15;";
+		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 15;\n";
 		cd.setName("covidVaccineAgeCohort");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setDescription("covidVaccineAgeCohort");
+		
+		return cd;
+	}
+	
+	/**
+	 * Fully vaccinated clients
+	 * 
+	 * @return
+	 */
+	public CohortDefinition fullyVaccinated() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select patient_id from kenyaemr_etl.etl_covid19_assessment a where a.final_vaccination_status = 5585 and a.visit_date <= date(:endDate)";
+		cd.setName("fullyVaccinated");
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setQuery(sqlQuery);
+		cd.setDescription("fullyVaccinated");
+		
 		return cd;
 	}
 	
@@ -298,13 +306,11 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("currentlyOnArt",
-		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("notVaccinatedForCovid",
-		    ReportUtils.map(carCohorts.notVaccinatedForCovid19(), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("covidVaccineAgeCohort",
 		    ReportUtils.map(covidVaccineAgeCohort(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("(currentlyOnArt AND covidVaccineAgeCohort) AND NOT notVaccinatedForCovid");
+		cd.addSearch("currentlyOnArt", ReportUtils.map(currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("fullyVaccinated", ReportUtils.map(fullyVaccinated(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("covidVaccineAgeCohort AND currentlyOnArt AND fullyVaccinated");
 		return cd;
 	}
 	
@@ -321,26 +327,6 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setDescription("Number of tests captured in eHTS from the HTS Register");
-		return cd;
-	}
-	
-	/**
-	 * Number started ART within period
-	 * 
-	 * @return
-	 */
-	public CohortDefinition artStartDate() {
-		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id from (select de.patient_id,\n"
-		        + " if(enr.date_started_art_at_transferring_facility is not null,enr.date_started_art_at_transferring_facility,\n"
-		        + "    min(de.date_started)) as art_start_date\n" + "from kenyaemr_etl.etl_drug_event de\n"
-		        + "    left outer join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id=de.patient_id\n"
-		        + "GROUP BY de.patient_id\n" + "having art_start_date between date(:startDate) and date(:endDate))a;";
-		cd.setName("artStartDate");
-		cd.setQuery(sqlQuery);
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("Number started ART within period");
 		return cd;
 	}
 	
@@ -430,23 +416,69 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
+	 * Returns cohort def for clients active in MCH
+	 * 
+	 * @return
+	 */
+	public CohortDefinition clientsActiveInMCH() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select pp.patient_id from patient_program pp\n"
+		        + "               inner join program p on p.program_id = pp.program_id\n"
+		        + "             where date(pp.date_completed) is null and p.name in ('MCH - Child Services','MCH - Mother Services')\n"
+		        + "             group by pp.patient_id\n"
+		        + "             having max(date(pp.date_enrolled)) <= date(:endDate);";
+		cd.setName("clientsActiveInMCH");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("clientsActiveInMCH");
+		return cd;
+	}
+	
+	/**
 	 * TX_CURR who are active in PMTCT
 	 * 
 	 * @return
 	 */
-	public CohortDefinition activeInMCH() {
-		CalculationCohortDefinition inMCH = new CalculationCohortDefinition(new ActiveInMCHProgramCalculation());
-		inMCH.setName("Clients in MCH");
-		inMCH.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		inMCH.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
+	public CohortDefinition activeInMCHAndTXCurr() {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurr",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("inMCH", ReportUtils.map(inMCH, "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txCurr AND inMCH");
+		cd.addSearch("clientsActiveInMCH",
+		    ReportUtils.map(clientsActiveInMCH(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurr AND clientsActiveInMCH");
+		return cd;
+	}
+	
+	/**
+	 * Clients active in TB treatment
+	 * 
+	 * @return
+	 */
+	public CohortDefinition inTBTreatment() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select d.patient_id\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "         left join (select pp.patient_id as program_client\n"
+		        + "                    from patient_program pp\n"
+		        + "                             inner join program p on p.program_id = pp.program_id and p.name = 'TB' and\n"
+		        + "                                                     date(pp.date_enrolled) <= date(:endDate)\n"
+		        + "                    where date(pp.date_completed) is null) v on d.patient_id = v.program_client\n"
+		        + "         left join (select v.patient_id                                                 as hiv_client,\n"
+		        + "                           max(date(v.visit_date)),\n"
+		        + "                           mid(max(concat(date(v.visit_date), v.on_anti_tb_drugs)), 11) as on_tb_drugs\n"
+		        + "                    from kenyaemr_etl.etl_patient_hiv_followup v\n"
+		        + "                    where date(v.visit_date) between date(:startDate) and date(:endDate)\n"
+		        + "                      and v.on_anti_tb_drugs = 1065\n"
+		        + "                    group by v.patient_id) c on d.patient_id = c.hiv_client\n"
+		        + "    where v.program_client is not null or c.hiv_client is not null;\n";
+		cd.setName("inTBTreatment");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("inTBTreatment");
 		return cd;
 	}
 	
@@ -456,17 +488,12 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition activeInTBRx() {
-		CalculationCohortDefinition inTBTreatment = new CalculationCohortDefinition(new InTbProgramCalculation());
-		inTBTreatment.setName("Clients in TB Treatment");
-		inTBTreatment.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		inTBTreatment.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurr",
 		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("inTBTreatment", ReportUtils.map(inTBTreatment, "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("inTBTreatment", ReportUtils.map(inTBTreatment(), "startDate=${startDate},endDate=${endDate}"));
 		cd.setCompositionString("txCurr AND inTBTreatment");
 		return cd;
 	}
@@ -504,23 +531,24 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * Clients with national ID
+	 * Clients with NUPI
 	 * 
 	 * @return
 	 */
-	public CohortDefinition clientsWithNationalId() {
-		String sqlQuery = "select d.patient_id from kenyaemr_etl.etl_patient_demographics d where d.national_id_no is not null;";
-		SqlCohortDefinition cd = new SqlCohortDefinition();
-		cd.setName("clientsWithNationalId");
-		cd.setQuery(sqlQuery);
+	public CohortDefinition artClientsWithNUPI() {
+		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("Clients with National ID");
+		cd.addSearch("clientsWithNUPI",
+		    ReportUtils.map(publicHealthActionCohortLibrary.clientsWithNUPI(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("txCurr",
+		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurr AND clientsWithNUPI");
 		return cd;
 	}
 	
 	/**
-	 * TX_CURR adults (18+ years) with national ID number captured
+	 * TX_CURR adults (18+ years) with NUPI captured
 	 * 
 	 * @return
 	 */
@@ -528,26 +556,10 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("txCurrAdults", ReportUtils.map(txCurrAdults(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("clientsWithNationalId",
-		    ReportUtils.map(clientsWithNationalId(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txCurrAdults AND clientsWithNationalId");
-		return cd;
-	}
-	
-	/**
-	 * Clients with birth Certificate no.
-	 * 
-	 * @return
-	 */
-	public CohortDefinition clientsWithBirthCertNo() {
-		String sqlQuery = "select d.patient_id from kenyaemr_etl.etl_patient_demographics d where d.birth_certificate_no is not null;";
-		SqlCohortDefinition cd = new SqlCohortDefinition();
-		cd.setName("clientsWithBirthCertNo");
-		cd.setQuery(sqlQuery);
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setDescription("Clients with birth Certificate no.");
+		cd.addSearch("agedAtleast18", ReportUtils.map(agedAtleast18(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("artClientsWithNUPI",
+		    ReportUtils.map(artClientsWithNUPI(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("agedAtleast18 AND artClientsWithNUPI");
 		return cd;
 	}
 	
@@ -568,7 +580,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * TX_CURR (peds, <18) with Birth cert no. captured
+	 * TX_CURR (peds, <18) with NUPI captured
 	 * 
 	 * @return
 	 */
@@ -577,9 +589,9 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.addSearch("txCurrPeds", ReportUtils.map(txCurrPeds(), "startDate=${startDate},endDate=${endDate}"));
-		cd.addSearch("clientsWithBirthCertNo",
-		    ReportUtils.map(clientsWithBirthCertNo(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txCurrPeds AND clientsWithBirthCertNo");
+		cd.addSearch("artClientsWithNUPI",
+		    ReportUtils.map(artClientsWithNUPI(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("txCurrPeds AND artClientsWithNUPI");
 		return cd;
 	}
 	
@@ -589,10 +601,11 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 * @return
 	 */
 	public CohortDefinition vlTestsOrdered() {
-		String queryString = "select od.patient_id from\n" + "    kenyaemr_order_entry_lab_manifest_order o\n"
-		        + "        inner join orders od on od.order_id = o.order_id\n"
-		        + "        inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n"
-		        + "where o.sample_collection_date between date_sub(date(:startDate), INTERVAL 6 MONTH) and date(:endDate);";
+		String queryString = "select od.patient_id from kenyaemr_order_entry_lab_manifest_order o\n"
+		        + "          inner join orders od on od.order_id = o.order_id\n"
+		        + "          inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n"
+		        + "where o.sample_collection_date between date_sub(date(:startDate), INTERVAL 6 MONTH) and date(:endDate)\n"
+		        + "and o.status != 'Pending';";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("vlTestsOrdered");
 		cd.setQuery(queryString);
@@ -611,7 +624,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		String queryString = "select od.patient_id from kenyaemr_order_entry_lab_manifest_order o\n"
 		        + "       inner join orders od on od.order_id = o.order_id\n"
 		        + "       inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = od.patient_id\n"
-		        + "where o.sample_collection_date between date_sub(date(:startDate), INTERVAL 6 MONTH) and date(:endDate) and result is not null;";
+		        + "where o.sample_collection_date between date_sub(date(:startDate), INTERVAL 6 MONTH) and date(:endDate) and o.status = 'Complete';";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("vlTestsWithResults");
 		cd.setQuery(queryString);
