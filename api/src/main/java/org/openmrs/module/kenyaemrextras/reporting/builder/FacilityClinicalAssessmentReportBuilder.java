@@ -15,6 +15,7 @@ import org.openmrs.module.kenyacore.report.builder.AbstractReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.MOH731Greencard.ETLMoh731GreenCardIndicatorLibrary;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.RevisedDatim.DatimIndicatorLibrary;
+import org.openmrs.module.kenyaemr.reporting.library.ETLReports.publicHealthActionReport.PublicHealthActionIndicatorLibrary;
 import org.openmrs.module.kenyaemrextras.reporting.library.FacilityClinicalAssessmentIndicatorLibrary;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
@@ -47,6 +48,9 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 	@Autowired
 	ETLMoh731GreenCardIndicatorLibrary moh731Indicators;
 	
+	@Autowired
+	private PublicHealthActionIndicatorLibrary publicHealthActionIndicatorLibrary;
+	
 	@Override
 	protected List<Parameter> getParameters(ReportDescriptor reportDescriptor) {
 		return Arrays.asList(new Parameter("startDate", "Start Date", Date.class), new Parameter("endDate", "End Date",
@@ -68,18 +72,24 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		cohortDsd.addColumn("TX_CURR", "",
 		    ReportUtils.map(datimIndicators.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_NEW", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.txNew(), "startDate=${startDate},endDate=${endDate}"), "");
+		    ReportUtils.map(datimIndicators.newlyStartedARTByAgeSex(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_ML(IIT)", "",
-		    ReportUtils.map(datimIndicators.txML(), "startDate=${startDate},endDate=${endDate}"), "");
+		    ReportUtils.map(assessmentIndicatorLibrary.txML(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_RTT", "",
 		    ReportUtils.map(datimIndicators.txRTT(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd
-		        .addColumn("Eligible for VL test", "", ReportUtils.map(assessmentIndicatorLibrary.eligibleForVlTest(),
+		        .addColumn("VL Testing denominator", "", ReportUtils.map(assessmentIndicatorLibrary.eligibleForVlTest(),
 		            "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("VL Uptake", "",
+		cohortDsd.addColumn("VL Testing numerator", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.vlUptake(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("Suppressed VL", "",
+		cohortDsd.addColumn("VL Test Results < 1000 copies/ml ", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.suppressedVL(), "startDate=${startDate},endDate=${endDate}"), "");
+		cohortDsd.addColumn("Unsuppressed VL-Peds", " (under 18 years with Unsuppressed repeat VLs and EAC)",
+		    ReportUtils.map(assessmentIndicatorLibrary.unsuppressedVLPeds(), "startDate=${startDate},endDate=${endDate}"),
+		    "");
+		cohortDsd.addColumn("Unsuppressed VL-Adults", " (18+ years with Unsuppressed repeat VLs and EAC)",
+		    ReportUtils.map(assessmentIndicatorLibrary.unsuppressedVLAdults(), "startDate=${startDate},endDate=${endDate}"),
+		    "");
 		cohortDsd.addColumn("DSD (MMD)", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.dsd(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("OTZ", "",
@@ -88,22 +98,14 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		    ReportUtils.map(assessmentIndicatorLibrary.ovc(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("Covid Vaccination", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.covidVaccination(), "startDate=${startDate},endDate=${endDate}"), "");
-		/*cohortDsd.addColumn("eHTS numerator", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.htsNumberTested(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("eHTS denominator", "",
-		    ReportUtils.map(moh731Indicators.htsNumberTested(), "startDate=${startDate},endDate=${endDate}"), "");*/
-		cohortDsd.addColumn("PrEP numerator", "", ReportUtils.map(assessmentIndicatorLibrary.newlyEnrolledInPrEPRegister(),
-		    "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("PrEP denominator", "",
+		cohortDsd.addColumn("PrEP numerator", "",
 		    ReportUtils.map(datimIndicators.newlyEnrolledInPrEP(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("KP numerator", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsNumerator(), "startDate=${startDate},endDate=${endDate}"),
 		    "");
-		/*cohortDsd.addColumn("KP denominator", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.kpClientsQuarterly(), "startDate=${startDate},endDate=${endDate}"),
-		    "");*/
 		cohortDsd.addColumn("MCH", "",
-		    ReportUtils.map(assessmentIndicatorLibrary.activeInMCH(), "startDate=${startDate},endDate=${endDate}"), "");
+		    ReportUtils.map(assessmentIndicatorLibrary.activeInMCHAndTXCurr(), "startDate=${startDate},endDate=${endDate}"),
+		    "");
 		cohortDsd.addColumn("TB", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.activeInTBRx(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd
@@ -115,17 +117,11 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		    ReportUtils.map(assessmentIndicatorLibrary.artVerifiedPeds(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("ART_Verification_Peds denominator", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.txCurrPeds(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("Lab_Manifest numerator", "",
+		cohortDsd.addColumn("Number of VL test results received", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.vlTestsWithResults(), "startDate=${startDate},endDate=${endDate}"),
 		    "");
-		cohortDsd.addColumn("Lab_Manifest denominator", "",
+		cohortDsd.addColumn("Lab Manifest denominator", " (Samples sent)",
 		    ReportUtils.map(assessmentIndicatorLibrary.vlTestsOrdered(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("Unsuppressed VL-Peds", " (under 18 years with Unsuppressed repeat VLs and EAC)",
-		    ReportUtils.map(assessmentIndicatorLibrary.unsuppressedVLPeds(), "startDate=${startDate},endDate=${endDate}"),
-		    "");
-		cohortDsd.addColumn("Unsuppressed VL-Adults", " (18+ years with Unsuppressed repeat VLs and EAC)",
-		    ReportUtils.map(assessmentIndicatorLibrary.unsuppressedVLAdults(), "startDate=${startDate},endDate=${endDate}"),
-		    "");
 		
 		return cohortDsd;
 		
