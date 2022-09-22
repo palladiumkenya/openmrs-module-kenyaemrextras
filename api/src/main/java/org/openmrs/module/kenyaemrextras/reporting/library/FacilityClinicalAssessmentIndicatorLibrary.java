@@ -96,6 +96,16 @@ public class FacilityClinicalAssessmentIndicatorLibrary {
 	}
 	
 	/**
+	 * eHTS
+	 * 
+	 * @return
+	 */
+	public CohortIndicator eHTS() {
+		return cohortIndicator("Total Tests",
+		    ReportUtils.map(cohortLibrary.eHTS(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
 	 * TX_CURR aged 15+ years who are vaccinated against Covid-19
 	 * 
 	 * @return

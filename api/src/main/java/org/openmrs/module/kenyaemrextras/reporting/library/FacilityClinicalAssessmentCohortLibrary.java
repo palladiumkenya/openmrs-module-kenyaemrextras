@@ -11,6 +11,7 @@ package org.openmrs.module.kenyaemrextras.reporting.library;
 
 import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.kenyacore.report.cohort.definition.CalculationCohortDefinition;
+import org.openmrs.module.kenyaemr.reporting.library.ETLReports.MOH731Greencard.ETLMoh731GreenCardCohortLibrary;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.RevisedDatim.DatimCohortLibrary;
 import org.openmrs.module.kenyaemr.reporting.library.ETLReports.publicHealthActionReport.PublicHealthActionCohortLibrary;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -39,6 +40,9 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	
 	@Autowired
 	private PublicHealthActionCohortLibrary publicHealthActionCohortLibrary;
+	
+	@Autowired
+	private ETLMoh731GreenCardCohortLibrary moh731Cohorts;
 	
 	/**
 	 * TX_CURR
@@ -264,6 +268,21 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
+	 * eHTS clients within the period.
+	 * 
+	 * @return
+	 */
+	public CohortDefinition eHTS() {
+		CompositionCohortDefinition cd = new CompositionCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.addSearch("htsAllNumberTested",
+		    ReportUtils.map(moh731Cohorts.htsAllNumberTested(), "startDate=${startDate},endDate=${endDate}"));
+		cd.setCompositionString("htsAllNumberTested");
+		return cd;
+	}
+	
+	/**
 	 * Age cohort eligible for reporting in this context
 	 * 
 	 * @return
@@ -460,20 +479,20 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	public CohortDefinition inTBTreatment() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select d.patient_id\n"
-		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "         left join (select pp.patient_id as program_client\n"
-		        + "                    from patient_program pp\n"
-		        + "                             inner join program p on p.program_id = pp.program_id and p.name = 'TB' and\n"
-		        + "                                                     date(pp.date_enrolled) <= date(:endDate)\n"
-		        + "                    where date(pp.date_completed) is null) v on d.patient_id = v.program_client\n"
-		        + "         left join (select v.patient_id                                                 as hiv_client,\n"
-		        + "                           max(date(v.visit_date)),\n"
-		        + "                           mid(max(concat(date(v.visit_date), v.on_anti_tb_drugs)), 11) as on_tb_drugs\n"
-		        + "                    from kenyaemr_etl.etl_patient_hiv_followup v\n"
-		        + "                    where date(v.visit_date) between date(:startDate) and date(:endDate)\n"
-		        + "                      and v.on_anti_tb_drugs = 1065\n"
-		        + "                    group by v.patient_id) c on d.patient_id = c.hiv_client\n"
-		        + "    where v.program_client is not null or c.hiv_client is not null;\n";
+		        + "        from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "                 left join (select pp.patient_id as program_client, date(pp.date_completed) as date_completed\n"
+		        + "                            from patient_program pp\n"
+		        + "                                     inner join program p on p.program_id = pp.program_id and p.name = 'TB' and\n"
+		        + "                                                             date(pp.date_enrolled) <= date(:endDate)\n"
+		        + "                            where date(pp.date_completed) is null) v on d.patient_id = v.program_client\n"
+		        + "                 left join (select v.patient_id                                                 as hiv_client,\n"
+		        + "                                   max(date(v.visit_date)) as last_fup_visit,\n"
+		        + "                                   mid(max(concat(date(v.visit_date), v.on_anti_tb_drugs)), 11) as on_tb_drugs\n"
+		        + "                            from kenyaemr_etl.etl_patient_hiv_followup v\n"
+		        + "                            where date(v.visit_date) between date(:startDate) and date(:endDate)\n"
+		        + "                              and v.on_anti_tb_drugs = 1065\n"
+		        + "                            group by v.patient_id having max(date(visit_date)) <= date(:endDate)) c on d.patient_id = c.hiv_client\n"
+		        + "            where v.program_client is not null or (c.hiv_client is not null and c.last_fup_visit > v.date_completed);";
 		cd.setName("inTBTreatment");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
