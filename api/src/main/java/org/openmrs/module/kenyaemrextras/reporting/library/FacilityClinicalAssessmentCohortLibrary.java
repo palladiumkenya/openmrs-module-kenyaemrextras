@@ -205,7 +205,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		String sqlQuery = "select pp.patient_id from patient_program pp\n"
 		        + "        inner join program p on p.program_id = pp.program_id\n"
-		        + "      where date(pp.date_completed) is null and p.name ='OVC'\n" + "      group by pp.patient_id\n"
+		        + "      where date(pp.date_completed) is null and p.name ='OTZ'\n" + "      group by pp.patient_id\n"
 		        + "      having max(date(pp.date_enrolled)) <= date(:endDate);";
 		cd.setName("inOtz");
 		cd.setQuery(sqlQuery);
@@ -233,7 +233,6 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	
 	/**
 	 * Clients active in OVC
-	 * 
 	 * @return
 	 */
 	public CohortDefinition clientsActiveInOVC() {
