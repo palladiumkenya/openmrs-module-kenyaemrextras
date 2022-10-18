@@ -19,12 +19,8 @@ import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0201CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0202CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0203CohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsInitialResultDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsRetestResultDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHivDiagnosisDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHivEnrollmentDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTracingAttemptsDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTracingOutcomeDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.SimsDataConverter;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.data.DataDefinition;
@@ -122,6 +118,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("test 2 result", test2DataDefinition, indParams, null);
 		
+		SimsRetestVerificationDataDefinition retestVerificationDataDefinition = new SimsRetestVerificationDataDefinition();
+		retestVerificationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		retestVerificationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("S_02_01 Q3", retestVerificationDataDefinition, indParams, new SimsDataConverter());
+		
 		CohortDefinition cd = new S0201CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -158,11 +160,23 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Tracing attempts", tracingAttemptsDataDefinition, indParams, null);
 		
+		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
+		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("S_02_02 Q2", isTracingAttemptsDoneDataDefinition, indParams, new SimsDataConverter());
+		
 		SimsTracingOutcomeDataDefinition tracingOutcomeDataDefinition = new SimsTracingOutcomeDataDefinition();
 		tracingOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("Tracing outcome", tracingOutcomeDataDefinition, indParams, null);
+		
+		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
+		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("S_02_02 Q3", tracingOutcomeDocumentedDataDefinition, indParams, new SimsDataConverter());
 		
 		CohortDefinition cd = new S0202CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -206,6 +220,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		hivEnrollmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("ART Initiation Date", hivEnrollmentDateDataDefinition, indParams, null);
+		
+		SimsSameDayARTInitiationDataDefinition simsSameDayARTInitiationDataDefinition = new SimsSameDayARTInitiationDataDefinition();
+		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("S_02_03 Q2", simsSameDayARTInitiationDataDefinition, indParams, new SimsDataConverter());
 		
 		CohortDefinition cd = new S0203CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
