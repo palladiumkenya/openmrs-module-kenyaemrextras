@@ -71,14 +71,14 @@ public class ETLDateBasedNextAppointmentDateDataEvaluator implements PersonDataE
 		        + "from kenyaemr_etl.etl_patient_hiv_followup f2\n"
 		        + "left join\n"
 		        + "(select f5.patient_id,f5.visit_date,f5.next_appointment_date ,f6.visit_date as min_visit from kenyaemr_etl.etl_patient_hiv_followup f5\n"
-		        + "           left join (select f6.patient_id,f6.visit_date,f6.next_appointment_date from kenyaemr_etl.etl_patient_hiv_followup f6)f6\n"
-		        + "                     on f5.patient_id = f6.patient_id)f25\n"
+		        + "left join (select f6.patient_id,f6.visit_date,f6.next_appointment_date from kenyaemr_etl.etl_patient_hiv_followup f6)f6\n"
+		        + "on f5.patient_id = f6.patient_id)f25\n"
 		        + "on f2.patient_id = f25.patient_id\n"
 		        + "where f25.visit_date >= date(:startDate) and min_visit >= f2.next_appointment_date\n"
 		        + "and f2.next_appointment_date between date(:startDate) and date(:endDate)\n"
 		        + "group by f2.patient_id\n"
 		        + "having min(app_visit) >= date(:startDate) and min(app_visit) < f2.next_appointment_date and return_date >= f2.next_appointment_date\n"
-		        + ")r;";
+		        + ")r group by r.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);

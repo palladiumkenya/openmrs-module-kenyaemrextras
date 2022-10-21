@@ -82,7 +82,7 @@ public class ReturnToCareDateBasedDateDataEvaluator implements PersonDataEvaluat
 		        + "and f2.next_appointment_date between date(:startDate) and date(:endDate)\n"
 		        + "group by f2.patient_id\n"
 		        + "having min(app_visit) >= date(:startDate) and min(app_visit) < f2.next_appointment_date and return_date >= f2.next_appointment_date\n"
-		        + ")r;";
+		        + ")r group by r.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
