@@ -142,7 +142,7 @@
             </set>
         </property>
         <property name="template" value="kenyaemrextras:sims.xls" />
-        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02 | sheet:4,row:7,dataset:S_02_03" />
+        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02 | sheet:4,row:7,dataset:S_02_03 | sheet:6,row:7,dataset:S_02_05 | sheet:7,row:7,dataset:S_02_07-11" />
 
     </bean>
 </beans>
