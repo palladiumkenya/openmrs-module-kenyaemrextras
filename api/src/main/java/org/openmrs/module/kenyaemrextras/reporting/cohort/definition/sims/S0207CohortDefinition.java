@@ -16,7 +16,8 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
  * Instructions: Review 10 register entries (individual or index/partner testing logbook) or charts
- * (whichever source has the most updated information) of HIV-positive adult and adolescent patients ≥15 years old on ART ≥12 months.
+ * (whichever source has the most updated information) of HIV-positive adult and adolescent patients
+ * ≥15 years old on ART ≥12 months.
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
 @Localized("reporting.S0207CohortDefinition")
