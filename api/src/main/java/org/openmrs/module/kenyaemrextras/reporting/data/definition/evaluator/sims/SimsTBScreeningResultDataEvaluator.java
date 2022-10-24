@@ -36,15 +36,19 @@ public class SimsTBScreeningResultDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "Select fup.patient_id, (case fup.tb_status when 1660 then \"No TB Signs\" when 142177 then \"Presumed TB\" when 1662 then \"TB Confirmed\" when 160737 then \"TB Screening Not Done\"  else null end ) as resulting_tb_status\n"
-		        + "FROM kenyaemr_etl.etl_patient_hiv_followup fup where fup.tb_status is not null \n"
-		        + "group by fup.patient_id\n" + "having max(fup.visit_date) between date(:startDate) and date(:endDate);";
+		String qry = "SELECT patient_id, mid(max(concat(visit_date, (case lastTBStatus when 1660 then \"No TB Signs\" when 142177 then \"Presumed TB\" when 1662 then \"TB Confirmed\" when 160737 then \"TB Screening Not Done\"  else null end ))), 11) as lastTBStatus\n"
+		        + "                from\n"
+		        + "            (\n"
+		        + "                SELECT\n"
+		        + "                    f.patient_id,\n"
+		        + "                    f.visit_date,\n"
+		        + "                    coalesce(f.tb_status, s.resulting_tb_status) AS lastTBStatus\n"
+		        + "                FROM kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "                    LEFT OUTER JOIN kenyaemr_etl.etl_tb_screening s\n"
+		        + "                        ON s.patient_id = f.patient_id AND date(s.visit_date) = date(f.visit_date)\n"
+		        + "                GROUP BY f.patient_id\n" + "            ) v\n" + "            GROUP BY patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);
