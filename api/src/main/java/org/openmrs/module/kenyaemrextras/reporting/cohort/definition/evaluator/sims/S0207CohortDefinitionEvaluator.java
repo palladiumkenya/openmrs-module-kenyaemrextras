@@ -36,9 +36,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Evaluator for S0207CohortDefinition: HIV-positive adult and adolescent patients ≥15 years old on ART ≥12 months.
+ * Evaluator for S0207CohortDefinition: HIV-positive adult and adolescent patients ≥15 years old on
+ * ART ≥12 months.
  */
-@Handler(supports = {S0207CohortDefinition.class })
+@Handler(supports = { S0207CohortDefinition.class })
 public class S0207CohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -48,7 +49,7 @@ public class S0207CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 	
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
-
+		
 		S0207CohortDefinition definition = (S0207CohortDefinition) cohortDefinition;
 		
 		if (definition == null)

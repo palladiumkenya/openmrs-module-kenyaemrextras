@@ -93,43 +93,42 @@ public class SimsReportQueries {
 		        + "                            on t.patient_id = vl.patient_id where vl_result >= 1000)a";
 		return qry;
 	}
-/*
-* Instructions: Review 10 register entries (individual or index/partner testing logbook) or charts (whichever source has the most updated information)
-* of HIV-positive adult and adolescent patients ≥15 years old on ART ≥12 months.
-*
-*
-* */
+	
+	/*
+	* Instructions: Review 10 register entries (individual or index/partner testing logbook) or charts (whichever source has the most updated information)
+	* of HIV-positive adult and adolescent patients ≥15 years old on ART ≥12 months.
+	*
+	*
+	* */
 	public static String currentlyOnArtQuery() {
-		String qry = "select t.patient_id from (\n" +
-				"    select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n" +
-				"            greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n" +
-				"            greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n" +
-				"            greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n" +
-				"            d.patient_id as disc_patient,\n" +
-				"            d.effective_disc_date as effective_disc_date,\n" +
-				"            max(d.visit_date) as date_discontinued,\n" +
-				"            de.patient_id as started_on_drugs,\n" +
-				"            de.date_started,\n" +
-				"            timestampdiff(YEAR ,p.dob,date(:endDate)) as age\n" +
-				"    from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
-				"            join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n" +
-				"            join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n" +
-				"            left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and de.date_started <= date_sub(date(:endDate) , interval 12 MONTH)\n" +
-				"            left outer JOIN\n" +
-				"                (select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n" +
-				"                where date(visit_date) <= date(:endDate) and program_name='HIV'\n" +
-				"                group by patient_id\n" +
-				"                ) d on d.patient_id = fup.patient_id\n" +
-				"    where fup.visit_date <= date(:endDate)\n" +
-				"    group by patient_id\n" +
-				"    having (started_on_drugs is not null and started_on_drugs <> '') and (\n" +
-				"        (\n" +
-				"            ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n" +
-				"                and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15\n" +
-				"            )\n" +
-				"        ) order by date_started desc\n" +
-				"    ) t limit 10";
+		String qry = "select t.patient_id from (\n"
+		        + "    select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
+		        + "            greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
+		        + "            greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
+		        + "            greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
+		        + "            d.patient_id as disc_patient,\n"
+		        + "            d.effective_disc_date as effective_disc_date,\n"
+		        + "            max(d.visit_date) as date_discontinued,\n"
+		        + "            de.patient_id as started_on_drugs,\n"
+		        + "            de.date_started,\n"
+		        + "            timestampdiff(YEAR ,p.dob,date(:endDate)) as age\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "            join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+		        + "            join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+		        + "            left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and de.date_started <= date_sub(date(:endDate) , interval 12 MONTH)\n"
+		        + "            left outer JOIN\n"
+		        + "                (select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "                where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
+		        + "                group by patient_id\n"
+		        + "                ) d on d.patient_id = fup.patient_id\n"
+		        + "    where fup.visit_date <= date(:endDate)\n"
+		        + "    group by patient_id\n"
+		        + "    having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
+		        + "        (\n"
+		        + "            ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
+		        + "                and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15\n"
+		        + "            )\n" + "        ) order by date_started desc\n" + "    ) t limit 10";
 		return qry;
-
+		
 	}
 }

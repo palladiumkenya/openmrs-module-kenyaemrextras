@@ -80,12 +80,13 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition missedAppointmentsDSD = missedAppointmentDatasetDefinition("S_02_02");
 		DataSetDefinition sameDayInitiationDSD = sameDayARTInitiationDatasetDefinition("S_02_03");
 		DataSetDefinition adultsOnArtVirallyUnsupressedDSD = adultsOnARTNonVirallySuppressedDatasetDefinition("S_02_05");
-		DataSetDefinition adultsOnArtDSD = adultsOnARTDatasetDefinition("S_02_07-11");
-
+		DataSetDefinition adultsOnArtDSD = adultsOnARTDatasetDefinition("S_02_07");
+		
 		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(sameDayInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(adultsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(adultsOnArtDSD, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -278,21 +279,21 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		
 		return dsd;
 	}
-
+	
 	protected PatientDataSetDefinition adultsOnARTDatasetDefinition(String datasetName) {
-
+		
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
-				HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
-				upn.getName(), upn), identifierFormatter);
-
+		        upn.getName(), upn), identifierFormatter);
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
@@ -300,16 +301,20 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-
-
-
+		
+		SimsTBScreeningResultDataDefinition tbScreeningResultDataDefinition = new SimsTBScreeningResultDataDefinition();
+		tbScreeningResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("TB Screening Result", tbScreeningResultDataDefinition, indParams, null);
+		
 		CohortDefinition cd = new S0207CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Adults on ART");
 		dsd.addRowFilter(cd, indParams);
-
+		
 		return dsd;
 	}
-
+	
 }
