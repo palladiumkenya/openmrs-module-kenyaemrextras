@@ -21,6 +21,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0202C
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0203CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0205CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0207CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.SimsDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -307,6 +308,18 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		tbScreeningResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("TB Screening Result", tbScreeningResultDataDefinition, indParams, null);
+		
+		EverOnIPTDataDefinition everOnIPTDataDefinition = new EverOnIPTDataDefinition();
+		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		everOnIPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Ever on TPT/IPT", everOnIPTDataDefinition, indParams, null);
+		
+		SimsCTXDispensedDataDefinition simsCTXDispensedDataDefinition = new SimsCTXDispensedDataDefinition();
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("CTX Dispensed", simsCTXDispensedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0207CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
