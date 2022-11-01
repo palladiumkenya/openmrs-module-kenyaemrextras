@@ -22,6 +22,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0202C
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0203CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0205CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0207CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0226To28CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.SimsDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.*;
@@ -84,13 +85,17 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition adultsOnArtVirallyUnsupressedDSD = adultsOnARTNonVirallySuppressedDatasetDefinition("S_02_05");
 		DataSetDefinition adultsOnArtDSD = adultsOnARTDatasetDefinition("S_02_07");
 		DataSetDefinition adultsOnArtWithPresumptiveTBDSD = adultsOnARTWithPresumptiveTBDatasetDefinition("S_02_12");
+		DataSetDefinition pedsOnArtWithTBScreeningResultBDSD = pedsOnArtWithTBScreeningResultDatasetDefinition("S_02_26");
+		DataSetDefinition pedsOnArtCTXDispensedBDSD = pedsOnArtCTXDispensedDatasetDefinition("S_02_28");
 		
 		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(sameDayInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(adultsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(adultsOnArtDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(adultsOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsOnArtWithTBScreeningResultBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsOnArtCTXDispensedBDSD, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -396,6 +401,78 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("On ART with Presumptive TB");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsOnArtWithTBScreeningResultDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsTBResultDoumentedDataDefinition simsTBResultDoumentedDataDefinition = new SimsTBResultDoumentedDataDefinition();
+		simsTBResultDoumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsTBResultDoumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB Result Documented on lastVisit", simsTBResultDoumentedDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0226To28CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Current on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsOnArtCTXDispensedDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsCTXDispensedDataDefinition simsCTXDispensedDataDefinition = new SimsCTXDispensedDataDefinition();
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("CTX Dispensed", simsCTXDispensedDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0226To28CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Current on ART");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
