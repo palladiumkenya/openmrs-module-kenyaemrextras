@@ -275,6 +275,16 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Date", enhancedAdherenceDateDataDefinition, indParams, null);
 		
+		SimsEnhancedAdherenceDocumentedDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEnhancedAdherenceDocumentedDataDefinition();
+		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Enhance Adherence Documented", enhancedAdherenceDocumentedDataDefinition, indParams, null);
+		
+		SimsFollowUpVLTakenDataDefinition followUpVLTakenDataDefinition = new SimsFollowUpVLTakenDataDefinition();
+		followUpVLTakenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		followUpVLTakenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Follow Up VL", followUpVLTakenDataDefinition, indParams, null);
+		
 		CohortDefinition cd = new S0205CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -371,6 +381,16 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsSmearCultureXpertResultsDataDefinition simsSmearCultureXpertResultsDataDefinition = new SimsSmearCultureXpertResultsDataDefinition();
+		simsSmearCultureXpertResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsSmearCultureXpertResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Smear/Culture/GeneXpert Resutls", simsSmearCultureXpertResultsDataDefinition, indParams, null);
+		
+		SimsTBMolecularTestingDataDefinition simsTBMolecularTestingDataDefinition = new SimsTBMolecularTestingDataDefinition();
+		simsTBMolecularTestingDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsTBMolecularTestingDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB Molecular Testing", simsTBMolecularTestingDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S02012CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
