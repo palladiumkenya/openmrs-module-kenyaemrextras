@@ -24,6 +24,7 @@ import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.PatientProgramEnrollmentConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.ActivePatientsPopulationTypeDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.MFLCodeDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.AgeAtReportingDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.*;
@@ -163,6 +164,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
