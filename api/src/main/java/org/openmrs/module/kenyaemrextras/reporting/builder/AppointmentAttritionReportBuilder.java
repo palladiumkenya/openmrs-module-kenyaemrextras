@@ -245,6 +245,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
@@ -332,6 +333,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
@@ -419,6 +421,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
@@ -506,6 +509,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
@@ -593,6 +597,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
@@ -680,6 +685,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
