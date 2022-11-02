@@ -66,75 +66,58 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition missedAppointments() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id from (select r.patient_id,r.return_date,r.next_appointment_date,d.patient_id as disc_patient,d.visit_date as disc_date from(\n"
-		        + "-- Returned on or after next appointment date\n"
-		        + "select f4.patient_id      as patient_id,\n"
-		        + " f4.visit_date      as app_visit,\n"
-		        + " min(f5.visit_date) as return_date,\n"
-		        + " f4.next_appointment_date\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup f4\n"
-		        + "   left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n"
-		        + "              from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n"
-		        + "             on f4.patient_id = f5.patient_id\n"
-		        + "where f4.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "and f5.visit_date >= date(:startDate)\n"
-		        + "and f5.visit_date >= f4.next_appointment_date\n"
-		        + "group by f5.patient_id\n"
-		        + "having return_date >= f4.next_appointment_date\n"
-		        + "union\n"
-		        + "-- Never Returned\n"
-		        + "select f0.patient_id  as patient_id,\n"
-		        + " f0.visit_date  as app_visit,\n"
-		        + " f7.return_date as return_date,\n"
-		        + " f0.next_appointment_date\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup f0\n"
-		        + "   left join (select f7.patient_id,\n"
-		        + "                     f7.visit_date,\n"
-		        + "                     f7.next_appointment_date,\n"
-		        + "                     max(f7.visit_date)                                            as return_date,\n"
-		        + "                     mid(max(concat(f7.visit_date, f7.next_appointment_date)), 11) as latest_appointment\n"
-		        + "              from kenyaemr_etl.etl_patient_hiv_followup f7\n"
-		        + "              group by f7.patient_id) f7\n"
-		        + "             on f0.patient_id = f7.patient_id\n"
-		        + "where f0.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "and f0.next_appointment_date = latest_appointment\n"
-		        + "and return_date = f0.visit_date\n"
-		        + "union\n"
-		        + "-- Multiple Appointments between start and end date and returned on or after app date although after start date. Picking First Appointment\n"
-		        + "select fa.patient_id,\n"
-		        + " fa.visit_date     as app_visit,\n"
-		        + " fa.next_appointment_date,\n"
-		        + " min(fb.min_visit) as return_date\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup fa\n"
-		        + "   left join\n"
-		        + "(select f5.patient_id,\n"
-		        + "       f5.visit_date,\n"
-		        + "       f5.next_appointment_date,\n"
-		        + "       f6.visit_date as min_visit\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup f5\n"
-		        + "         left join (select f6.patient_id, f6.visit_date, f6.next_appointment_date\n"
-		        + "                    from kenyaemr_etl.etl_patient_hiv_followup f6) f6\n"
-		        + "                   on f5.patient_id = f6.patient_id) fb\n"
-		        + "on fa.patient_id = fb.patient_id\n"
-		        + "where fb.visit_date >= date(:startDate)\n"
-		        + "and min_visit >= fa.next_appointment_date\n"
-		        + "and fa.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "group by fa.patient_id             having min(app_visit) >= date(:startDate)\n"
-		        + "and min(app_visit) < fa.next_appointment_date\n"
-		        + "and return_date >= fa.next_appointment_date         ) r\n"
-		        + "    inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n"
-		        + "    left outer join (select patient_id,\n"
-		        + "     coalesce(max(date(effective_discontinuation_date)), max(date(visit_date))) visit_date,\n"
-		        + "     max(date(effective_discontinuation_date)) as                               effective_disc_date,\n"
-		        + "     discontinuation_reason\n"
-		        + "         from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "where date(visit_date) <= date(:endDate)\n"
-		        + "and program_name = 'HIV'\n"
-		        + "group by patient_id\n"
-		        + "        ) d on d.patient_id = r.patient_id\n"
-		        + "where timestampdiff(DAY, next_appointment_date, return_date) > 0 or (next_appointment_date > return_date and return_date = app_visit)\n"
-		        + "    group by r.patient_id\n"
-		        + "        having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or date(d.visit_date) >= date(:endDate))) a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"       from (select r.patient_id,\n" +
+				"                   r.return_date,\n" +
+				"                   r.next_appointment_date as next_appointment_date,\n" +
+				"                   d.patient_id as disc_patient,\n" +
+				"                   d.visit_date as disc_date\n" +
+				"            from (\n" +
+				"       -- Returned after next appointment date\n" +
+				"                        select f4.patient_id      as patient_id,\n" +
+				"                             f4.visit_date      as app_visit,\n" +
+				"                             min(f5.visit_date) as return_date,\n" +
+				"                             f4.next_appointment_date\n" +
+				"                      from kenyaemr_etl.etl_patient_hiv_followup f4\n" +
+				"                               left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n" +
+				"                                          from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n" +
+				"                                         on f4.patient_id = f5.patient_id\n" +
+				"                      where f4.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                         and f5.visit_date >= f4.next_appointment_date\n" +
+				"                      group by f5.patient_id\n" +
+				"                      having (return_date > f4.next_appointment_date)\n" +
+				"                      union\n" +
+				"       -- Never Returned\n" +
+				"                      select f0.patient_id  as patient_id,\n" +
+				"                             f0.visit_date  as app_visit,\n" +
+				"                             f7.return_date as return_date,\n" +
+				"                             f0.next_appointment_date\n" +
+				"                      from kenyaemr_etl.etl_patient_hiv_followup f0\n" +
+				"                               left join (select f7.patient_id,\n" +
+				"                                                 f7.visit_date,\n" +
+				"                                                 f7.next_appointment_date,\n" +
+				"                                                 max(f7.visit_date)                                            as return_date,\n" +
+				"                                                 mid(max(concat(f7.visit_date, f7.next_appointment_date)), 11) as latest_appointment\n" +
+				"                                          from kenyaemr_etl.etl_patient_hiv_followup f7\n" +
+				"                                          group by f7.patient_id) f7\n" +
+				"                                         on f0.patient_id = f7.patient_id\n" +
+				"                      where f0.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                        and f0.next_appointment_date = latest_appointment\n" +
+				"                        and f7.return_date = f0.visit_date\n" +
+				"                    ) r\n" +
+				"                      inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"                      left outer join (select patient_id,\n" +
+				"                                              coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                       max(date(visit_date)))              visit_date,\n" +
+				"                                              max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                              discontinuation_reason\n" +
+				"                                       from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                       where date(visit_date) <= date(:endDate)\n" +
+				"                                         and program_name = 'HIV'\n" +
+				"                                       group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"             group by r.patient_id\n" +
+				"             having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"                     date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("missedAppointments");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -151,62 +134,42 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition rtcWithin7Days() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id\n"
-		        + "from (select r.patient_id,\n"
-		        + "             r.return_date,\n"
-		        + "             r.next_appointment_date,\n"
-		        + "             d.patient_id as disc_patient,\n"
-		        + "             d.visit_date as disc_date\n"
-		        + "      from (\n"
-		        + "-- Returned on or after next appointment date or Appointments between start and end date and returned early although after start date\n"
-		        + "               select f4.patient_id      as patient_id,\n"
-		        + "                      f4.visit_date      as app_visit,\n"
-		        + "                      min(f5.visit_date) as return_date,\n"
-		        + "                      f4.next_appointment_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup f4\n"
-		        + "                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n"
-		        + "                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n"
-		        + "                                  on f4.patient_id = f5.patient_id\n"
-		        + "               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "                 and f5.visit_date >= date(:startDate)\n"
-		        + "                 and f5.visit_date >= f4.next_appointment_date\n"
-		        + "               group by f5.patient_id\n"
-		        + "               having return_date >= f4.next_appointment_date\n"
-		        + "               union\n"
-		        + "-- Multiple Appointments between start and end date and returned on or after app date although after start date. Picking First Appointment\n"
-		        + "               select fa.patient_id,\n"
-		        + "                      fa.visit_date     as app_visit,\n"
-		        + "                      fa.next_appointment_date,\n"
-		        + "                      min(fb.min_visit) as return_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup fa\n"
-		        + "                        left join\n"
-		        + "                    (select f5.patient_id,\n"
-		        + "                            f5.visit_date,\n"
-		        + "                            f5.next_appointment_date,\n"
-		        + "                            min(f5.visit_date) as min_visit\n"
-		        + "                     from kenyaemr_etl.etl_patient_hiv_followup f5) fb\n"
-		        + "                    on fa.patient_id = fb.patient_id\n"
-		        + "               where fb.visit_date >= date(:startDate)\n"
-		        + "                 and min_visit >= fa.next_appointment_date\n"
-		        + "                 and fa.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "               group by fa.patient_id\n"
-		        + "               having min(app_visit) >= date(:startDate)\n"
-		        + "                  and min(app_visit) < fa.next_appointment_date\n"
-		        + "                  and return_date >= fa.next_appointment_date) r\n"
-		        + "               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n"
-		        + "               left outer join (select patient_id,\n"
-		        + "                                       coalesce(max(date(effective_discontinuation_date)),\n"
-		        + "                                                max(date(visit_date)))              visit_date,\n"
-		        + "                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n"
-		        + "                                       discontinuation_reason\n"
-		        + "                                from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "                                where date(visit_date) <= date(:endDate)\n"
-		        + "                                  and program_name = 'HIV'\n"
-		        + "                                group by patient_id\n" + "      ) d on d.patient_id = r.patient_id\n"
-		        + "      where timestampdiff(DAY, next_appointment_date, return_date) between 1 and 7\n"
-		        + "      group by r.patient_id\n"
-		        + "      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n"
-		        + "              date(d.visit_date) >= date(:endDate))) a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"from (select r.patient_id,\n" +
+				"             r.return_date,\n" +
+				"             r.next_appointment_date as next_appointment_date,\n" +
+				"             d.patient_id as disc_patient,\n" +
+				"             d.visit_date as disc_date,\n" +
+				"             r.days\n" +
+				"      from (\n" +
+				"               -- Returned after next appointment date\n" +
+				"               select f4.patient_id      as patient_id,\n" +
+				"                      f4.visit_date      as app_visit,\n" +
+				"                      min(f5.visit_date) as return_date,\n" +
+				"                      f4.next_appointment_date,\n" +
+				"                      timestampdiff(DAY,f4.next_appointment_date,min(f5.visit_date)) days\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f4\n" +
+				"                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n" +
+				"                                  on f4.patient_id = f5.patient_id\n" +
+				"               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f5.visit_date >= f4.next_appointment_date\n" +
+				"               group by f5.patient_id\n" +
+				"               having return_date > f4.next_appointment_date and days between 1 and 7\n" +
+				"           ) r\n" +
+				"               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"               left outer join (select patient_id,\n" +
+				"                                       coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                max(date(visit_date)))              visit_date,\n" +
+				"                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                       discontinuation_reason\n" +
+				"                                from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                where date(visit_date) <= date(:endDate)\n" +
+				"                                  and program_name = 'HIV'\n" +
+				"                                group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"      group by r.patient_id\n" +
+				"      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"              date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("rtcWithin7DaysSql");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -223,62 +186,42 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition rtcBetween8And30Days() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id\n"
-		        + "from (select r.patient_id,\n"
-		        + "             r.return_date,\n"
-		        + "             r.next_appointment_date,\n"
-		        + "             d.patient_id as disc_patient,\n"
-		        + "             d.visit_date as disc_date\n"
-		        + "      from (\n"
-		        + "-- Returned on or after next appointment date or Appointments between start and end date and returned early although after start date\n"
-		        + "               select f4.patient_id      as patient_id,\n"
-		        + "                      f4.visit_date      as app_visit,\n"
-		        + "                      min(f5.visit_date) as return_date,\n"
-		        + "                      f4.next_appointment_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup f4\n"
-		        + "                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n"
-		        + "                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n"
-		        + "                                  on f4.patient_id = f5.patient_id\n"
-		        + "               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "                 and f5.visit_date >= date(:startDate)\n"
-		        + "                 and f5.visit_date >= f4.next_appointment_date\n"
-		        + "               group by f5.patient_id\n"
-		        + "               having return_date >= f4.next_appointment_date\n"
-		        + "               union\n"
-		        + "-- Multiple Appointments between start and end date and returned on or after app date although after start date. Picking First Appointment\n"
-		        + "               select fa.patient_id,\n"
-		        + "                      fa.visit_date     as app_visit,\n"
-		        + "                      fa.next_appointment_date,\n"
-		        + "                      min(fb.min_visit) as return_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup fa\n"
-		        + "                        left join\n"
-		        + "                    (select f5.patient_id,\n"
-		        + "                            f5.visit_date,\n"
-		        + "                            f5.next_appointment_date,\n"
-		        + "                            min(f5.visit_date) as min_visit\n"
-		        + "                     from kenyaemr_etl.etl_patient_hiv_followup f5) fb\n"
-		        + "                    on fa.patient_id = fb.patient_id\n"
-		        + "               where fb.visit_date >= date(:startDate)\n"
-		        + "                 and min_visit >= fa.next_appointment_date\n"
-		        + "                 and fa.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "               group by fa.patient_id\n"
-		        + "               having min(app_visit) >= date(:startDate)\n"
-		        + "                  and min(app_visit) < fa.next_appointment_date\n"
-		        + "                  and return_date >= fa.next_appointment_date) r\n"
-		        + "               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n"
-		        + "               left outer join (select patient_id,\n"
-		        + "                                       coalesce(max(date(effective_discontinuation_date)),\n"
-		        + "                                                max(date(visit_date)))              visit_date,\n"
-		        + "                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n"
-		        + "                                       discontinuation_reason\n"
-		        + "                                from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "                                where date(visit_date) <= date(:endDate)\n"
-		        + "                                  and program_name = 'HIV'\n"
-		        + "                                group by patient_id\n" + "      ) d on d.patient_id = r.patient_id\n"
-		        + "      where timestampdiff(DAY, next_appointment_date, return_date) between 8 and 30\n"
-		        + "      group by r.patient_id\n"
-		        + "      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n"
-		        + "              date(d.visit_date) >= date(:endDate))) a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"from (select r.patient_id,\n" +
+				"             r.return_date,\n" +
+				"             r.next_appointment_date as next_appointment_date,\n" +
+				"             d.patient_id as disc_patient,\n" +
+				"             d.visit_date as disc_date,\n" +
+				"             r.days\n" +
+				"      from (\n" +
+				"               -- Returned after next appointment date\n" +
+				"               select f4.patient_id      as patient_id,\n" +
+				"                      f4.visit_date      as app_visit,\n" +
+				"                      min(f5.visit_date) as return_date,\n" +
+				"                      f4.next_appointment_date,\n" +
+				"                      timestampdiff(DAY,f4.next_appointment_date,min(f5.visit_date)) days\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f4\n" +
+				"                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n" +
+				"                                  on f4.patient_id = f5.patient_id\n" +
+				"               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f5.visit_date >= f4.next_appointment_date\n" +
+				"               group by f5.patient_id\n" +
+				"               having return_date > f4.next_appointment_date and days between 8 and 30\n" +
+				"           ) r\n" +
+				"               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"               left outer join (select patient_id,\n" +
+				"                                       coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                max(date(visit_date)))              visit_date,\n" +
+				"                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                       discontinuation_reason\n" +
+				"                                from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                where date(visit_date) <= date(:endDate)\n" +
+				"                                  and program_name = 'HIV'\n" +
+				"                                group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"      group by r.patient_id\n" +
+				"      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"              date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("rtcBetween8And30DaysSql");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -295,64 +238,60 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition iitOver30Days() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id\n"
-		        + "from (select r.patient_id,\n"
-		        + "             r.return_date,\n"
-		        + "             r.next_appointment_date,\n"
-		        + "             d.patient_id as disc_patient,\n"
-		        + "             d.visit_date as disc_date\n"
-		        + "      from (\n"
-		        + "-- Returned on or after next appointment date or Appointments between start and end date and returned early although after start date\n"
-		        + "               select f4.patient_id      as patient_id,\n"
-		        + "                      f4.visit_date      as app_visit,\n"
-		        + "                      min(f5.visit_date) as return_date,\n"
-		        + "                      f4.next_appointment_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup f4\n"
-		        + "                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n"
-		        + "                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n"
-		        + "                                  on f4.patient_id = f5.patient_id\n"
-		        + "               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "                 and f5.visit_date >= date(:startDate)\n"
-		        + "                 and f5.visit_date >= f4.next_appointment_date\n"
-		        + "               group by f5.patient_id\n"
-		        + "               having return_date >= f4.next_appointment_date\n"
-		        + "                   or (return_date >= date(:startDate) and return_date < f4.next_appointment_date and return_date != app_visit)\n"
-		        + "               union\n"
-		        + "-- Multiple Appointments between start and end date and returned on or after app date although after start date. Picking First Appointment\n"
-		        + "               select fa.patient_id,\n"
-		        + "                      fa.visit_date     as app_visit,\n"
-		        + "                      fa.next_appointment_date,\n"
-		        + "                      min(fb.min_visit) as return_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup fa\n"
-		        + "                        left join\n"
-		        + "                    (select f5.patient_id,\n"
-		        + "                            f5.visit_date,\n"
-		        + "                            f5.next_appointment_date,\n"
-		        + "                            min(f5.visit_date) as min_visit\n"
-		        + "                     from kenyaemr_etl.etl_patient_hiv_followup f5) fb\n"
-		        + "                    on fa.patient_id = fb.patient_id\n"
-		        + "               where fb.visit_date >= date(:startDate)\n"
-		        + "                 and min_visit >= fa.next_appointment_date\n"
-		        + "                 and fa.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "               group by fa.patient_id\n"
-		        + "               having min(app_visit) >= date(:startDate)\n"
-		        + "                  and min(app_visit) < fa.next_appointment_date\n"
-		        + "                  and return_date >= fa.next_appointment_date) r\n"
-		        + "               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n"
-		        + "               left outer join (select patient_id,\n"
-		        + "                                       coalesce(max(date(effective_discontinuation_date)),\n"
-		        + "                                                max(date(visit_date)))              visit_date,\n"
-		        + "                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n"
-		        + "                                       discontinuation_reason\n"
-		        + "                                from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "                                where date(visit_date) <= date(:endDate)\n"
-		        + "                                  and program_name = 'HIV'\n"
-		        + "                                group by patient_id\n" + "      ) d on d.patient_id = r.patient_id\n"
-		        + "      where timestampdiff(DAY, next_appointment_date, return_date) > 30\n"
-		        + "         or (next_appointment_date > return_date and return_date = app_visit)\n"
-		        + "      group by r.patient_id\n"
-		        + "      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n"
-		        + "              date(d.visit_date) >= date(:endDate))) a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"from (select r.patient_id,\n" +
+				"             r.return_date,\n" +
+				"             r.next_appointment_date as next_appointment_date,\n" +
+				"             d.patient_id as disc_patient,\n" +
+				"             d.visit_date as disc_date\n" +
+				"      from (\n" +
+				"               -- Returned after next appointment date\n" +
+				"               select f4.patient_id      as patient_id,\n" +
+				"                      f4.visit_date      as app_visit,\n" +
+				"                      min(f5.visit_date) as return_date,\n" +
+				"                      f4.next_appointment_date   next_appointment_date\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f4\n" +
+				"                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n" +
+				"                                  on f4.patient_id = f5.patient_id\n" +
+				"               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f5.visit_date >= f4.next_appointment_date\n" +
+				"               group by f5.patient_id\n" +
+				"               having return_date > f4.next_appointment_date\n" +
+				"               and\n" +
+				"                   timestampdiff(DAY,f4.next_appointment_date,min(f5.visit_date)) > 30\n" +
+				"               union\n" +
+				"               -- Never Returned\n" +
+				"               select f0.patient_id  as patient_id,\n" +
+				"                      f0.visit_date  as app_visit,\n" +
+				"                      f7.return_date as return_date,\n" +
+				"                      f0.next_appointment_date\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f0\n" +
+				"                        left join (select f7.patient_id,\n" +
+				"                                          f7.visit_date,\n" +
+				"                                          f7.next_appointment_date,\n" +
+				"                                          max(f7.visit_date)                                            as return_date,\n" +
+				"                                          mid(max(concat(f7.visit_date, f7.next_appointment_date)), 11) as latest_appointment\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f7\n" +
+				"                                   group by f7.patient_id) f7\n" +
+				"                                  on f0.patient_id = f7.patient_id\n" +
+				"               where f0.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f0.next_appointment_date = latest_appointment\n" +
+				"                 and f7.return_date = f0.visit_date\n" +
+				"           ) r\n" +
+				"               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"               left outer join (select patient_id,\n" +
+				"                                       coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                max(date(visit_date)))              visit_date,\n" +
+				"                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                       discontinuation_reason\n" +
+				"                                from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                where date(visit_date) <= date(:endDate)\n" +
+				"                                  and program_name = 'HIV'\n" +
+				"                                group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"      group by r.patient_id\n" +
+				"      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"              date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("iitOver30Days");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -369,63 +308,42 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition rtcOver30Days() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id\n"
-		        + "from (select r.patient_id,\n"
-		        + "             r.return_date,\n"
-		        + "             r.next_appointment_date,\n"
-		        + "             d.patient_id as disc_patient,\n"
-		        + "             d.visit_date as disc_date\n"
-		        + "      from (\n"
-		        + "-- Returned on or after next appointment date or Appointments between start and end date and returned early although after start date\n"
-		        + "               select f4.patient_id      as patient_id,\n"
-		        + "                      f4.visit_date      as app_visit,\n"
-		        + "                      min(f5.visit_date) as return_date,\n"
-		        + "                      f4.next_appointment_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup f4\n"
-		        + "                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n"
-		        + "                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n"
-		        + "                                  on f4.patient_id = f5.patient_id\n"
-		        + "               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "                 and f5.visit_date >= date(:startDate)\n"
-		        + "                 and f5.visit_date >= f4.next_appointment_date\n"
-		        + "               group by f5.patient_id\n"
-		        + "               having return_date >= f4.next_appointment_date\n"
-		        + "                   or (return_date >= date(:startDate) and return_date < f4.next_appointment_date and return_date != app_visit)\n"
-		        + "               union\n"
-		        + "-- Multiple Appointments between start and end date and returned on or after app date although after start date. Picking First Appointment\n"
-		        + "               select fa.patient_id,\n"
-		        + "                      fa.visit_date     as app_visit,\n"
-		        + "                      fa.next_appointment_date,\n"
-		        + "                      min(fb.min_visit) as return_date\n"
-		        + "               from kenyaemr_etl.etl_patient_hiv_followup fa\n"
-		        + "                        left join\n"
-		        + "                    (select f5.patient_id,\n"
-		        + "                            f5.visit_date,\n"
-		        + "                            f5.next_appointment_date,\n"
-		        + "                            min(f5.visit_date) as min_visit\n"
-		        + "                     from kenyaemr_etl.etl_patient_hiv_followup f5) fb\n"
-		        + "                    on fa.patient_id = fb.patient_id\n"
-		        + "               where fb.visit_date >= date(:startDate)\n"
-		        + "                 and min_visit >= fa.next_appointment_date\n"
-		        + "                 and fa.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "               group by fa.patient_id\n"
-		        + "               having min(app_visit) >= date(:startDate)\n"
-		        + "                  and min(app_visit) < fa.next_appointment_date\n"
-		        + "                  and return_date >= fa.next_appointment_date) r\n"
-		        + "               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n"
-		        + "               left outer join (select patient_id,\n"
-		        + "                                       coalesce(max(date(effective_discontinuation_date)),\n"
-		        + "                                                max(date(visit_date)))              visit_date,\n"
-		        + "                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n"
-		        + "                                       discontinuation_reason\n"
-		        + "                                from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "                                where date(visit_date) <= date(:endDate)\n"
-		        + "                                  and program_name = 'HIV'\n"
-		        + "                                group by patient_id\n" + "      ) d on d.patient_id = r.patient_id\n"
-		        + "      where timestampdiff(DAY, next_appointment_date, return_date) > 30\n"
-		        + "      group by r.patient_id\n"
-		        + "      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n"
-		        + "              date(d.visit_date) >= date(:endDate))) a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"from (select r.patient_id,\n" +
+				"             r.return_date,\n" +
+				"             r.next_appointment_date as next_appointment_date,\n" +
+				"             d.patient_id as disc_patient,\n" +
+				"             d.visit_date as disc_date,\n" +
+				"             r.days\n" +
+				"      from (\n" +
+				"               -- Returned after next appointment date\n" +
+				"               select f4.patient_id      as patient_id,\n" +
+				"                      f4.visit_date      as app_visit,\n" +
+				"                      min(f5.visit_date) as return_date,\n" +
+				"                      f4.next_appointment_date,\n" +
+				"                      timestampdiff(DAY,f4.next_appointment_date,min(f5.visit_date)) days\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f4\n" +
+				"                        left join (select f5.patient_id, f5.visit_date, f5.next_appointment_date\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f5) f5\n" +
+				"                                  on f4.patient_id = f5.patient_id\n" +
+				"               where f4.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f5.visit_date >= f4.next_appointment_date\n" +
+				"               group by f5.patient_id\n" +
+				"               having return_date > f4.next_appointment_date and days > 30\n" +
+				"           ) r\n" +
+				"               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"               left outer join (select patient_id,\n" +
+				"                                       coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                max(date(visit_date)))              visit_date,\n" +
+				"                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                       discontinuation_reason\n" +
+				"                                from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                where date(visit_date) <= date(:endDate)\n" +
+				"                                  and program_name = 'HIV'\n" +
+				"                                group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"      group by r.patient_id\n" +
+				"      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"              date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("rtcOver30Days");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -443,42 +361,44 @@ public class AppointmentAttritionCohortLibrary {
 	 */
 	public CohortDefinition currentIIT() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select a.patient_id\n"
-		        + "        from (select r.patient_id,\n"
-		        + "                   r.return_date,\n"
-		        + "                   r.next_appointment_date,\n"
-		        + "                   r.app_visit,\n"
-		        + "                   d.disc_patient as disc_patient,\n"
-		        + "                   d.disc_date\n"
-		        + "            from (\n"
-		        + "                     -- Never Returned\n"
-		        + "                     select f0.patient_id  as patient_id,\n"
-		        + "                                                    f0.visit_date  as app_visit,\n"
-		        + "                                                    f7.return_date as return_date,\n"
-		        + "                                                    f0.next_appointment_date\n"
-		        + "                                             from kenyaemr_etl.etl_patient_hiv_followup f0\n"
-		        + "                                                      inner join kenyaemr_etl.etl_hiv_enrollment e on e.patient_id = f0.patient_id\n"
-		        + "                                                      left join (select f7.patient_id,\n"
-		        + "                                                                        f7.visit_date,\n"
-		        + "                                                                        f7.next_appointment_date,\n"
-		        + "                                                                        max(f7.visit_date)                                            as return_date,\n"
-		        + "                                                                        mid(max(concat(f7.visit_date, f7.next_appointment_date)), 11) as latest_appointment\n"
-		        + "                                                                 from kenyaemr_etl.etl_patient_hiv_followup f7\n"
-		        + "                                                                 group by f7.patient_id) f7\n"
-		        + "                                                                on f0.patient_id = f7.patient_id\n"
-		        + "                                             where f0.next_appointment_date between date(:startDate) and date(:endDate)\n"
-		        + "                                               and f0.next_appointment_date = latest_appointment\n"
-		        + "                                               and return_date = f0.visit_date)r\n"
-		        + "                                                              left outer JOIN\n"
-		        + "                                         (select patient_id                                as                               disc_patient,\n"
-		        + "                                                 coalesce(max(date(effective_discontinuation_date)), max(date(visit_date))) visit_date,\n"
-		        + "                                                 max(date(effective_discontinuation_date)) as                               disc_date,\n"
-		        + "                                                 discontinuation_reason\n"
-		        + "                                          from kenyaemr_etl.etl_patient_program_discontinuation\n"
-		        + "                                          where date(visit_date) <= date(:endDate)             and program_name = 'HIV'\n"
-		        + "                                          group by patient_id) d on d.disc_patient = r.patient_id\n"
-		        + "                                    where (return_date > date(disc_date) or disc_patient is null or disc_date >= date(:endDate))\n"
-		        + "                                        and (next_appointment_date > return_date and return_date = app_visit))a;";
+		String sqlQuery = "select a.patient_id\n" +
+				"from (select r.patient_id,\n" +
+				"             r.return_date,\n" +
+				"             r.next_appointment_date as next_appointment_date,\n" +
+				"             d.patient_id as disc_patient,\n" +
+				"             d.visit_date as disc_date\n" +
+				"      from (\n" +
+				"               -- Never Returned\n" +
+				"               select f0.patient_id  as patient_id,\n" +
+				"                      f0.visit_date  as app_visit,\n" +
+				"                      f7.return_date as return_date,\n" +
+				"                      f0.next_appointment_date\n" +
+				"               from kenyaemr_etl.etl_patient_hiv_followup f0\n" +
+				"                        left join (select f7.patient_id,\n" +
+				"                                          f7.visit_date,\n" +
+				"                                          f7.next_appointment_date,\n" +
+				"                                          max(f7.visit_date)                                            as return_date,\n" +
+				"                                          mid(max(concat(f7.visit_date, f7.next_appointment_date)), 11) as latest_appointment\n" +
+				"                                   from kenyaemr_etl.etl_patient_hiv_followup f7\n" +
+				"                                   group by f7.patient_id) f7\n" +
+				"                                  on f0.patient_id = f7.patient_id\n" +
+				"               where f0.next_appointment_date between date(:startDate) and date(:endDate)\n" +
+				"                 and f0.next_appointment_date = latest_appointment\n" +
+				"                 and f7.return_date = f0.visit_date\n" +
+				"           ) r\n" +
+				"               inner join kenyaemr_etl.etl_hiv_enrollment e on r.patient_id = e.patient_id\n" +
+				"               left outer join (select patient_id,\n" +
+				"                                       coalesce(max(date(effective_discontinuation_date)),\n" +
+				"                                                max(date(visit_date)))              visit_date,\n" +
+				"                                       max(date(effective_discontinuation_date)) as effective_disc_date,\n" +
+				"                                       discontinuation_reason\n" +
+				"                                from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                where date(visit_date) <= date(:endDate)\n" +
+				"                                  and program_name = 'HIV'\n" +
+				"                                group by patient_id      ) d on d.patient_id = r.patient_id\n" +
+				"      group by r.patient_id\n" +
+				"      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n" +
+				"              date(d.visit_date) >= date(:endDate))) a;";
 		cd.setName("currentIIT");
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
