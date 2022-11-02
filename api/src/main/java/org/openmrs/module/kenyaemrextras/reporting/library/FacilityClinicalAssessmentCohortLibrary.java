@@ -233,7 +233,6 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	
 	/**
 	 * Clients active in OVC
-	 * 
 	 * @return
 	 */
 	public CohortDefinition clientsActiveInOVC() {
