@@ -82,9 +82,11 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition newlyInitiatedOnArtPatientsDSD = adultsNewlyInitiatedOnArtDataSetDefinition("S_02_01");
 		DataSetDefinition missedAppointmentsDSD = missedAppointmentDatasetDefinition("S_02_02");
 		DataSetDefinition sameDayInitiationDSD = sameDayARTInitiationDatasetDefinition("S_02_03");
+		DataSetDefinition adultsOnArtVLMonitoringBDSD = adultsOnArtVLMonitoringDatasetDefinition("S_02_04");
 		DataSetDefinition adultsOnArtVirallyUnsupressedDSD = adultsOnARTNonVirallySuppressedDatasetDefinition("S_02_05");
 		DataSetDefinition adultsOnArtDSD = adultsOnARTDatasetDefinition("S_02_07");
 		DataSetDefinition adultsOnArtWithPresumptiveTBDSD = adultsOnARTWithPresumptiveTBDatasetDefinition("S_02_12");
+		DataSetDefinition pedsOnArtVLMonitoringBDSD = pedsOnArtVLMonitoringDatasetDefinition("S_02_22");
 		DataSetDefinition pedsOnArtWithTBScreeningResultBDSD = pedsOnArtWithTBScreeningResultDatasetDefinition("S_02_26");
 		DataSetDefinition pedsOnArtCTXDispensedBDSD = pedsOnArtCTXDispensedDatasetDefinition("S_02_28");
 		DataSetDefinition pedsOnArtScreenedNegTBAndEverOnTPTBDSD = pedsOnArtScreenedNegTBAndEverOnTPTDatasetDefinition("S_02_27");
@@ -97,7 +99,9 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(adultsOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(pedsOnArtWithTBScreeningResultBDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(pedsOnArtCTXDispensedBDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtScreenedNegTBAndEverOnTPTBDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(pedsOnArtScreenedNegTBAndEverOnTPTBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(adultsOnArtVLMonitoringBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsOnArtVLMonitoringBDSD, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -511,6 +515,78 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Peds Current on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsOnArtVLMonitoringDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsRecentVLResultsDataDefinition recentVLResultsDataDefinition = new SimsRecentVLResultsDataDefinition();
+		recentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Recent VL Results", recentVLResultsDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0226To28CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Current on ART VL Monitoring");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition adultsOnArtVLMonitoringDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsRecentVLResultsDataDefinition recentVLResultsDataDefinition = new SimsRecentVLResultsDataDefinition();
+		recentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Recent VL Results", recentVLResultsDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0207CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Adults On ART VL Monitoring");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
