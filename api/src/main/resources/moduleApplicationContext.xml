@@ -142,8 +142,10 @@
             </set>
         </property>
         <property name="template" value="kenyaemrextras:sims.xls" />
-        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02 | sheet:4,row:7,dataset:S_02_03 | sheet:5,row:7,dataset:S_02_04
-        | sheet:6,row:7,dataset:S_02_05 | sheet:7,row:7,dataset:S_02_07 | sheet:8,row:7,dataset:S_02_12 | sheet:13,row:7,dataset:S_02_22 | sheet:16,row:7,dataset:S_02_26
+        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02
+        | sheet:4,row:7,dataset:S_02_03 | sheet:5,row:7,dataset:S_02_04 | sheet:6,row:7,dataset:S_02_05
+        | sheet:7,row:7,dataset:S_02_07 | sheet:8,row:7,dataset:S_02_12 | sheet:12,row:7,dataset:S_02_19
+        | sheet:13,row:7,dataset:S_02_22 | sheet:16,row:7,dataset:S_02_26
         | sheet:17,row:7,dataset:S_02_27 | sheet:18,row:7,dataset:S_02_28" />
 
     </bean>

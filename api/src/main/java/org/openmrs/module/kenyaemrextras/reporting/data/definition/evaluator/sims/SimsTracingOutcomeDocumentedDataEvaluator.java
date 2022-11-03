@@ -37,7 +37,8 @@ public class SimsTracingOutcomeDocumentedDataEvaluator implements PersonDataEval
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select t.patient_id,\n"
-		        + " if(mid(max(concat(t.visit_date, t.tracing_outcome)), 11) is not null,'Yes','No') from kenyaemr_etl.etl_ccc_defaulter_tracing t where date(t.visit_date) between date(:startDate) and date(:endDate)\n"
+		        + " if(mid(max(concat(t.visit_date, t.tracing_outcome)), 11) is not null,'Y','N') "
+		        + "from kenyaemr_etl.etl_ccc_defaulter_tracing t where date(t.visit_date) between date(:startDate) and date(:endDate)\n"
 		        + " GROUP BY t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();

@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates whether one has tracing attempts after a missed appointment
+ * Evaluates whether one has tracing attempts made after a missed appointment
  */
 @Handler(supports = SimsTracingAttemptsDoneDataDefinition.class, order = 50)
 public class SimsTracingAttemptsDoneDataEvaluator implements PersonDataEvaluator {
@@ -36,7 +36,7 @@ public class SimsTracingAttemptsDoneDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select trace.patient_id,if(trace.visit_date is not null,'Yes','No') \n"
+		String qry = "select trace.patient_id,if(trace.visit_date is not null,'Y','N') \n"
 		        + "from kenyaemr_etl.etl_ccc_defaulter_tracing trace where  date(trace.visit_date) between date(:startDate) and date(:endDate)\n"
 		        + "GROUP BY trace.patient_id";
 		
