@@ -90,7 +90,7 @@ public class SimsReportQueries {
 		        + "                                     having max(visit_date) between\n"
 		        + "                        date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
 		        + "                                     )vl\n"
-		        + "                            on t.patient_id = vl.patient_id where vl_result >= 1000)a";
+		        + "                            on t.patient_id = vl.patient_id where vl_result >= 1000)a limit 10";
 		return qry;
 	}
 	
