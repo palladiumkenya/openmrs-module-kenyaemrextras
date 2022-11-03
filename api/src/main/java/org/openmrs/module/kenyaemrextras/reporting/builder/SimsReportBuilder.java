@@ -22,6 +22,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0202C
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0203CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0205CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0207CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0219CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0226To28CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.SimsDataConverter;
@@ -90,6 +91,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition pedsOnArtWithTBScreeningResultBDSD = pedsOnArtWithTBScreeningResultDatasetDefinition("S_02_26");
 		DataSetDefinition pedsOnArtCTXDispensedBDSD = pedsOnArtCTXDispensedDatasetDefinition("S_02_28");
 		DataSetDefinition pedsOnArtScreenedNegTBAndEverOnTPTBDSD = pedsOnArtScreenedNegTBAndEverOnTPTDatasetDefinition("S_02_27");
+		DataSetDefinition pedsMissedRecentAppointmentBDSD = pedsMissedRecentAppointmentDatasetDefinition("S_02_19");
 		
 		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -101,7 +103,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(pedsOnArtCTXDispensedBDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(pedsOnArtScreenedNegTBAndEverOnTPTBDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(adultsOnArtVLMonitoringBDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtVLMonitoringBDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(pedsOnArtVLMonitoringBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsMissedRecentAppointmentBDSD, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -180,25 +183,21 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingAttemptsDataDefinition tracingAttemptsDataDefinition = new SimsTracingAttemptsDataDefinition();
 		tracingAttemptsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingAttemptsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("Tracing attempts", tracingAttemptsDataDefinition, indParams, null);
 		
 		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("S_02_02 Q2", isTracingAttemptsDoneDataDefinition, indParams, new SimsDataConverter());
 		
 		SimsTracingOutcomeDataDefinition tracingOutcomeDataDefinition = new SimsTracingOutcomeDataDefinition();
 		tracingOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("Tracing outcome", tracingOutcomeDataDefinition, indParams, null);
 		
 		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("S_02_02 Q3", tracingOutcomeDocumentedDataDefinition, indParams, new SimsDataConverter());
 		
 		CohortDefinition cd = new S0202CohortDefinition();
@@ -235,19 +234,16 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsHivDiagnosisDateDataDefinition hivDiagnosisDateDataDefinition = new SimsHivDiagnosisDateDataDefinition();
 		hivDiagnosisDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		hivDiagnosisDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("HIV Diagnosis Date", hivDiagnosisDateDataDefinition, indParams, null);
 		
 		SimsHivEnrollmentDateDataDefinition hivEnrollmentDateDataDefinition = new SimsHivEnrollmentDateDataDefinition();
 		hivEnrollmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		hivEnrollmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("ART Initiation Date", hivEnrollmentDateDataDefinition, indParams, null);
 		
 		SimsSameDayARTInitiationDataDefinition simsSameDayARTInitiationDataDefinition = new SimsSameDayARTInitiationDataDefinition();
 		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("S_02_03 Q2", simsSameDayARTInitiationDataDefinition, indParams, new SimsDataConverter());
 		
 		CohortDefinition cd = new S0203CohortDefinition();
@@ -587,6 +583,47 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Adults On ART VL Monitoring");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsMissedRecentAppointmentDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
+		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Peds Tracing Attempts Made", isTracingAttemptsDoneDataDefinition, indParams, new SimsDataConverter());
+		
+		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
+		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Peds Tracing Outcome", tracingOutcomeDocumentedDataDefinition, indParams, new SimsDataConverter());
+		
+		CohortDefinition cd = new S0219CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Missed Most Recent Appointment");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
