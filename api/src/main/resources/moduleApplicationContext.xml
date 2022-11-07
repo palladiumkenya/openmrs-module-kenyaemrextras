@@ -71,6 +71,7 @@
                 <ref bean="kenyaemr.extras.report.dqaReport"/>
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
+                <ref bean="kenyaemrextras.common.report.simsReport"/>
             </set>
         </property>
     </bean>
@@ -129,5 +130,23 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
+    </bean>
+
+    <bean id="kenyaemrextras.common.report.simsReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="13111c9a-095b-4bcc-80e7-ea3598a3f0e7" />
+        <property name="name" value="SIMS Report" />
+        <property name="description" value="SIMS Report" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set>
+        </property>
+        <property name="template" value="kenyaemrextras:sims.xls" />
+        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02
+        | sheet:4,row:7,dataset:S_02_03 | sheet:5,row:7,dataset:S_02_04 | sheet:6,row:7,dataset:S_02_05
+        | sheet:7,row:7,dataset:S_02_07 | sheet:8,row:7,dataset:S_02_12 | sheet:10,row:7,dataset:S_02_17 | sheet:11,row:7,dataset:S_02_18 | sheet:12,row:7,dataset:S_02_19
+        | sheet:13,row:7,dataset:S_02_22 | sheet:16,row:7,dataset:S_02_26
+        | sheet:17,row:7,dataset:S_02_27 | sheet:18,row:7,dataset:S_02_28" />
+
     </bean>
 </beans>
