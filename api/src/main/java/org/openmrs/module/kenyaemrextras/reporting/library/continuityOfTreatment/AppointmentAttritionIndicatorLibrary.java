@@ -47,6 +47,17 @@ public class AppointmentAttritionIndicatorLibrary {
 	}
 	
 	/**
+	 * Missed appointment <31 days not RTC as of end of reporting period
+	 * 
+	 * @return
+	 */
+	public CohortIndicator missedAppointmentsNotRTCEndOfReportingPeriod() {
+		return cohortIndicator("Missed appointment <31 days not RTC as of end of reporting period",
+		    ReportUtils.<CohortDefinition> map(cotCohorts.missedAppointmentsNotRTCEndOfReportingPeriod(),
+		        "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
 	 * Missed Appointments and RTC within 7 days
 	 * 
 	 * @return

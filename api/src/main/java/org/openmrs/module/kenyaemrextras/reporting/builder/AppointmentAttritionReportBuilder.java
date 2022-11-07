@@ -82,13 +82,14 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(appointmentAndAttritionIndicators(),
 		    "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(missedAppointmentsDataSetDefinitionColumns(),
 		    "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
-		    missedAppointmentsUnder7DaysRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedAppointments8To30DaysRTCDataSetDefinitionColumns(),
+		    missedAppointmentsUnder31DaysNotRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(missedAppointmentsUnder7DaysRTCDataSetDefinitionColumns(),
 		        "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
-		        missedAppointmentsOver30DaysDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedAppointmentsOver30DaysRTCDataSetDefinitionColumns(),
-		        "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(ltfuDataSetDefinitionColumns(),
-		        "startDate=${startDate},endDate=${endDate}"));
+		        missedAppointments8To30DaysRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(missedAppointmentsOver30DaysDataSetDefinitionColumns(),
+		        "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		        missedAppointmentsOver30DaysRTCDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(ltfuDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	protected DataSetDefinition appointmentAndAttritionIndicators() {
@@ -104,6 +105,8 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    ReportUtils.map(cot.totalAppointments(), indParams), "");
 		cohortDsd.addColumn("Missed appointments within reporting period", "",
 		    ReportUtils.map(cot.missedAppointments(), indParams), "");
+		cohortDsd.addColumn("Missed appointments under 31 days and not RTC", "",
+		    ReportUtils.map(cot.missedAppointmentsNotRTCEndOfReportingPeriod(), indParams), "");
 		cohortDsd.addColumn(
 		    "Clients who were missed appointment and returned to care within 7 days since their interruption", "",
 		    ReportUtils.map(cot.rtcWithin7Days(), indParams), "");
@@ -275,6 +278,93 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		    new PatientProgramEnrollmentConverter());
 		
 		MissedAppointmentsAndAttritionCohortDefinition cd = new MissedAppointmentsAndAttritionCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addRowFilter(cd, paramMapping);
+		return dsd;
+	}
+	
+	protected DataSetDefinition missedAppointmentsUnder31DaysNotRTCDataSetDefinitionColumns() {
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
+		dsd.setName("missedAppointmentsUnder31DaysNotRTC");
+		dsd.setDescription("Missed Appointments less than 31 days and not RTC");
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		String paramMapping = "startDate=${startDate},endDate=${endDate}";
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		PatientIdentifierType nupi = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.NATIONAL_UNIQUE_PATIENT_IDENTIFIER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		DataDefinition nupiDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        nupi.getName(), nupi), identifierFormatter);
+		AgeAtReportingDataDefinition ageAtReportingDataDefinition = new AgeAtReportingDataDefinition();
+		ageAtReportingDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ETLDateBasedCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLDateBasedCurrentRegimenDataDefinition();
+		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ETLDateBasedLastVLResultDataDefinition lastVlResultDataDefinition = new ETLDateBasedLastVLResultDataDefinition();
+		lastVlResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ETLDateBasedLastVLDateDataDefinition lastVlDateDataDefinition = new ETLDateBasedLastVLDateDataDefinition();
+		lastVlDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ETLDateBasedLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLDateBasedLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ETLDateBasedNextAppointmentDateDataDefinition lastAppointmentDateDataDefinition = new ETLDateBasedNextAppointmentDateDataDefinition();
+		lastAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		lastAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		DaysMissedAppointmentDateBasedDataDefinition daysMissedAppointmentDataDefinition = new DaysMissedAppointmentDateBasedDataDefinition();
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		daysMissedAppointmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		LastDefaulterTracingDateBasedDateDataDefinition lastTracingDateDataDefinition = new LastDefaulterTracingDateBasedDateDataDefinition();
+		lastTracingDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		TracingTypeDateBasedDataDefinition lastTracingTypeDataDefinition = new TracingTypeDateBasedDataDefinition();
+		lastTracingTypeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		TracingNumberDateBasedDataDefinition tracingAttemptsDataDefinition = new TracingNumberDateBasedDataDefinition();
+		tracingAttemptsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		TracingOutcomeDateBasedDataDefinition tracingOutcomeDataDefinition = new TracingOutcomeDateBasedDataDefinition();
+		tracingOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
+		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
+		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("MFL Code", new MFLCodeDataDefinition(), "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("NUPI", nupiDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("DOB", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		dsd.addColumn("Age at reporting", ageAtReportingDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Telephone No", new PersonAttributeDataDefinition(phoneNumber), "");
+		dsd.addColumn("Population Type", new ActivePatientsPopulationTypeDataDefinition(), "");
+		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
+		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
+		dsd.addColumn("Enrollment Date", new CalculationDataDefinition("Enrollment Date",
+		        new DateOfEnrollmentArtCalculation()), "", new DateArtStartDateConverter());
+		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Date missed appointment", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(
+		        DATE_FORMAT));
+		dsd.addColumn("Last Tracing Date", lastTracingDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		        DATE_FORMAT));
+		dsd.addColumn("Tracing Type", lastTracingTypeDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Tracing attempt No", tracingAttemptsDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Outcome", tracingOutcomeDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Number of days late", daysMissedAppointmentDataDefinition, paramMapping);
+		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
+		    new PatientProgramEnrollmentConverter());
+		
+		MissedAppointmentsUnder31DaysNotRTCCohortDefinition cd = new MissedAppointmentsUnder31DaysNotRTCCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
