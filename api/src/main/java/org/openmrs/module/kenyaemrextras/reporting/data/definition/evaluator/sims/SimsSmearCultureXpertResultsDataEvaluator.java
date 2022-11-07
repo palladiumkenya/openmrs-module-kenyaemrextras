@@ -41,9 +41,9 @@ public class SimsSmearCultureXpertResultsDataEvaluator implements PersonDataEval
 		        + "      select fup.patient_id, l.test_result,fup.genexpert_result,fup.spatum_smear_result  from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "      left join (\n"
 		        + "      select patient_id, x.test_result from kenyaemr_etl.etl_laboratory_extract x \n"
-		        + "      where x.lab_test in (162202,1465,307) and x.test_result in (162203,162204,162104,703,1362,1363,1364) and x.visit_date <= date(\"2022-10-30\")\n"
+		        + "      where x.lab_test in (162202,1465,307) and x.test_result in (162203,162204,162104,703,1362,1363,1364) and x.visit_date <= date(:endDate)\n"
 		        + "      ) l on fup.patient_id = l.patient_id\n"
-		        + "      where (fup.genexpert_result in (162204,664) or  fup.spatum_smear_result in(664, 703))  and fup.visit_date <= date(\"2022-10-30\")\n"
+		        + "      where (fup.genexpert_result in (162204,664) or  fup.spatum_smear_result in(664, 703))  and fup.visit_date <= date(:endDate)\n"
 		        + "      )t";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
