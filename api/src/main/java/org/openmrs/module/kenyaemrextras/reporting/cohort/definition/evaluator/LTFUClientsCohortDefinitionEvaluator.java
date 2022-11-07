@@ -55,7 +55,7 @@ public class LTFUClientsCohortDefinitionEvaluator implements CohortDefinitionEva
 		        + "             r.next_appointment_date as next_appointment_date,\n"
 		        + "             d.patient_id as disc_patient,\n"
 		        + "             d.visit_date as disc_date,\n"
-		        + "             if(r.app_visit = r.return_date,timestampdiff(DAY,r.next_appointment_date,current_date),\n"
+		        + "             if(r.app_visit = r.return_date,timestampdiff(DAY,r.next_appointment_date,date(:endDate)),\n"
 		        + "                if(return_date > app_visit and return_date < r.next_appointment_date,'-'\n"
 		        + "                    ,timestampdiff(DAY,r.next_appointment_date,r.return_date))) as days_missed\n"
 		        + "      from (\n"
@@ -104,7 +104,7 @@ public class LTFUClientsCohortDefinitionEvaluator implements CohortDefinitionEva
 		        + "      group by r.patient_id\n"
 		        + "      having (max(e.visit_date) >= date(d.visit_date) or d.patient_id is null or\n"
 		        + "              date(d.visit_date) >= date(:endDate))) a\n"
-		        + "where a.days_missed > 0 and app_visit = return_date;";
+		        + "where a.days_missed > 30 and app_visit = return_date;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);

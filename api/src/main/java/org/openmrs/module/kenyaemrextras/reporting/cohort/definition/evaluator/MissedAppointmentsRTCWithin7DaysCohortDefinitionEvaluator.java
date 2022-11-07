@@ -56,7 +56,7 @@ public class MissedAppointmentsRTCWithin7DaysCohortDefinitionEvaluator implement
 		        + "             r.next_appointment_date as next_appointment_date,\n"
 		        + "             d.patient_id as disc_patient,\n"
 		        + "             d.visit_date as disc_date,\n"
-		        + "             if(r.app_visit = r.return_date,timestampdiff(DAY,r.next_appointment_date,current_date),\n"
+		        + "             if(r.app_visit = r.return_date,timestampdiff(DAY,r.next_appointment_date,date(:endDate)),\n"
 		        + "                if(return_date > app_visit and return_date < r.next_appointment_date,'-'\n"
 		        + "                    ,timestampdiff(DAY,r.next_appointment_date,r.return_date))) as days_missed\n"
 		        + "      from (\n"

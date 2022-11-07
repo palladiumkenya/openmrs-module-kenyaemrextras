@@ -118,7 +118,7 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:appointments_attrition.xls" />
-        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition | sheet:3,row:6,dataset:missedAppointments | sheet:4,row:6,dataset:missedAppointmentsUnder7DaysRTC | sheet:5,row:6,dataset:missedAppointments8To30DaysRTC | sheet:6,row:6,dataset:missedAppointmentsOver30Days | sheet:7,row:6,dataset:missedAppointmentsOver30DaysRTC | sheet:8,row:6,dataset:ltfuClients" />
+        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition | sheet:3,row:6,dataset:missedAppointments  | sheet:4,row:6,dataset:missedAppointmentsUnder31DaysNotRTC | sheet:5,row:6,dataset:missedAppointmentsUnder7DaysRTC | sheet:6,row:6,dataset:missedAppointments8To30DaysRTC | sheet:7,row:6,dataset:missedAppointmentsOver30Days | sheet:8,row:6,dataset:missedAppointmentsOver30DaysRTC | sheet:9,row:6,dataset:ltfuClients" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.facilityClinicalAssessment" class="org.openmrs.module.kenyacore.report.IndicatorReportDescriptor">
