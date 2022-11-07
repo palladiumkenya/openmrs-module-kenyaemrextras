@@ -34,9 +34,10 @@ public class SimsReportQueries {
 	
 	public static String newlyDiagnosedQuery() {
 		String qry = "select e.patient_id\n"
-		        + "from kenyaemr_etl.etl_hiv_enrollment e \n"
-		        + "left join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id = e.patient_id and fup.visit_date between date(:startDate) and date(:endDate)\n"
-		        + "where date(e.date_confirmed_hiv_positive) between date(:startDate) and date(:endDate) ";
+		        + " from kenyaemr_etl.etl_hiv_enrollment e \n"
+		        + " join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
+		        + " left join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id = e.patient_id and fup.visit_date between date(:startDate) and date(:endDate)\n"
+		        + " where date(e.date_confirmed_hiv_positive) between date(:startDate) and date(:endDate) and timestampdiff(YEAR ,p.dob,date(:endDate)) >= 15 ";
 		return qry;
 	}
 	
@@ -223,6 +224,15 @@ public class SimsReportQueries {
 		        + "(timestampdiff(DAY,date(latest_tca),date(curdate())) between 1 and 30) and ((date(d.effective_disc_date) > date(curdate()) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null) and age <15\n"
 		        + ") ) t limit 10;";
+		return qry;
+	}
+	
+	public static String pedNewlyDiagnosedQuery() {
+		String qry = "select e.patient_id\n"
+		        + " from kenyaemr_etl.etl_hiv_enrollment e \n"
+		        + " join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
+		        + " left join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id = e.patient_id and fup.visit_date between date(:startDate) and date(:endDate)\n"
+		        + " where date(e.date_confirmed_hiv_positive) between date(:startDate) and date(:endDate) and timestampdiff(YEAR ,p.dob,date(:endDate)) < 15 ";
 		return qry;
 	}
 }
