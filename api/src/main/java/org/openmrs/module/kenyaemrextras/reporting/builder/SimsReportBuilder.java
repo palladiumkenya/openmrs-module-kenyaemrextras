@@ -705,10 +705,16 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
+		SimsScreenedPostiveForCervicalCancerDataDefinition cervicalCancerDataDefinition = new SimsScreenedPostiveForCervicalCancerDataDefinition();
+		cervicalCancerDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cervicalCancerDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Screened Positive for Cervical Cancer", cervicalCancerDataDefinition, indParams,
+		    new SimsDataConverter());
+		
 		CohortDefinition cd = new S0217CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setName("Newly initiated on ART");
+		cd.setName("Screened For Cervical Cancer");
 		dsd.addRowFilter(cd, indParams);
 		return dsd;
 	}
