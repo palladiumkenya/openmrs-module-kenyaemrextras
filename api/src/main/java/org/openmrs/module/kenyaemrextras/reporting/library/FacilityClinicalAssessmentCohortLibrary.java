@@ -289,7 +289,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	 */
 	public CohortDefinition covidVaccineAgeCohort() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 15;\n";
+		String sqlQuery = "select patient_id from kenyaemr_etl.etl_patient_demographics where timestampdiff(YEAR ,dob,date(:endDate))>= 12;\n";
 		cd.setName("covidVaccineAgeCohort");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -317,7 +317,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * TX_CURR aged 15+ years who are vaccinated against Covid-19
+	 * TX_CURR aged 12+ years who are vaccinated against Covid-19
 	 * 
 	 * @return
 	 */
