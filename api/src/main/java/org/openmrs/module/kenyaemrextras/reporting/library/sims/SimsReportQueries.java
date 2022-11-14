@@ -237,7 +237,8 @@ public class SimsReportQueries {
 	}
 	
 	public static String adultsOnArtScreenedForCervicalCancerQuery() {
-		String qry = "select t.patient_id from (\n"
+		String qry = "\n"
+		        + "select t.patient_id from (\n"
 		        + "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
 		        + "        greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
 		        + "        greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
@@ -248,7 +249,8 @@ public class SimsReportQueries {
 		        + "        de.patient_id as started_on_drugs,\n"
 		        + "        de.date_started,\n"
 		        + "        timestampdiff(YEAR ,p.dob,date(:endDate)) as age,\n"
-		        + "            p.gender as gender\n"
+		        + "        p.gender as gender,\n"
+		        + "        mid(max(concat(cs.visit_date, cs.screening_result)), 11)  as screening_result\n"
 		        + "from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "        join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
 		        + "        join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
@@ -265,8 +267,8 @@ public class SimsReportQueries {
 		        + "having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
 		        + "    (\n"
 		        + "        ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
-		        + "            and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15 and gender='F'\n"
-		        + "        )   ) order by date_started desc ) t limit 10";
+		        + "            and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15 and gender='F' and screening_result ='Positive'\n"
+		        + "        )   ) order by date_started desc ) t limit 10 ";
 		return qry;
 	}
 	
