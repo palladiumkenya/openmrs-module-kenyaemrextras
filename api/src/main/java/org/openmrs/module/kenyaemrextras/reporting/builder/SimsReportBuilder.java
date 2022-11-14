@@ -544,10 +544,15 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
-		SimsRecentVLResultsDataDefinition recentVLResultsDataDefinition = new SimsRecentVLResultsDataDefinition();
-		recentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		recentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Recent VL Results", recentVLResultsDataDefinition, indParams, null);
+		SimsPedsRecentVLResultsDataDefinition pedsRecentVLResultsDataDefinition = new SimsPedsRecentVLResultsDataDefinition();
+		pedsRecentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		pedsRecentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Peds Recent VL Results", pedsRecentVLResultsDataDefinition, indParams, null);
+		
+		SimsPedsRecentVLTestOrderedDataDefinition pedsRecentVLTestOrderedDataDefinition = new SimsPedsRecentVLTestOrderedDataDefinition();
+		pedsRecentVLTestOrderedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		pedsRecentVLTestOrderedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Ped Test Ordered", pedsRecentVLTestOrderedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0226To28CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -584,6 +589,11 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		recentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		recentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Recent VL Results", recentVLResultsDataDefinition, indParams, null);
+		
+		SimsRecentVLTestOrderedDataDefinition recentVLTestOrderedDataDefinition = new SimsRecentVLTestOrderedDataDefinition();
+		recentVLTestOrderedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentVLTestOrderedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Test Ordered", recentVLTestOrderedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0207CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -705,10 +715,16 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
+		SimsScreenedPostiveForCervicalCancerDataDefinition cervicalCancerDataDefinition = new SimsScreenedPostiveForCervicalCancerDataDefinition();
+		cervicalCancerDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cervicalCancerDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Screened Positive for Cervical Cancer", cervicalCancerDataDefinition, indParams,
+		    new SimsDataConverter());
+		
 		CohortDefinition cd = new S0217CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setName("Newly initiated on ART");
+		cd.setName("Screened For Cervical Cancer");
 		dsd.addRowFilter(cd, indParams);
 		return dsd;
 	}
