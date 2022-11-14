@@ -37,29 +37,24 @@ public class SimsPedRecentVLResultsDataEvaluator implements PersonDataEvaluator 
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "\n"
-		        + "select patient_id, if(t.lastVL is not null , 'Y','N')\n"
-		        + "  \n"
-		        + "  from (\n"
-		        + "select d.patient_id, d.dob as dob,\n"
-		        + "mid(max(concat(l.visit_date, l.test_result)), 11)  as lastVL,\n"
-		        + "mid(max(concat(l.visit_date, l.date_test_requested)), 11)  as dateTestOrdered,\n"
-		        + "mid(max(concat(l.visit_date, l.date_test_result_received)), 11)  as dateResultReceived\n"
-		        + "\n"
-		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "left join (\n"
-		        + "select x.patient_id, x.visit_date ,x.test_result, x.date_test_requested, x.date_test_result_received\n"
-		        + "  from kenyaemr_etl.etl_laboratory_extract x\n"
-		        + "  where  lab_test in (856, 1305)\n"
-		        + "  GROUP BY  x.patient_id\n"
-		        + "\n"
-		        + ") l on d.patient_id = l.patient_id\n"
-		        + "group by d.patient_id\n"
-		        + ")t\n"
-		        + "where (\n"
-		        + "  t.lastVL is not null  and (lastVL > 1000 and lastVL!=1302 and timestampdiff(MONTH,t.dateTestOrdered, \"2022-10-30\") <= 3)\n"
-		        + "  or  t.lastVL is not null  and (lastVL < 1000 or lastVL=1302) and (timestampdiff(YEAR,t.dob,\"2022-10-30\"))<15 and  timestampdiff(MONTH,t.dateTestOrdered, \"2022-10-30\") <6\n"
-		        + "\n" + ")";
+		String qry = "select patient_id, if(t.lastVL is not null , 'Y','N')\n"
+		        + "   from (\n"
+		        + " select d.patient_id, d.dob as dob,\n"
+		        + " mid(max(concat(l.visit_date, l.test_result)), 11)  as lastVL,\n"
+		        + " mid(max(concat(l.visit_date, l.date_test_requested)), 11)  as dateTestOrdered,\n"
+		        + " mid(max(concat(l.visit_date, l.date_test_result_received)), 11)  as dateResultReceived\n"
+		        + " from kenyaemr_etl.etl_patient_demographics d\n"
+		        + " left join (\n"
+		        + " select x.patient_id, x.visit_date ,x.test_result, x.date_test_requested, x.date_test_result_received\n"
+		        + "   from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "   where  lab_test in (856, 1305)\n"
+		        + "   GROUP BY  x.patient_id\n"
+		        + " ) l on d.patient_id = l.patient_id\n"
+		        + " group by d.patient_id\n"
+		        + " )t\n"
+		        + " where (\n"
+		        + "  (t.lastVL is not null and (timestampdiff(YEAR,t.dob,:endDate))<25 and  timestampdiff(MONTH,t.dateTestOrdered,:endDate) <6)\n"
+		        + " or (t.lastVL is not null and (timestampdiff(YEAR,t.dob,:endDate))>24 and  timestampdiff(MONTH,t.dateTestOrdered,:endDate) <12));";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
