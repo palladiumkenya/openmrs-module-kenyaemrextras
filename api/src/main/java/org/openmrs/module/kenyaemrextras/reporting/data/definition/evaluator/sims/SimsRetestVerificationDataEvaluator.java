@@ -38,7 +38,7 @@ public class SimsRetestVerificationDataEvaluator implements PersonDataEvaluator 
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select test.patient_id,\n"
-		        + "if(mid(max(concat(test.visit_date, test.final_test_result)), 11) is not null,'Yes','No')\n"
+		        + "if(mid(max(concat(test.visit_date, test.final_test_result)), 11) is not null,'Y','N')\n"
 		        + "             as test1result from kenyaemr_etl.etl_hts_test test where test.test_type = 2 and date(test.visit_date) between date(:startDate) and date(:endDate)\n"
 		        + "\tGROUP BY test.patient_id;";
 		
