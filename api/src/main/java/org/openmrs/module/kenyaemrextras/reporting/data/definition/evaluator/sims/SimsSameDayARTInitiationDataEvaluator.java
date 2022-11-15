@@ -36,7 +36,7 @@ public class SimsSameDayARTInitiationDataEvaluator implements PersonDataEvaluato
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select e.patient_id,if(date(e.date_confirmed_hiv_positive) = date(e.visit_date),'Yes','No')\n"
+		String qry = "select e.patient_id,if(date(e.date_confirmed_hiv_positive) = date(e.visit_date),'Y','N')\n"
 		        + " from kenyaemr_etl.etl_hiv_enrollment e where date(e.visit_date) between date(:startDate) and date(:endDate)\n"
 		        + " GROUP BY e.patient_id;";
 		

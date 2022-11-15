@@ -19,7 +19,6 @@ import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.S0302CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.SimsDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -154,7 +153,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		retestVerificationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		retestVerificationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("S_02_01 Q3", retestVerificationDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("S_02_01 Q3", retestVerificationDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0201CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -194,7 +193,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_02_02 Q2", isTracingAttemptsDoneDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("S_02_02 Q2", isTracingAttemptsDoneDataDefinition, indParams, null);
 		
 		SimsTracingOutcomeDataDefinition tracingOutcomeDataDefinition = new SimsTracingOutcomeDataDefinition();
 		tracingOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -204,7 +203,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_02_02 Q3", tracingOutcomeDocumentedDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("S_02_02 Q3", tracingOutcomeDocumentedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0202CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -250,7 +249,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsSameDayARTInitiationDataDefinition simsSameDayARTInitiationDataDefinition = new SimsSameDayARTInitiationDataDefinition();
 		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_02_03 Q2", simsSameDayARTInitiationDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("S_02_03 Q2", simsSameDayARTInitiationDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0203CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -629,12 +628,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Peds Tracing Attempts Made", isTracingAttemptsDoneDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("Peds Tracing Attempts Made", isTracingAttemptsDoneDataDefinition, indParams, null);
 		
 		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Peds Tracing Outcome", tracingOutcomeDocumentedDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("Peds Tracing Outcome", tracingOutcomeDocumentedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0219CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -670,20 +669,17 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		LastHtsInitialResultDataDefinition test1DataDefinition = new LastHtsInitialResultDataDefinition();
 		test1DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test1DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("test 1 result", test1DataDefinition, indParams, null);
 		
 		LastHtsRetestResultDataDefinition test2DataDefinition = new LastHtsRetestResultDataDefinition();
 		test2DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test2DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		dsd.addColumn("test 2 result", test2DataDefinition, indParams, null);
 		
 		SimsRetestVerificationDataDefinition retestVerificationDataDefinition = new SimsRetestVerificationDataDefinition();
 		retestVerificationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		retestVerificationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("Ped Retest", retestVerificationDataDefinition, indParams, new SimsDataConverter());
+		dsd.addColumn("Ped Retest", retestVerificationDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0218CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -718,8 +714,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsScreenedPostiveForCervicalCancerDataDefinition cervicalCancerDataDefinition = new SimsScreenedPostiveForCervicalCancerDataDefinition();
 		cervicalCancerDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cervicalCancerDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Screened Positive for Cervical Cancer", cervicalCancerDataDefinition, indParams,
-		    new SimsDataConverter());
+		dsd.addColumn("Screened Positive for Cervical Cancer", cervicalCancerDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0217CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
