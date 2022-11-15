@@ -391,7 +391,7 @@ public class SimsReportQueries {
 		        + "        ) and age >= 15) and TI_on_art = 0) t;";
 		return qry;
 	}
-	
+
 	/**
 	 * Missed Appointment KPs
 	 * 
@@ -447,4 +447,108 @@ public class SimsReportQueries {
 		        + "                    )) t;";
 		return query;
 	}
+
+	/**
+	 * Cohort definition :S_03_11_Q3 In KP program In HIV program In art >= 12 months Age 15 years
+	 * and above
+	 *
+	 * @return
+	 */
+	public static String kpCurrentlyOnArtMoreThan12MonthsQuery() {
+		String qry = "select t.patient_id\n"
+				+ "    from(\n"
+				+ "        select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
+				+ "               greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
+				+ "               greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
+				+ "               greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
+				+ "               d.patient_id as disc_patient,\n"
+				+ "               d.effective_disc_date as effective_disc_date,\n"
+				+ "               max(d.visit_date) as date_discontinued,\n"
+				+ "               de.patient_id as started_on_drugs,\n"
+				+ "     timestampdiff(YEAR ,p.dob,date(:endDate)) as age\n"
+				+ "        from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+				+ "               join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+				+ "               join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+				+ "join(\n"
+				+ "select c.client_id from kenyaemr_etl.etl_contact c\n"
+				+ "left join (select p.client_id from kenyaemr_etl.etl_peer_calendar p where p.voided = 0 group by p.client_id having max(p.visit_date) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 12 MONTH)\n"
+				+ "and date(:endDate)) cp on c.client_id=cp.client_id\n"
+				+ "left join (select v.client_id from kenyaemr_etl.etl_clinical_visit v where v.voided = 0 group by v.client_id having max(v.visit_date) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 12 MONTH)\n"
+				+ "and date(:endDate)) cv on c.client_id=cv.client_id\n"
+				+ "left join (select d.patient_id, max(d.visit_date) latest_visit from kenyaemr_etl.etl_patient_program_discontinuation d where d.program_name='KP' group by d.patient_id) d on c.client_id = d.patient_id\n"
+				+ "where (d.patient_id is null or d.latest_visit > date(:endDate)) and c.voided = 0  and (cp.client_id is not null or cv.client_id is not null) group by c.client_id\n"
+				+ ") kp on kp.client_id = fup.patient_id\n"
+				+ "           join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV'\n"
+				+ " and de.date_started <= date(:endDate) and timestampdiff(MONTH,date(de.date_started), date(:endDate)) >=12\n"
+				+ "           left outer JOIN\n"
+				+ "                 (select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+				+ "                  where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
+				+ "                  group by patient_id\n"
+				+ "                 ) d on d.patient_id = fup.patient_id\n"
+				+ "        where fup.visit_date <= date(:endDate)\n"
+				+ "        group by patient_id\n"
+				+ "        having\n"
+				+ "            (\n"
+				+ "                ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30 or timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
+				+ "                  and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15\n"
+				+ "                )order by de.date_started desc) t limit 10;";
+		return qry;
+	}
+
+	/**
+	 * Cohort definition :S_03_12_Q3 In KP program In HIV program In art >= 12 months Age 15 years
+	 * and above Who had ≥1000 copies/mL in the most recent viral load
+	 *
+	 * @return
+	 */
+	public static String KpUnSupressedVLQuery() {
+		String qry = "select t.patient_id\n"
+				+ "from(\n"
+				+ "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
+				+ "greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
+				+ "greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
+				+ "greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
+				+ "d.patient_id as disc_patient,\n"
+				+ "d.effective_disc_date as effective_disc_date,\n"
+				+ "max(d.visit_date) as date_discontinued,\n"
+				+ "de.patient_id as started_on_drugs,\n"
+				+ "timestampdiff(YEAR ,p.dob,date(:endDate)) as age\n"
+				+ "from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+				+ "join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+				+ "join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+				+ "join(\n"
+				+ "select c.client_id from kenyaemr_etl.etl_contact c\n"
+				+ "left join (select p.client_id from kenyaemr_etl.etl_peer_calendar p where p.voided = 0 group by p.client_id having max(p.visit_date) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 12 MONTH)\n"
+				+ "and date(:endDate)) cp on c.client_id=cp.client_id\n"
+				+ "left join (select v.client_id from kenyaemr_etl.etl_clinical_visit v where v.voided = 0 group by v.client_id having max(v.visit_date) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 12 MONTH)\n"
+				+ "and date(:endDate)) cv on c.client_id=cv.client_id\n"
+				+ "left join (select d.patient_id, max(d.visit_date) latest_visit from kenyaemr_etl.etl_patient_program_discontinuation d where d.program_name='KP' group by d.patient_id) d on c.client_id = d.patient_id\n"
+				+ "where (d.patient_id is null or d.latest_visit > date(:endDate)) and c.voided = 0  and (cp.client_id is not null or cv.client_id is not null) group by c.client_id\n"
+				+ ") kp on kp.client_id = fup.patient_id\n"
+				+ "join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV'\n"
+				+ " and de.date_started <= date(:endDate) and timestampdiff(MONTH,date(de.date_started), date(:endDate)) >=12\n"
+				+ "join (\n"
+				+ " select b.patient_id,max(b.visit_date) as vl_date, date_sub(date(:endDate) , interval 12 MONTH),mid(max(concat(b.visit_date,b.lab_test)),11) as lab_test,\n"
+				+ " if(mid(max(concat(b.visit_date,b.lab_test)),11) = 856, mid(max(concat(b.visit_date,b.test_result)),11), if(mid(max(concat(b.visit_date,b.lab_test)),11)=1305 and mid(max(concat(visit_date,test_result)),11) = 1302, 'LDL','')) as vl_result,\n"
+				+ " mid(max(concat(b.visit_date,b.urgency)),11) as urgency\n"
+				+ " from (select x.patient_id as patient_id,x.visit_date as visit_date,x.lab_test as lab_test, x.test_result as test_result,urgency as urgency\n"
+				+ " from kenyaemr_etl.etl_laboratory_extract x where x.lab_test in (1305,856)\n"
+				+ " group by x.patient_id,x.visit_date order by visit_date desc)b group by patient_id\n"
+				+ " having max(visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
+				+ " )vl  on fup.patient_id = vl.patient_id\n"
+				+ "left outer JOIN\n"
+				+ "(select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+				+ "where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
+				+ "group by patient_id\n"
+				+ ") d on d.patient_id = fup.patient_id\n"
+				+ "where fup.visit_date <= date(:endDate) and vl.vl_result >= 1000\n"
+				+ "group by patient_id\n"
+				+ "having\n"
+				+ "(\n"
+				+ "((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30 or timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
+				+ "and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15\n"
+				+ ")order by de.date_started desc) t limit 10;";
+		return qry;
+	}
+
 }
