@@ -37,16 +37,13 @@ public class SimsTxCurrKPPresumedTBTestingResultsDocumentationStatusDataEvaluato
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,\n"
-		        + "       if(tb_status != 142177 or tb_status is null,'NA',if(a.geneXpert_result in (664, 162203, 162204, 164104) or a.smear_microscopy_result in (664, 703)\n"
-		        + "              or a.chest_xRay_result in (1115,152526) or (lab_test in (307, 162202, 1465) and\n"
-		        + "                  lab_test_result in (664, 162203, 162204, 164104, 163611, 1138, 1364, 1362, 1363, 159985, 703)), 'Y',\n"
-		        + "          'N')) as tb_results_documented\n"
+		String qry = "select a.patient_id, if(tb_status != 142177 or tb_status is null, 'NA',\n"
+		        + "       if(lab_test in (307, 162202, 1465) or geneXpert_ordered = 162202 or smear_microscopy_ordered = 307 or chest_xray_ordered = 12,'Y','N'))as tb_test_documented\n"
 		        + "from (select e.patient_id,\n"
 		        + "             f.fup_date,\n"
-		        + "             f.smear_microscopy_result as smear_microscopy_result,\n"
-		        + "             f.geneXpert_result        as geneXpert_result,\n"
-		        + "             f.chest_xRay_result        as chest_xRay_result,\n"
+		        + "             f.smear_microscopy_ordered as smear_microscopy_ordered,\n"
+		        + "             f.geneXpert_ordered        as geneXpert_ordered,\n"
+		        + "             f.chest_xray_ordered        as chest_xray_ordered,\n"
 		        + "             f.tb_status               as tb_status,\n"
 		        + "             x.test_date,\n"
 		        + "             x.lab_test,\n"
@@ -55,13 +52,11 @@ public class SimsTxCurrKPPresumedTBTestingResultsDocumentationStatusDataEvaluato
 		        + "               inner join (select f.patient_id,\n"
 		        + "                                  max(f.visit_date)                                            as fup_date,\n"
 		        + "                                  mid(max(concat(date(f.visit_date), f.tb_status)), 11)        as tb_status,\n"
-		        + "                                  mid(max(concat(date(f.visit_date), f.genexpert_result)), 11) as geneXpert_result,\n"
-		        + "                                  mid(max(concat(date(f.visit_date), f.spatum_smear_result)),\n"
-		        + "                                      11)                                                      as smear_microscopy_result,\n"
-		        + "                                  mid(max(concat(date(f.visit_date), f.chest_xray_result)),\n"
-		        + "                                      11) as chest_xRay_result\n"
+		        + "                                  mid(max(concat(date(f.visit_date), f.genexpert_ordered)), 11) as geneXpert_ordered,\n"
+		        + "                                  mid(max(concat(date(f.visit_date), f.spatum_smear_ordered)),11) as smear_microscopy_ordered,\n"
+		        + "                                  mid(max(concat(date(f.visit_date), f.chest_xray_ordered)),11) as chest_xray_ordered\n"
 		        + "                           from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "                           where f.visit_date between date(:startDate) and date(:endDate)\n"
+		        + "                           where f.visit_date <= date(:endDate)\n"
 		        + "                           group by f.patient_id\n"
 		        + "      ) f on f.patient_id = e.patient_id\n"
 		        + "               left join (select x.patient_id,\n"
@@ -69,10 +64,10 @@ public class SimsTxCurrKPPresumedTBTestingResultsDocumentationStatusDataEvaluato
 		        + "                                 mid(max(concat(date(x.visit_date), x.lab_test)), 11)    as lab_test,\n"
 		        + "                                 mid(max(concat(date(x.visit_date), x.test_result)), 11) as lab_test_result\n"
 		        + "                          from kenyaemr_etl.etl_laboratory_extract x\n"
-		        + "                          where x.visit_date between date(:startDate) and date(:endDate)\n"
+		        + "                          where x.date_test_requested <= date(:endDate)\n"
 		        + "                          group by x.patient_id\n"
 		        + "                          having mid(max(concat(date(x.visit_date), x.lab_test)), 11) in (307, 162202, 1465)) x\n"
-		        + "                         on x.patient_id = e.patient_id\n" + "      group by patient_id) a;";
+		        + "                         on f.patient_id = e.patient_id\n" + "      group by patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
