@@ -56,7 +56,7 @@ public class SimsTxCurrKPPresumedTBTestingDocumentationStatusDataEvaluator imple
 		        + "                                  mid(max(concat(date(f.visit_date), f.spatum_smear_ordered)),11) as smear_microscopy_ordered,\n"
 		        + "                                  mid(max(concat(date(f.visit_date), f.chest_xray_ordered)),11) as chest_xray_ordered\n"
 		        + "                           from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "                           where f.visit_date between date(:startDate) and date(:endDate)\n"
+		        + "                           where f.visit_date <= date(:endDate)\n"
 		        + "                           group by f.patient_id\n"
 		        + "      ) f on f.patient_id = e.patient_id\n"
 		        + "               left join (select x.patient_id,\n"
@@ -64,7 +64,7 @@ public class SimsTxCurrKPPresumedTBTestingDocumentationStatusDataEvaluator imple
 		        + "                                 mid(max(concat(date(x.visit_date), x.lab_test)), 11)    as lab_test,\n"
 		        + "                                 mid(max(concat(date(x.visit_date), x.test_result)), 11) as lab_test_result\n"
 		        + "                          from kenyaemr_etl.etl_laboratory_extract x\n"
-		        + "                          where x.visit_date between date(:startDate) and date(:endDate)\n"
+		        + "                          where x.date_test_requested <= date(:endDate)\n"
 		        + "                          group by x.patient_id\n"
 		        + "                          having mid(max(concat(date(x.visit_date), x.lab_test)), 11) in (307, 162202, 1465)) x\n"
 		        + "                         on f.patient_id = e.patient_id\n" + "      group by patient_id) a;";

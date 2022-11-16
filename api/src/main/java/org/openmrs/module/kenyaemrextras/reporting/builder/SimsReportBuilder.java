@@ -103,7 +103,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition txCurrKPsTBNegTPTInitiationDSD = txCurrKPsTBNegTPTInitiationDatasetDefinition("S_03_17");
 		DataSetDefinition txCurrKPsCTXDocumentationDSD = txCurrKPsCTXDocumentationDatasetDefinition("S_03_18");
 		DataSetDefinition txCurrKPsPresumptiveDocumentationDSD = txCurrKPsPresumptiveTBDocumentationDatasetDefinition("S_03_19");
-
+		
 		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(sameDayInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -130,11 +130,11 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(txCurrKpWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsListedAsContacts, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(pedsListedAsContacts, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsCTXDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsPresumptiveDocumentationDSD, "startDate=${startDate},endDate=${endDate}")
-
+		
 		);
 		
 	}
@@ -1231,15 +1231,15 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addRowFilter(cd, indParams);
 		return dsd;
 	}
-
+	
 	protected PatientDataSetDefinition pedsListedAsContactsDatasetDefinition(String datasetName) {
-
+		
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		PatientIdentifierType openMRSId = MetadataUtils.existing(PatientIdentifierType.class,
@@ -1247,10 +1247,10 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataDefinition identifierOpenMRSDef = new ConvertedPatientDataDefinition("identifier",
 		        new PatientIdentifierDataDefinition(openMRSId.getName(), openMRSId), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
@@ -1259,48 +1259,48 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("OpenMRS ID", identifierOpenMRSDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-
+		
 		SimsPedsListedAsContactsHIVStatusDocumentedDataDefinition simsPedsContactHIVStatusDocumentedDataDefinition = new SimsPedsListedAsContactsHIVStatusDocumentedDataDefinition();
 		simsPedsContactHIVStatusDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsPedsContactHIVStatusDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Ped Status Documented", simsPedsContactHIVStatusDocumentedDataDefinition, indParams, null);
-
+		
 		CohortDefinition cd = new S0225CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Peds Listed as Contacts");
 		dsd.addRowFilter(cd, indParams);
-
+		
 		return dsd;
 	}
-
+	
 	/**
 	 * Tx_Curr KPs CTX dispense documentation
-	 *
+	 * 
 	 * @param datasetName
 	 * @return
 	 */
 	protected PatientDataSetDefinition txCurrKPsCTXDocumentationDatasetDefinition(String datasetName) {
-
+		
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
-
+		
 		SimsCTXDispensedDataDefinition simsCTXDispensedDataDefinition = new SimsCTXDispensedDataDefinition();
 		simsCTXDispensedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsCTXDispensedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
@@ -1313,38 +1313,38 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addRowFilter(cd, indParams);
 		return dsd;
 	}
-
+	
 	/**
 	 * Tx_Curr KPs with presumptive TB and testing/results status
-	 *
+	 * 
 	 * @param datasetName
 	 * @return
 	 */
 	protected PatientDataSetDefinition txCurrKPsPresumptiveTBDocumentationDatasetDefinition(String datasetName) {
-
+		
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
-
+		
 		SimsTxCurrKPPresumedTBTestingResultsDocumentationStatusDataDefinition simsTBTestingResultsDataDefinition = new SimsTxCurrKPPresumedTBTestingResultsDocumentationStatusDataDefinition();
 		simsTBTestingResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsTBTestingResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		SimsTxCurrKPPresumedTBTestingDocumentationStatusDataDefinition simsTBTestingDataDefinition = new SimsTxCurrKPPresumedTBTestingDocumentationStatusDataDefinition();
 		simsTBTestingDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsTBTestingDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
