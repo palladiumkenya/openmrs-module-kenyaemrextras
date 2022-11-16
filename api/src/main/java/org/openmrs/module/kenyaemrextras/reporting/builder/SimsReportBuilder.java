@@ -98,6 +98,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition txCurrKpWithTestedChildContactsDSD = txCurrKpWithTestedChildContactsDatasetDefinition("S_03_15");
 		DataSetDefinition txCurrKpWithTBScreeningResultDSD = txCurrKpWithTBScreeningResultDatasetDefinition("S_03_16");
 		DataSetDefinition txCurrKPsRecentPositivesARTInitiationDSD = txCurrKPsRecentPositivesARTInitiationDatasetDefinition("S_03_10");
+		DataSetDefinition txCurrKPsTBNegTPTInitiationDSD = txCurrKPsTBNegTPTInitiationDatasetDefinition("S_03_17");
 		
 		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -123,7 +124,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(txCurrKpWithTestedContactsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKpWithTestedChildContactsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKpWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -1176,6 +1178,46 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		dsd.addColumn("S_03_10 Q2", kpTxCurrNewPositivesRapidARTInitiationDataDefinition, indParams, null);
 		CohortDefinition cd = new S0310CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		return dsd;
+	}
+	
+	/**
+	 * Tx_Curr KPs who screened Negative for TB and TPT initiation documentation
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition txCurrKPsTBNegTPTInitiationDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		
+		SimsTxCurrKPTBNegTPTDocumentationStatusDataDefinition kpTxCurrTBNegTPTInitiationStatusDataDefinition = new SimsTxCurrKPTBNegTPTDocumentationStatusDataDefinition();
+		kpTxCurrTBNegTPTInitiationStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		kpTxCurrTBNegTPTInitiationStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		dsd.addColumn("S_03_17 Q3", kpTxCurrTBNegTPTInitiationStatusDataDefinition, indParams, null);
+		CohortDefinition cd = new S0317CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, indParams);
