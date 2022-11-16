@@ -16,6 +16,7 @@ import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
+import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.S0302CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
@@ -83,6 +84,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition cervicalCancerScreeningDSD = adultsOnArtScreenedForCervicalCancerDatasetDefinition("S_02_17");
 		DataSetDefinition pedsNewlyInitiatedOnArtdDSD = pedsNewlyInitiatedOnArtDatasetDefinition("S_02_18");
 		DataSetDefinition pedsOnArtVLMonitoringDSD = pedsOnArtVLMonitoringDatasetDefinition("S_02_22");
+		DataSetDefinition pedsListedAsContacts = pedsListedAsContactsDatasetDefinition("S_02_25");
 		DataSetDefinition pedsOnArtWithTBScreeningResultDSD = pedsOnArtWithTBScreeningResultDatasetDefinition("S_02_26");
 		DataSetDefinition pedsOnArtCTXDispensedDSD = pedsOnArtCTXDispensedDatasetDefinition("S_02_28");
 		DataSetDefinition pedOnArtWithPresumptiveTBDSD = pedsOnARTWithPresumptiveTBDatasetDefinition("S_02_29");
@@ -125,7 +127,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(txCurrKpWithTestedChildContactsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKpWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}")
+		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsListedAsContacts, "startDate=${startDate},endDate=${endDate}")
 		
 		);
 		
@@ -1221,6 +1224,48 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, indParams);
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsListedAsContactsDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		PatientIdentifierType openMRSId = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.OPENMRS_ID);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataDefinition identifierOpenMRSDef = new ConvertedPatientDataDefinition("identifier",
+		        new PatientIdentifierDataDefinition(openMRSId.getName(), openMRSId), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("OpenMRS ID", identifierOpenMRSDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsPedsListedAsContactsHIVStatusDocumentedDataDefinition simsPedsContactHIVStatusDocumentedDataDefinition = new SimsPedsListedAsContactsHIVStatusDocumentedDataDefinition();
+		simsPedsContactHIVStatusDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsPedsContactHIVStatusDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Ped Status Documented", simsPedsContactHIVStatusDocumentedDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0225CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Listed as Contacts");
+		dsd.addRowFilter(cd, indParams);
+		
 		return dsd;
 	}
 }
