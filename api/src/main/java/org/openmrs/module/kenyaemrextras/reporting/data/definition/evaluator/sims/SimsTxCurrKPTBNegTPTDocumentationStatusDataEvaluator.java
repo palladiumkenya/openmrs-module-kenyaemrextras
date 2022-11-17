@@ -37,23 +37,22 @@ public class SimsTxCurrKPTBNegTPTDocumentationStatusDataEvaluator implements Per
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select a.patient_id,\n"
-		        + "       if(a.on_anti_tb_drugs = 1065 or a.tb_status in (142177, 1662, 1111), 'NA',\n"
-		        + "          if(a.tb_status = 1660 and ipt_initiation_date = fup_date, 'Y', 'N')) as ipt_status\n"
-		        + "from (select f.patient_id                                                 as patient_id\n"
-		        + "           , max(f.visit_date)                                            as fup_date\n"
-		        + "           , mid(max(concat(date(f.visit_date), f.screened_for_tb)), 11)  as screened_for_tb\n"
-		        + "           , mid(max(concat(date(f.visit_date), f.on_anti_tb_drugs)), 11) as on_anti_tb_drugs\n"
-		        + "           , mid(max(concat(date(f.visit_date), f.on_ipt)), 11)           as on_ipt\n"
-		        + "           , mid(max(concat(date(f.visit_date), f.tb_status)), 11)        as tb_status\n"
-		        + "           , i.patient_id                                                 as ipt_client\n"
-		        + "           , i.ipt_date                                                   as ipt_initiation_date\n"
-		        + "      from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "               left join (select i.patient_id, max(i.visit_date) as ipt_date\n"
-		        + "                          from kenyaemr_etl.etl_ipt_initiation i\n"
-		        + "                          where i.visit_date <= date(:endDate)\n"
-		        + "                          group by i.patient_id) i on f.patient_id = i.patient_id\n"
-		        + "      where date(f.visit_date) <= date(:endDate)\n" + "      group by f.patient_id\n"
-		        + "      having screened_for_tb = 'Yes') a;";
+		        + "          if(a.on_anti_tb_drugs = 1065 or a.tb_status in (142177, 1662, 1111), 'NA',\n"
+		        + "             if(a.tb_status = 1660 and ipt_initiation_date = fup_date, 'Y', 'N')) as ipt_status\n"
+		        + "   from (select f.patient_id                                                 as patient_id\n"
+		        + "              , max(f.visit_date)                                            as fup_date\n"
+		        + "              , mid(max(concat(date(f.visit_date), f.screened_for_tb)), 11)  as screened_for_tb\n"
+		        + "              , mid(max(concat(date(f.visit_date), f.on_anti_tb_drugs)), 11) as on_anti_tb_drugs\n"
+		        + "              , mid(max(concat(date(f.visit_date), f.on_ipt)), 11)           as on_ipt\n"
+		        + "              , mid(max(concat(date(f.visit_date), f.tb_status)), 11)        as tb_status\n"
+		        + "              , i.patient_id                                                 as ipt_client\n"
+		        + "              , i.ipt_date                                                   as ipt_initiation_date\n"
+		        + "         from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "                  left join (select i.patient_id, max(i.visit_date) as ipt_date\n"
+		        + "                             from kenyaemr_etl.etl_ipt_initiation i\n"
+		        + "                             where i.visit_date <= date(:endDate)\n"
+		        + "                             group by i.patient_id) i on f.patient_id = i.patient_id\n"
+		        + "         where date(f.visit_date) <= date(:endDate)       group by f.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
