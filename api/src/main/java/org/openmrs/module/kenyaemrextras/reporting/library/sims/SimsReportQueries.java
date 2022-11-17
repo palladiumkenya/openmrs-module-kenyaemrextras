@@ -700,7 +700,8 @@ public class SimsReportQueries {
 	public static String pedListedAsContacts() {
 		String qry = "select patient_id from kenyaemr_etl.etl_patient_contact c\n"
 		        + "where c.relationship_type = 1528 and  (timestampdiff(YEAR ,date(c.birth_date),date(:endDate)) < 15)\n"
-		        + "and c.voided = 0\n" + "order by  c.date_created desc limit 10";
+		        + "and c.patient_id is not null and c.patient_id != 0 and c.voided = 0\n"
+		        + "order by  c.date_created desc limit 10";
 		return qry;
 	}
 }
