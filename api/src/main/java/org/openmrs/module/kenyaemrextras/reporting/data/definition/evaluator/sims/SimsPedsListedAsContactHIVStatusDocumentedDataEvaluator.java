@@ -45,7 +45,7 @@ public class SimsPedsListedAsContactHIVStatusDocumentedDataEvaluator implements 
 		        + "c.date_created as date_created,\n" + "l.test_1_result as testResult\n"
 		        + "from kenyaemr_etl.etl_patient_contact c\n" + "left join (\n"
 		        + "  select patient_id,test_1_result  from kenyaemr_etl.etl_hts_test h\n"
-		        + ") l on c.patient_id = l.patient_id ) t";
+		        + ") l on c.patient_id = l.patient_id ) t\n" + "where patient_id is not null and patient_id != 0";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
