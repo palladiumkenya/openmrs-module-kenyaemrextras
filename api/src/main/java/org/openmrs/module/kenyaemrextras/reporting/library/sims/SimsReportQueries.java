@@ -307,7 +307,7 @@ public class SimsReportQueries {
 		        + "                (\n"
 		        + "                    ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30 or timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "                      and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null)\n"
-		        + "                    ))) t;";
+		        + "                    ))) t order by RAND() limit 10;";
 		return qry;
 	}
 	
@@ -346,7 +346,7 @@ public class SimsReportQueries {
 		        + "(\n"
 		        + "((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30 or timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null)\n"
-		        + "))) t;";
+		        + "))) t order by RAND() limit 10;";
 		return qry;
 	}
 	
@@ -388,7 +388,7 @@ public class SimsReportQueries {
 		        + "        (\n"
 		        + "        ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30 or timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "        and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null)\n"
-		        + "        ) and age >= 15) and TI_on_art = 0) t;";
+		        + "        ) and age >= 15) and TI_on_art = 0) t order by RAND() limit 10;";
 		return qry;
 	}
 	
@@ -444,7 +444,7 @@ public class SimsReportQueries {
 		        + "                          date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "                        and (date(latest_vis_date) > date(date_discontinued) and\n"
 		        + "                             date(latest_tca) > date(date_discontinued) or disc_patient is null)\n"
-		        + "                    )) t;";
+		        + "                    )) t order by RAND() limit 10;";
 		return query;
 	}
 	
@@ -696,10 +696,10 @@ public class SimsReportQueries {
 		        + "       ) and age >= 15) and TI_on_art = 0) t order by RAND() limit 10;";
 		return query;
 	}
-
+	
 	/**
 	 * TX_CURR KPs with presumed TB
-	 *
+	 * 
 	 * @return
 	 */
 	public static String txCurrKPsWithPresumtiveTB() {
@@ -753,7 +753,7 @@ public class SimsReportQueries {
 		        + "                    ) and age >= 15) and TI_on_art = 0 and tb_case =142177)t order by RAND() limit 10;";
 		return query;
 	}
-
+	
 	public static String pedListedAsContacts() {
 		String qry = "select patient_id from kenyaemr_etl.etl_patient_contact c\n"
 		        + "where c.relationship_type = 1528 and  (timestampdiff(YEAR ,date(c.birth_date),date(:endDate)) < 15)\n"

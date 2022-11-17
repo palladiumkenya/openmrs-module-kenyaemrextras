@@ -37,7 +37,7 @@ public class SimsTxCurrPregnantBreastFeedingMissedAppTracingResultsDocumentation
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, if(a.tracing_outcome <> '', 'Y', 'N')\n"
+		String qry = "select a.patient_id, if(a.tracking_date > a.latest_app_date and a.tracing_outcome <> '', 'Y', 'N')\n"
 		        + "from (select f.patient_id,\n"
 		        + "             max(date(f.visit_date))                                     as latest_fup_visit,\n"
 		        + "             mid(max(concat(f.visit_date, f.next_appointment_date)), 11) as latest_app_date,\n"
