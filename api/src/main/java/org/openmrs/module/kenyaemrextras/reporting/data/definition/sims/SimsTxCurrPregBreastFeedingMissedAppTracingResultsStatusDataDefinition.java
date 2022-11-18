@@ -15,25 +15,25 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
- * Evaluates whether Tx_new pregnant aor breastfeeding mothers were retested on or prior to starting
- * ART
+ * Evaluates whether Tx_new pregnant or breastfeeding mothers who missed their last appointment and
+ * traced had tracing results documented
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-public class SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+public class SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
 	
 	public static final long serialVersionUID = 1L;
 	
 	/**
 	 * Default Constructor
 	 */
-	public SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition() {
+	public SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition() {
 		super();
 	}
 	
 	/**
 	 * Constructor to populate name only
 	 */
-	public SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition(String name) {
+	public SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition(String name) {
 		super(name);
 	}
 	

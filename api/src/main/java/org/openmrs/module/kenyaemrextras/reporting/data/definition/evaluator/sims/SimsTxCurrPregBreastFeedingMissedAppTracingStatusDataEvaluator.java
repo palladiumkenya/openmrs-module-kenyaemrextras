@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTxCurrPregnantBreastFeedingMissedAppTracingDocumentationStatusDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTxCurrPregBreastFeedingMissedAppTracingStatusDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -27,8 +27,8 @@ import java.util.Map;
  * Evaluates whether Tx_new pregnant or breastfeeding mothers who missed their last appointment had
  * tracing done
  */
-@Handler(supports = SimsTxCurrPregnantBreastFeedingMissedAppTracingDocumentationStatusDataDefinition.class, order = 50)
-public class SimsTxCurrPregnantBreastFeedingMissedAppTracingDocumentationStatusDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = SimsTxCurrPregBreastFeedingMissedAppTracingStatusDataDefinition.class, order = 50)
+public class SimsTxCurrPregBreastFeedingMissedAppTracingStatusDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
