@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,11 +24,11 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates whether Tx_new pregnant or breastfeeding mothers were retested prior to or before
- * initiation to ART
+ * Evaluates whether Tx_new pregnant or breastfeeding mothers who missed their last appointment and
+ * traced had tracing results documented
  */
-@Handler(supports = SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition.class, order = 50)
-public class SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition.class, order = 50)
+public class SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,20 +37,20 @@ public class SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataEvaluato
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id,\n"
-		        + "       if(de.date_started is not null, if(date(rt.retest_date) <= date(de.date_started), 'Y', 'N'), 'NA')\n"
-		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "         left join (select de.patient_id, min(date(de.date_started)) as date_started\n"
-		        + "                    from kenyaemr_etl.etl_drug_event de\n"
-		        + "                    where de.program = 'HIV'\n"
-		        + "                      and date(de.date_started) <= date(:endDate)\n"
-		        + "                    group by de.patient_id) de\n"
-		        + "                   on d.patient_id = de.patient_id\n"
-		        + "         left join (select rt.patient_id, rt.visit_date as retest_date\n"
-		        + "                    from kenyaemr_etl.etl_hts_test rt\n" + "                    where rt.test_type = 2\n"
-		        + "                      and rt.final_test_result = 'Positive'\n"
-		        + "                      and date(rt.visit_date) <= date(:endDate)) rt\n"
-		        + "                   on d.patient_id = rt.patient_id;";
+		String qry = "select a.patient_id, if(a.tracking_date > a.latest_app_date and a.tracing_outcome <> '', 'Y', 'N')\n"
+		        + "from (select f.patient_id,\n"
+		        + "             max(date(f.visit_date))                                     as latest_fup_visit,\n"
+		        + "             mid(max(concat(f.visit_date, f.next_appointment_date)), 11) as latest_app_date,\n"
+		        + "             t.tracking_date,\n"
+		        + "             t.tracing_outcome\n"
+		        + "      from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "               left join (select t.patient_id,\n"
+		        + "                                 max(t.visit_date)                                     as tracking_date,\n"
+		        + "                                 mid(max(concat(t.visit_date, t.tracing_outcome)), 11) as tracing_outcome\n"
+		        + "                          from kenyaemr_etl.etl_ccc_defaulter_tracing t\n"
+		        + "                          where t.visit_date <= date(:endDate)\n"
+		        + "                          group by t.patient_id) t on f.patient_id = t.patient_id\n"
+		        + "      where f.visit_date <= date(:endDate)\n" + "      group by f.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
