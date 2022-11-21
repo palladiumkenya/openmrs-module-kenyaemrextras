@@ -84,6 +84,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition cervicalCancerScreeningDSD = adultsOnArtScreenedForCervicalCancerDatasetDefinition("S_02_17");
 		DataSetDefinition pedsNewlyInitiatedOnArtdDSD = pedsNewlyInitiatedOnArtDatasetDefinition("S_02_18");
 		DataSetDefinition pedsOnArtVLMonitoringDSD = pedsOnArtVLMonitoringDatasetDefinition("S_02_22");
+		DataSetDefinition pedsOnArtVirallyUnsupressedDSD = pedsOnARTNonVirallySuppressedDatasetDefinition("S_02_23");
 		DataSetDefinition pedsListedAsContacts = pedsListedAsContactsDatasetDefinition("S_02_25");
 		DataSetDefinition pedsOnArtWithTBScreeningResultDSD = pedsOnArtWithTBScreeningResultDatasetDefinition("S_02_26");
 		DataSetDefinition pedsOnArtCTXDispensedDSD = pedsOnArtCTXDispensedDatasetDefinition("S_02_28");
@@ -121,6 +122,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(pedsMissedRecentAppointmentDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(pedsNewlyInitiatedOnArtdDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(pedOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(pedsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(cervicalCancerScreeningDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsWithClinicalVisitLast12MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrKPsWithClinicalVisitLast3MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -1493,4 +1495,46 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addRowFilter(cd, indParams);
 		return dsd;
 	}
+	
+	protected PatientDataSetDefinition pedsOnARTNonVirallySuppressedDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsEnhancedAdherenceDocumentedDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEnhancedAdherenceDocumentedDataDefinition();
+		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Enhance Adherence Documented", enhancedAdherenceDocumentedDataDefinition, indParams, null);
+		
+		SimsFollowUpVLTakenDataDefinition followUpVLTakenDataDefinition = new SimsFollowUpVLTakenDataDefinition();
+		followUpVLTakenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		followUpVLTakenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Follow Up VL", followUpVLTakenDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0223CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Non Virally suppressed");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
 }
