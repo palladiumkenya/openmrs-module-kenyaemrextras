@@ -1430,7 +1430,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		
-		SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition simsBreastFeedingPregnantRetestDataDefinition = new SimsTxNewPregnantBreastFeedingRetestDocumentationStatusDataDefinition();
+		SimsTxNewPregBreastFeedingRetestDocumentationStatusDataDefinition simsBreastFeedingPregnantRetestDataDefinition = new SimsTxNewPregBreastFeedingRetestDocumentationStatusDataDefinition();
 		simsBreastFeedingPregnantRetestDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsBreastFeedingPregnantRetestDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -1470,12 +1470,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		
-		SimsTxCurrPregnantBreastFeedingMissedAppTracingDocumentationStatusDataDefinition simsBreastFeedingPregnantTracingStatusDataDefinition = new SimsTxCurrPregnantBreastFeedingMissedAppTracingDocumentationStatusDataDefinition();
+		SimsTxCurrPregBreastFeedingMissedAppTracingStatusDataDefinition simsBreastFeedingPregnantTracingStatusDataDefinition = new SimsTxCurrPregBreastFeedingMissedAppTracingStatusDataDefinition();
 		simsBreastFeedingPregnantTracingStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date",
 		        Date.class));
 		simsBreastFeedingPregnantTracingStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		SimsTxCurrPregnantBreastFeedingMissedAppTracingResultsDocumentationStatusDataDefinition simsBreastFeedingPregnantTracingResultsDataDefinition = new SimsTxCurrPregnantBreastFeedingMissedAppTracingResultsDocumentationStatusDataDefinition();
+		SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition simsBreastFeedingPregnantTracingResultsDataDefinition = new SimsTxCurrPregBreastFeedingMissedAppTracingResultsStatusDataDefinition();
 		simsBreastFeedingPregnantTracingResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date",
 		        Date.class));
 		simsBreastFeedingPregnantTracingResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
