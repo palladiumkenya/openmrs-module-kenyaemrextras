@@ -107,43 +107,60 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition txCurrKPsCacxTreatmentDocumentationDSD = txCurrKPsCacxTreatmentDocumentationDatasetDefinition("S_03_24");
 		DataSetDefinition txNewPregnantOrBFRetestDocumentationDSD = txNewPregnantOrBFRetestDocumentationDatasetDefinition("S_04_01");
 		DataSetDefinition txCurrPregnantOrBFMissedAppTracingDocumentationDSD = txCurrPregnantOrBFMissedAppTracingDocumentationDatasetDefinition("S_04_02");
+		DataSetDefinition txCurrPregnantAndBFWithTestedChildContactsDSD = txCurrPregnantAndBFWithTestedChildContactsDatasetDefinition("S_04_08");
+		DataSetDefinition txCurrPregnantAndBFWithTBScreeningResultDSD = txCurrPregnantAndBFWithTBScreeningResultDatasetDefinition("S_04_09");
+		DataSetDefinition txCurrPregnantBFWTBScreenedNegativePostTPTDSD = txCurrPregnantBFWTBScreenedNegativePostTPTDatasetDefinition("S_04_10");
+		DataSetDefinition txCurrPregnantBFCTXDispensedDSD = txCurrPregnantBFCTXDispensedDatasetDefinition("S_04_11");
+		DataSetDefinition txCurrPregnantBFWithPresumptiveTBDSD = txCurrPregnantBFWithPresumptiveTBDatasetDefinition("S_04_12");
+		DataSetDefinition txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDSD = txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDatasetDefinition("S_04_13");
+		DataSetDefinition txCurrPregnantBFWithMotherAndBabyProphylaxisDSD = txCurrPregnantBFWithMotherAndBabyProphylaxisDatasetDefinition("S_04_14");
 		
-		return Arrays.asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(sameDayInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtCTXDispensedDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtScreenedNegTBAndEverOnTPTDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(adultsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsMissedRecentAppointmentDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsNewlyInitiatedOnArtdDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(cervicalCancerScreeningDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsWithClinicalVisitLast12MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsWithClinicalVisitLast3MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txNewKPsRetestDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedAppKPsTracedDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKpVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKpNonVirallySuppressedDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKpWithTestedContactsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKpWithTestedChildContactsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKpWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(pedsListedAsContacts, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsCTXDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsPresumptiveDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrKPsCacxTreatmentDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txNewPregnantOrBFRetestDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrPregnantOrBFMissedAppTracingDocumentationDSD, "startDate=${startDate},endDate=${endDate}")
-		
-		);
+		return Arrays
+		        .asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(missedAppointmentsDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                sameDayInitiationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                adultsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                adultsOnArtDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                adultsOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnArtWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnArtCTXDispensedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnArtScreenedNegTBAndEverOnTPTDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(adultsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsMissedRecentAppointmentDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsNewlyInitiatedOnArtdDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                cervicalCancerScreeningDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsWithClinicalVisitLast12MonthsDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(txCurrKPsWithClinicalVisitLast3MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txNewKPsRetestDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                missedAppKPsTracedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKpVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKpNonVirallySuppressedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKpWithTestedContactsDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKpWithTestedChildContactsDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKpWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsRecentPositivesARTInitiationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(pedsListedAsContacts, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsTBNegTPTInitiationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsCTXDocumentationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsPresumptiveDocumentationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrKPsCacxTreatmentDocumentationDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(txNewPregnantOrBFRetestDocumentationDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txCurrPregnantOrBFMissedAppTracingDocumentationDSD,
+		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrPregnantAndBFWithTestedChildContactsDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils
+		                    .map(txCurrPregnantAndBFWithTBScreeningResultDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txCurrPregnantBFWTBScreenedNegativePostTPTDSD,
+		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(txCurrPregnantBFCTXDispensedDSD,
+		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(txCurrPregnantBFWithPresumptiveTBDSD,
+		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txCurrPregnantBFWithMotherAndBabyProphylaxisDSD,
+		                "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -1532,6 +1549,273 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Peds Non Virally suppressed");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * Tx_Curr Pregnant and BF mothers with tested biological child contact
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	
+	protected PatientDataSetDefinition txCurrPregnantAndBFWithTestedChildContactsDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsChildListedAsContactDataDefinition simsChildListedAsContactDataDefinition = new SimsChildListedAsContactDataDefinition();
+		simsChildListedAsContactDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsChildListedAsContactDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Child Listed as Contact", simsChildListedAsContactDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0408CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("PMTCT on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantAndBFWithTBScreeningResultDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsTBResultDoumentedDataDefinition simsTBResultDoumentedDataDefinition = new SimsTBResultDoumentedDataDefinition();
+		simsTBResultDoumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsTBResultDoumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB Result Documented on lastVisit", simsTBResultDoumentedDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0409CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("PMTCT on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantBFWTBScreenedNegativePostTPTDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsNegativeTBResultsAndEverOnTPTDataDefinition negativeTBResultsAndEverOnTPTDataDefinition = new SimsNegativeTBResultsAndEverOnTPTDataDefinition();
+		negativeTBResultsAndEverOnTPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		negativeTBResultsAndEverOnTPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Negative TB Result Ever on TPT", negativeTBResultsAndEverOnTPTDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0410CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("PMTCT on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantBFCTXDispensedDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsCTXDispensedDataDefinition simsCTXDispensedDataDefinition = new SimsCTXDispensedDataDefinition();
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsCTXDispensedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("CTX Dispensed", simsCTXDispensedDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0411CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("PMTCT on ART");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantBFWithPresumptiveTBDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsSmearCultureXpertResultsDataDefinition simsSmearCultureXpertResultsDataDefinition = new SimsSmearCultureXpertResultsDataDefinition();
+		simsSmearCultureXpertResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsSmearCultureXpertResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Smear/Culture/GeneXpert Resutls", simsSmearCultureXpertResultsDataDefinition, indParams, null);
+		
+		SimsTBMolecularTestingDataDefinition simsTBMolecularTestingDataDefinition = new SimsTBMolecularTestingDataDefinition();
+		simsTBMolecularTestingDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsTBMolecularTestingDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB Molecular Testing", simsTBMolecularTestingDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0412CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("On ART with Presumptive TB");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsTestedWithin3MonthsOfMaternityDataDefinition simsTestedWithin3MonthsOfMaternityDataDefinition = new SimsTestedWithin3MonthsOfMaternityDataDefinition();
+		simsTestedWithin3MonthsOfMaternityDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsTestedWithin3MonthsOfMaternityDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Tested within 3 months maternity", simsTestedWithin3MonthsOfMaternityDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0413CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("On ART with HTS Test at Delivery");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition txCurrPregnantBFWithMotherAndBabyProphylaxisDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsMotherAndBabyProphylaxisGivenMaternityDataDefinition simsMotherAndBabyProphylaxisGivenMaternityDataDefinition = new SimsMotherAndBabyProphylaxisGivenMaternityDataDefinition();
+		simsMotherAndBabyProphylaxisGivenMaternityDataDefinition.addParameter(new Parameter("startDate", "Start Date",
+		        Date.class));
+		simsMotherAndBabyProphylaxisGivenMaternityDataDefinition.addParameter(new Parameter("endDate", "End Date",
+		        Date.class));
+		dsd.addColumn("Mother given prophylaxis at delivery", simsMotherAndBabyProphylaxisGivenMaternityDataDefinition,
+		    indParams, null);
+		
+		CohortDefinition cd = new S0414CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("On ART Prophylaxis given");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
