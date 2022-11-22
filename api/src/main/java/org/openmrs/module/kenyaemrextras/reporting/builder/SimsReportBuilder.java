@@ -25,6 +25,7 @@ import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.BirthdateConverter;
+import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.DataConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
@@ -288,12 +289,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsHivDiagnosisDateDataDefinition hivDiagnosisDateDataDefinition = new SimsHivDiagnosisDateDataDefinition();
 		hivDiagnosisDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		hivDiagnosisDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("HIV Diagnosis Date", hivDiagnosisDateDataDefinition, indParams, null);
+		dsd.addColumn("HIV Diagnosis Date", hivDiagnosisDateDataDefinition, indParams, new DateConverter(DATE_FORMAT));
 		
-		SimsHivEnrollmentDateDataDefinition hivEnrollmentDateDataDefinition = new SimsHivEnrollmentDateDataDefinition();
-		hivEnrollmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		hivEnrollmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("ART Initiation Date", hivEnrollmentDateDataDefinition, indParams, null);
+		SimsHivARTInitiationDateDataDefinition artInitiationDateDataDefinition = new SimsHivARTInitiationDateDataDefinition();
+		artInitiationDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		artInitiationDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("ART Initiation Date", artInitiationDateDataDefinition, indParams, new DateConverter(DATE_FORMAT));
 		
 		SimsSameDayARTInitiationDataDefinition simsSameDayARTInitiationDataDefinition = new SimsSameDayARTInitiationDataDefinition();
 		simsSameDayARTInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));

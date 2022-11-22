@@ -15,24 +15,24 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
 /**
- * Evaluates when a patient was enrolled in HIV
+ * Evaluates when a patient was initiated on ART
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-public class SimsHivEnrollmentDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+public class SimsHivARTInitiationDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
 	
 	public static final long serialVersionUID = 1L;
 	
 	/**
 	 * Default Constructor
 	 */
-	public SimsHivEnrollmentDateDataDefinition() {
+	public SimsHivARTInitiationDateDataDefinition() {
 		super();
 	}
 	
 	/**
 	 * Constructor to populate name only
 	 */
-	public SimsHivEnrollmentDateDataDefinition(String name) {
+	public SimsHivARTInitiationDateDataDefinition(String name) {
 		super(name);
 	}
 	
