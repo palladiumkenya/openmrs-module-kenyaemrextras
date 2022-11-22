@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHivEnrollmentDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHivARTInitiationDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates date a patient was enrolled in HIV
+ * Evaluates date a patient was started on ART
  */
-@Handler(supports = SimsHivEnrollmentDateDataDefinition.class, order = 50)
-public class SimsHivEnrollmentDateDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = SimsHivARTInitiationDateDataDefinition.class, order = 50)
+public class SimsHivARTInitiationDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,9 +36,9 @@ public class SimsHivEnrollmentDateDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select e.patient_id,\n"
-		        + " date(e.visit_date) visitDate from kenyaemr_etl.etl_hiv_enrollment e where date(e.visit_date) between date(:startDate) and date(:endDate)\n"
-		        + "\tGROUP BY e.patient_id;";
+		String qry = "select d.patient_id, min(d.date_started) date_started from kenyaemr_etl.etl_drug_event d\n"
+		        + " where date(date_started) between date(:startDate) and date(:endDate) and d.program = 'HIV'\n"
+		        + " GROUP BY d.patient_id";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
