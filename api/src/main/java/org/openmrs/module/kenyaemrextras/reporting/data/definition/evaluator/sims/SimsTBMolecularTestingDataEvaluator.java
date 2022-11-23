@@ -48,9 +48,7 @@ public class SimsTBMolecularTestingDataEvaluator implements PersonDataEvaluator 
 		        + "    where x.lab_test in (162202,1465,307) and x.visit_date <= date(:endDate)\n"
 		        + "    group by x.patient_id\n"
 		        + "  ) l on fup.patient_id = l.patient_id\n"
-		        + "  where fup.visit_date <= date(:endDate)\n"
-		        + "    GROUP BY fup.patient_id\n"
-		        + "    having genexpert_ordered = 162202 or  spatum_smear_ordered = 307\n" + "  )t";
+		        + "  where fup.visit_date <= date(:endDate)\n" + "    GROUP BY fup.patient_id\n" + "  )t";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
