@@ -36,20 +36,23 @@ public class SimsTracingOutcomeDocumentedDataEvaluator implements PersonDataEval
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,if(tracing_date > latest_app_date and tracing_outcome is not null, 'Y', 'N') from (\n"
-		        + "select f.patient_id,max(date(f.visit_date)) as latest_fup_visit,\n"
-		        + "mid(max(concat(f.visit_date, f.next_appointment_date)), 11) as latest_app_date,\n"
-		        + "b.tracing_outcome,b.tracing_date\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "left outer join (\n"
-		        + "  select t.patient_id,mid(max(concat(t.visit_date, t.tracing_outcome)), 11) as tracing_outcome,\n"
-		        + "  max(t.visit_date) as tracing_date\n"
-		        + "from kenyaemr_etl.etl_ccc_defaulter_tracing t \n"
-		        + "where date(t.visit_date) <= date(:endDate)\n"
-		        + "GROUP BY t.patient_id\n"
-		        + ") b on f.patient_id = b.patient_id\n"
-		        + "where f.visit_date <= date(:endDate)\n"
-		        + "group by f.patient_id\n" + ")a ";
+		String qry = "select a.patient_id,if(tracing_outcome is not null,'Y','N') from (\n" +
+				"select e.patient_id,t.tracing_outcome,t.tracingDate from kenyaemr_etl.etl_hiv_enrollment e\n" +
+				"left outer join (\n" +
+				"  select trace.patient_id as patient_id,\n" +
+				"  mid(max(concat(trace.visit_date, trace.tracing_outcome)), 11) as tracing_outcome,\n" +
+				"  max(trace.visit_date) as tracingDate,v.latest_app_date from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n" +
+				"  join (\n" +
+				"  select patient_id, mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_app_date\n" +
+				"  from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
+				"  group by fup.patient_id\n" +
+				"  ) v on trace.patient_id = v.patient_id\n" +
+				"  where  date(trace.visit_date) between latest_app_date and date(:endDate) \n" +
+				"  GROUP BY trace.patient_id\n" +
+				") t on e.patient_id = t.patient_id\n" +
+				"where e.visit_date <= date(:endDate)\n" +
+				"group by e.patient_id\n" +
+				")a ";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
