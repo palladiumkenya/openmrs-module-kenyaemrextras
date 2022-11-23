@@ -170,8 +170,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		                txCurrPregnantBFVLLoadAccessAndMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(txCurrPregnantBFHighVLManagementDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(txCurrPregnantBFPartnerServicesDSD, "startDate=${startDate},endDate=${endDate}"),
-		            ReportUtils.map(earlyInfantDiagnosisDSD, "startDate=${startDate},endDate=${endDate}"),
-						ReportUtils.map(earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"));
+		            ReportUtils.map(earlyInfantDiagnosisDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -253,7 +253,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingAttemptsDoneDataDefinition isTracingAttemptsDoneDataDefinition = new SimsTracingAttemptsDoneDataDefinition();
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		isTracingAttemptsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_02_02 Q2", isTracingAttemptsDoneDataDefinition, indParams, null);
+		dsd.addColumn("Attempts Done", isTracingAttemptsDoneDataDefinition, indParams, null);
 		
 		SimsTracingOutcomeDataDefinition tracingOutcomeDataDefinition = new SimsTracingOutcomeDataDefinition();
 		tracingOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -263,7 +263,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsTracingOutcomeDocumentedDataDefinition tracingOutcomeDocumentedDataDefinition = new SimsTracingOutcomeDocumentedDataDefinition();
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tracingOutcomeDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_02_02 Q3", tracingOutcomeDocumentedDataDefinition, indParams, null);
+		dsd.addColumn("Documented Outcome", tracingOutcomeDocumentedDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0202CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
