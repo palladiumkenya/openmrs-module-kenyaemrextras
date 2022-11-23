@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsTracingOutcomeDocumentedDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHEIStartedCtxBy8WeeksDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsHEIWithDocumentedFinalStatusDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates tracing outcome documented during a reporting period
+ * Evaluates whether HEI with documented final status
  */
-@Handler(supports = SimsTracingOutcomeDocumentedDataDefinition.class, order = 50)
-public class SimsTracingOutcomeDocumentedDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = SimsHEIWithDocumentedFinalStatusDataDefinition.class, order = 50)
+public class SimsHEIWithDocumentedFinalStatusDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,19 +37,10 @@ public class SimsTracingOutcomeDocumentedDataEvaluator implements PersonDataEval
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,if(tracing_outcome is not null,'Y','N') from (\n"
-		        + "select e.patient_id,t.tracing_outcome,t.tracingDate from kenyaemr_etl.etl_hiv_enrollment e\n"
-		        + "left outer join (\n"
-		        + "  select trace.patient_id as patient_id,\n"
-		        + "  mid(max(concat(trace.visit_date, trace.tracing_outcome)), 11) as tracing_outcome,\n"
-		        + "  max(trace.visit_date) as tracingDate,v.latest_app_date from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n"
-		        + "  join (\n"
-		        + "  select patient_id, mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_app_date\n"
-		        + "  from kenyaemr_etl.etl_patient_hiv_followup fup\n" + "  group by fup.patient_id\n"
-		        + "  ) v on trace.patient_id = v.patient_id\n"
-		        + "  where  date(trace.visit_date) between latest_app_date and date(:endDate) \n"
-		        + "  GROUP BY trace.patient_id\n" + ") t on e.patient_id = t.patient_id\n"
-		        + "where e.visit_date <= date(:endDate)\n" + "group by e.patient_id\n" + ")a ";
+		String qry = "select e.patient_id,\n" + "  if(e.hiv_status_at_exit is not null ,'Y','N')\n"
+		        + "from kenyaemr_etl.etl_hei_enrollment e\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = e.patient_id\n"
+		        + "     and timestampdiff(MONTH, d.dob, date(:endDate)) between 24 and 36;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
