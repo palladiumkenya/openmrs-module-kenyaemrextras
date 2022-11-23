@@ -36,16 +36,22 @@ public class SimsTracingAttemptsDoneDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, if(tracingDate > latest_app_date and numberOfTracing > 1,'Y','N') from (\n"
-		        + "select f.patient_id,max(date(f.visit_date))    as latest_fup_visit,\n"
-		        + "mid(max(concat(f.visit_date, f.next_appointment_date)), 11) as latest_app_date,\n"
-		        + "t.numberOfTracing,t.tracingDate\n" + "from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "left outer join (\n"
-		        + "  select trace.patient_id as patient_id,count(trace.visit_date) as numberOfTracing,\n"
-		        + "  max(trace.visit_date) as tracingDate\n" + "  from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n"
-		        + "  where  date(trace.visit_date) <=  date(:endDate)\n" + "  GROUP BY trace.patient_id\n"
-		        + ") t on f.patient_id = t.patient_id\n" + "where f.visit_date <= date(:endDate)\n"
-		        + "group by f.patient_id\n" + ")a ";
+		String qry = "select a.patient_id,if( numberOfTracing > 1,'Y','N') from (\n" +
+				"select e.patient_id,t.numberOfTracing,t.tracingDate from kenyaemr_etl.etl_hiv_enrollment e\n" +
+				"left outer join (\n" +
+				"  select trace.patient_id as patient_id,count(trace.visit_date) as numberOfTracing,\n" +
+				"  max(trace.visit_date) as tracingDate,v.latest_app_date from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n" +
+				"  join (\n" +
+				"  select patient_id, mid(max(concat(fup.visit_date, fup.next_appointment_date)), 11) as latest_app_date\n" +
+				"  from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
+				"  group by fup.patient_id\n" +
+				"  ) v on trace.patient_id = v.patient_id\n" +
+				"  where  date(trace.visit_date) between latest_app_date and date(:endDate) \n" +
+				"  GROUP BY trace.patient_id\n" +
+				") t on e.patient_id = t.patient_id\n" +
+				"where e.visit_date <= date(:endDate)\n" +
+				"group by e.patient_id\n" +
+				")a ";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
