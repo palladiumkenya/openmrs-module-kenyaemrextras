@@ -36,9 +36,16 @@ public class SimsTracingAttemptsDoneDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select trace.patient_id,if(trace.visit_date is not null,'Y','N') \n"
-		        + "from kenyaemr_etl.etl_ccc_defaulter_tracing trace where  date(trace.visit_date) between date(:startDate) and date(:endDate)\n"
-		        + "GROUP BY trace.patient_id";
+		String qry = "select a.patient_id, if(tracingDate > latest_app_date and numberOfTracing > 1,'Y','N') from (\n"
+		        + "select f.patient_id,max(date(f.visit_date))    as latest_fup_visit,\n"
+		        + "mid(max(concat(f.visit_date, f.next_appointment_date)), 11) as latest_app_date,\n"
+		        + "t.numberOfTracing,t.tracingDate\n" + "from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "left outer join (\n"
+		        + "  select trace.patient_id as patient_id,count(trace.visit_date) as numberOfTracing,\n"
+		        + "  trace.visit_date as tracingDate\n" + "  from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n"
+		        + "  where  date(trace.visit_date) <=  date(:endDate)\n" + "  GROUP BY trace.patient_id\n"
+		        + ") t on f.patient_id = t.patient_id\n" + "where f.visit_date <= date(:endDate)\n"
+		        + "group by f.patient_id\n" + ")a ";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
