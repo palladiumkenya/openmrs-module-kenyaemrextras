@@ -42,7 +42,7 @@ public class SimsTracingAttemptsDoneDataEvaluator implements PersonDataEvaluator
 		        + "t.numberOfTracing,t.tracingDate\n" + "from kenyaemr_etl.etl_patient_hiv_followup f\n"
 		        + "left outer join (\n"
 		        + "  select trace.patient_id as patient_id,count(trace.visit_date) as numberOfTracing,\n"
-		        + "  trace.visit_date as tracingDate\n" + "  from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n"
+		        + "  max(trace.visit_date) as tracingDate\n" + "  from kenyaemr_etl.etl_ccc_defaulter_tracing trace \n"
 		        + "  where  date(trace.visit_date) <=  date(:endDate)\n" + "  GROUP BY trace.patient_id\n"
 		        + ") t on f.patient_id = t.patient_id\n" + "where f.visit_date <= date(:endDate)\n"
 		        + "group by f.patient_id\n" + ")a ";
