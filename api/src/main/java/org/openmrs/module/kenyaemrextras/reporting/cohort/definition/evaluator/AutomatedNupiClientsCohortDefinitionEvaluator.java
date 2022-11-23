@@ -51,11 +51,13 @@ public class AutomatedNupiClientsCohortDefinitionEvaluator implements CohortDefi
 		
 		String qry = "select pi.patient_id from patient_identifier pi\n"
 		        + "  join patient_identifier_type pt on pt.patient_identifier_type_id = pi.identifier_type and pt.uuid = 'f85081e2-b4be-4e48-b3a4-7994b69bb101'\n"
-		        + "where pi.creator = 1;";
+		        + "where pi.creator = 1 and pi.date_created between date(:startDate) and date(:endDate);";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
-		Date endDate = new Date();
+		Date startDate = (Date) context.getParameterValue("startDate");
+		Date endDate = (Date) context.getParameterValue("endDate");
+		builder.addParameter("startDate", startDate);
 		builder.addParameter("endDate", endDate);
 		
 		List<Integer> ptIds = evaluationService.evaluateToList(builder, Integer.class, context);
