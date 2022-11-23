@@ -38,20 +38,22 @@ public class SimsNegativeTBResultsAndEverOnTPTDataEvaluator implements PersonDat
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select patientId, if (patientId =onTbpatient_id , 'N/A' ,if( (tbStatus = 1660  and everOnIPT = 1065),'Y','N')) from (\n"
-		        + "select fup.patient_id as patientId,\n"
-		        + "mid(max(concat(fup.visit_date, fup.tb_status )), 11) as tbStatus,\n"
-		        + "mid(max(concat(fup.visit_date, fup.ever_on_ipt )), 11) as everOnIPT,\n"
-		        + "fup.visit_date as visitDate,\n"
-		        + "onTbpatient_id\n"
-		        + "from kenyaemr_etl.etl_patient_hiv_followup fup \n"
-		        + " left join (\n"
-		        + "    select \n"
-		        + "\tc.patient_id  as onTbpatient_id\n"
-		        + "    from kenyaemr_etl.etl_tb_enrollment c\n"
-		        + "     ) b on fup.patient_id = b.onTbpatient_id\n"
-		        + "GROUP BY fup.patient_id ) t\n"
-		        + "where  date(visitDate) <=  date(:endDate)";
+		String qry = "select patientId, if (patientId =onTbpatient_id or tbStatus in (142177,1662), 'N/A' ,if( (tbStatus = 1660  and everOnIPT = 1065) or \n"
+		        + "(tbStatus = 1660 and enrolledInTPT is not null),'Y','N')) from (\n"
+		        + "  select fup.patient_id as patientId,\n"
+		        + "  mid(max(concat(fup.visit_date, fup.tb_status )), 11) as tbStatus,\n"
+		        + "  mid(max(concat(fup.visit_date, fup.ever_on_ipt )), 11) as everOnIPT,\n"
+		        + "  fup.visit_date as visitDate,\n"
+		        + "  b.onTbpatient_id, d.enrolledInTPT\n"
+		        + "  from kenyaemr_etl.etl_patient_hiv_followup fup \n"
+		        + "    left join (\n"
+		        + "      select c.patient_id  as onTbpatient_id from kenyaemr_etl.etl_tb_enrollment c\n"
+		        + "        ) b on fup.patient_id = b.onTbpatient_id\n"
+		        + "    left outer join (\n"
+		        + "      select p.patient_id as enrolledInTPT from  kenyaemr_etl.etl_ipt_initiation p\n"
+		        + "    ) d on fup.patient_id = d.enrolledInTPT\n"
+		        + "  GROUP BY fup.patient_id ) t\n"
+		        + "  where  date(visitDate) <=  date(:endDate)";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
