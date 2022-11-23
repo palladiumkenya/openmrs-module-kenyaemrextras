@@ -38,7 +38,7 @@ public class SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataEvaluator implements
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id,d.a,if(IFNULL(d.rpt_vl_result_date,'0000-00-00') > IFNULL(d.high_vl_date,'0000-00-00'),'Y','N') from (select c.patient_id,a.patient_id a, a.rpt_vl_result_date as rpt_vl_result_date,c.vl_result_date as high_vl_date\n"
+		String qry = "select d.patient_id,if(IFNULL(d.rpt_vl_result_date,'0000-00-00') > IFNULL(d.high_vl_date,'0000-00-00'),'Y','N') from (select c.patient_id,a.patient_id a, a.rpt_vl_result_date as rpt_vl_result_date,c.vl_result_date as high_vl_date\n"
 		        + "       from\n"
 		        + "                   (select c.patient_id,\n"
 		        + "                           max(c.visit_date)                                                       as vl_date,\n"
