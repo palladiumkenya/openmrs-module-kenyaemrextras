@@ -115,6 +115,11 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition txCurrPregnantBFWithPresumptiveTBDSD = txCurrPregnantBFWithPresumptiveTBDatasetDefinition("S_04_12");
 		DataSetDefinition txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDSD = txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDatasetDefinition("S_04_13");
 		DataSetDefinition txCurrPregnantBFWithMotherAndBabyProphylaxisDSD = txCurrPregnantBFWithMotherAndBabyProphylaxisDatasetDefinition("S_04_14");
+		DataSetDefinition txCurrPregnantBFVLLoadAccessAndMonitoringDSD = txCurrPregnantBFVLLoadAccessAndMonitoringDatasetDefinition("S_04_03");
+		DataSetDefinition txCurrPregnantBFHighVLManagementDSD = txCurrPregnantBFHighVLManagementDatasetDefinition("S_04_04");
+		DataSetDefinition txCurrPregnantBFPartnerServicesDSD = txCurrPregnantBFPartnerServicesDatasetDefinition("S_04_07");
+		DataSetDefinition earlyInfantDiagnosisDSD = earlyInfantDiagnosisDatasetDefinition("S_04_15");
+		DataSetDefinition earlyInfantConfirmatoryTestingDSD = earlyInfantConfirmatoryTestingDatasetDefinition("S_04_17");
 		
 		return Arrays
 		        .asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -161,7 +166,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                txCurrPregnantBFWithHtsTestAtMatWithin3MonthsDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(txCurrPregnantBFWithMotherAndBabyProphylaxisDSD,
-		                "startDate=${startDate},endDate=${endDate}"));
+		                "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                txCurrPregnantBFVLLoadAccessAndMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txCurrPregnantBFHighVLManagementDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(txCurrPregnantBFPartnerServicesDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(earlyInfantDiagnosisDSD, "startDate=${startDate},endDate=${endDate}"),
+						ReportUtils.map(earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -1817,6 +1827,236 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("On ART Prophylaxis given");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * S_04_03:Pregnant/Breastfeeding (BF) women on ART: Review 10 randomly selected charts of
+	 * pregnant and breastfeeding patients on ART >6 months.
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition txCurrPregnantBFVLLoadAccessAndMonitoringDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsPregBFVLOrderedWithinIntervalStatusDataDefinition simsVLOrderedWithinInterval = new SimsPregBFVLOrderedWithinIntervalStatusDataDefinition();
+		simsVLOrderedWithinInterval.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsVLOrderedWithinInterval.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_03 Q2", simsVLOrderedWithinInterval, indParams, null);
+		
+		SimsPregBFLastVLResultStatusDataDefinition simsRecentVLResultStatus = new SimsPregBFLastVLResultStatusDataDefinition();
+		simsRecentVLResultStatus.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsRecentVLResultStatus.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_03 Q3", simsRecentVLResultStatus, indParams, null);
+		
+		CohortDefinition cd = new S0403CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * S_04_04:Pregnant/Breastfeeding (BF) women on ART: Review 10 records (e.g., charts, high viral
+	 * load register, EMR entries) of pregnant and breastfeeding patients on ART ≥12 months with
+	 * virologic non-suppression.
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition txCurrPregnantBFHighVLManagementDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsPregBFEACAfterUnsuppressedVLStatusDataDefinition eacAfterUnsupressedvl = new SimsPregBFEACAfterUnsuppressedVLStatusDataDefinition();
+		eacAfterUnsupressedvl.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		eacAfterUnsupressedvl.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_04 Q2", eacAfterUnsupressedvl, indParams, null);
+		
+		SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition simsRepeatVLAfterUnsuppressedResults = new SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition();
+		simsRepeatVLAfterUnsuppressedResults.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsRepeatVLAfterUnsuppressedResults.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_04 Q3", simsRepeatVLAfterUnsuppressedResults, indParams, null);
+		
+		CohortDefinition cd = new S0404CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * S_04_07:Pregnant/Breastfeeding (BF) women on ART: Review 10 register entries (individual or
+	 * index/partner testing logbook) or charts (whichever source has the most updated information)
+	 * of HIV-positive pregnant and breastfeeding patients on ART ≥12 months.
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition txCurrPregnantBFPartnerServicesDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsPregBFAllContactTestingStatusDataDefinition allPartnersTested = new SimsPregBFAllContactTestingStatusDataDefinition();
+		allPartnersTested.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		allPartnersTested.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_07 Q3", allPartnersTested, indParams, null);
+		
+		CohortDefinition cd = new S0407CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * S_04_15: HIV-Exposed Infants (HEI): Review 10 records (register entries, charts, or HEI
+	 * cards) of the most recent HIV-infected infants (i.e. born 3 or more months prior to the SIMS
+	 * assessment and up to the last 12 months prior to today’s SIMS assessment).
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition earlyInfantDiagnosisDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsHIVPosHEIsEIDStatusDataDefinition heiEIDStatus = new SimsHIVPosHEIsEIDStatusDataDefinition();
+		heiEIDStatus.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		heiEIDStatus.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_15 Q1", heiEIDStatus, indParams, null);
+		
+		SimsHIVPosHEIsResultsInAMonthStatusDataDefinition heiTestResultsGivenToCareGiver = new SimsHIVPosHEIsResultsInAMonthStatusDataDefinition();
+		heiTestResultsGivenToCareGiver.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		heiTestResultsGivenToCareGiver.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_15 Q2", heiTestResultsGivenToCareGiver, indParams, null);
+		
+		CohortDefinition cd = new S0415CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * S_04_17: HIV-Exposed Infants (HEI): Review 10 records (register entries, charts, or HEI
+	 * cards) of the most recent HIV-infected infants (i.e. born 3 or more months prior to the SIMS
+	 * assessment and up to the last 12 months prior to today’s SIMS assessment) who had an initial
+	 * positive virologic test result.
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition earlyInfantConfirmatoryTestingDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsHIVPosHEIsConfirmatoryVirologicResultStatusDataDefinition heiConfirmatoryVirologicResultsStatus = new SimsHIVPosHEIsConfirmatoryVirologicResultStatusDataDefinition();
+		heiConfirmatoryVirologicResultsStatus.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		heiConfirmatoryVirologicResultsStatus.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_04_17 Q1", heiConfirmatoryVirologicResultsStatus, indParams, null);
+		
+		CohortDefinition cd = new S0417CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
