@@ -38,25 +38,15 @@ public class SimsPedsRecentVLTestOrderedDataEvaluator implements PersonDataEvalu
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select patient_id,\n"
-		        + "  if(((lastVL is not null and (timestampdiff(YEAR,dob,:endDate))<25 and  timestampdiff(MONTH,dateTestOrdered, :endDate) <=6)\n"
-		        + "   or  (lastVL is not null  and (timestampdiff(YEAR,dob,:endDate))>24 and  timestampdiff(MONTH,dateTestOrdered, :endDate) <=12)\n"
-		        + "   ),'Y','N') from (\n"
-		        + " select d.patient_id, d.dob as dob,\n"
-		        + " mid(max(concat(l.visit_date, l.test_result)), 11)  as lastVL,\n"
-		        + " mid(max(concat(l.visit_date, l.date_test_requested)), 11)  as dateTestOrdered\n"
-		        + " from kenyaemr_etl.etl_patient_demographics d\n"
-		        + " left join (\n"
-		        + " select x.patient_id, x.visit_date ,x.test_result, x.date_test_requested\n"
-		        + "   from kenyaemr_etl.etl_laboratory_extract x\n"
-		        + "   where  lab_test in (856, 1305)\n"
-		        + "   GROUP BY  x.patient_id\n"
-		        + " ) l on d.patient_id = l.patient_id\n"
-		        + " group by d.patient_id\n"
-		        + " )t\n"
-		        + " where (\n"
-		        + "  (t.lastVL is not null  and (timestampdiff(YEAR,t.dob,:endDate))<25 and  timestampdiff(MONTH,t.dateTestOrdered, :endDate) <=6)\n"
-		        + "  or (t.lastVL is not null  and (timestampdiff(YEAR,t.dob,:endDate))>24 and  timestampdiff(MONTH,t.dateTestOrdered, :endDate) <=12)\n"
-		        + " );";
+		        + "if(((lastVL is not null and (timestampdiff(YEAR,dob,:endDate))<25 and  timestampdiff(MONTH,dateTestOrdered, :endDate) <=6)\n"
+		        + "    or  (lastVL is not null  and (timestampdiff(YEAR,dob,:endDate))>24 and  timestampdiff(MONTH,dateTestOrdered, :endDate) <=12)\n"
+		        + "    ),'Y','N') from (\n" + "select d.patient_id, d.dob as dob,\n" + "l.lastVL,\n" + "l.dateTestOrdered\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n" + "left join (\n"
+		        + "select x.patient_id, max(x.visit_date) ,x.test_result, \n"
+		        + "mid(max(concat(x.visit_date, x.date_test_requested)), 11)  as dateTestOrdered,\n"
+		        + "mid(max(concat(x.visit_date, x.test_result)), 11)  as lastVL\n"
+		        + "from kenyaemr_etl.etl_laboratory_extract x\n" + "where  lab_test in (856, 1305) \n"
+		        + "GROUP BY  x.patient_id\n" + ") l on d.patient_id = l.patient_id\n" + "group by d.patient_id\n" + ")t";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
