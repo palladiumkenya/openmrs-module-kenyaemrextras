@@ -1846,8 +1846,62 @@ public class SimsReportQueries {
 	}
 	
 	/**
+	 * S_08_02: 10 TB patients diagnosed with HIV more than 3 months but less than 12 months prior
+	 * to the SIMS assessment.
+	 *
+	 * @return
+	 */
+	public static String artProvisionForHIVPosAdultTBPatients() {
+		String qry = "select a.patient_id from (select dem.patient_id,\n"
+		        + "       max(e.visit_date)                                   as latest_enrollment,\n"
+		        + "       disc.patient_id                                     as disc_patient,\n"
+		        + "       coalesce(disc.effective_disc_date, disc.visit_date) as disc_date\n"
+		        + "       from kenyaemr_etl.etl_patient_demographics dem\n"
+		        + "inner join kenyaemr_etl.etl_tb_enrollment e  on dem.patient_id = e.patient_id\n"
+		        + "         left join (select t.patient_id, t.visit_date as date_tested\n"
+		        + "                    from kenyaemr_etl.etl_hts_test t\n"
+		        + "                    where t.final_test_result = 'Positive'\n"
+		        + "                      and timestampdiff(MONTH, t.visit_date, date(:endDate)) between 3 and 12) t\n"
+		        + "                   on t.patient_id = dem.patient_id\n"
+		        + "         left join (select h.patient_id,\n"
+		        + "                           coalesce(mid(min(concat(h.visit_date, h.date_confirmed_hiv_positive)), 11),\n"
+		        + "                                    min(h.visit_date)) as date_confirmed_hiv_pos\n"
+		        + "                    from kenyaemr_etl.etl_hiv_enrollment h\n"
+		        + "                    where h.visit_date <= date(:endDate) and timestampdiff(MONTH, date_confirmed_hiv_positive, date(:endDate)) between 3 and 12\n"
+		        + "                    group by h.patient_id) h\n"
+		        + "                   on dem.patient_id = h.patient_id\n"
+		        + "         left join (\n"
+		        + "    select patient_id,\n"
+		        + "           max(visit_date)                                                              as visit_date,\n"
+		        + "           mid(max(concat(date(visit_date), date(effective_discontinuation_date))), 11) as effective_disc_date\n"
+		        + "    from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "    where date(visit_date) <= date(:endDate)\n" + "      and program_name = 'TB'\n"
+		        + "    group by patient_id\n" + ") disc on dem.patient_id = disc.patient_id\n"
+		        + "where (t.patient_id is not null or h.patient_id is not null)\n"
+		        + " and timestampdiff(YEAR,dem.dob,date(:endDate) >= 18)\n" + "group by e.patient_id\n"
+		        + "having disc_patient is null\n" + "    or latest_enrollment >= disc_date  )a\n"
+		        + " order by RAND() limit 10;";
+		return qry;
+	}
+
+	/**
+	 * S_07_03: 10 clients identified as HIV positive within the last 3 months from the HTS register
+	 * to determine the percentage of HIV positive clients who were successfully linked to treatment
+	 * services.
+	 *
+	 * @return
+	 */
+	public static String htsLinkageToHIVCareAndTreatment() {
+		String qry = "select t.patient_id\n"
+		        + "from kenyaemr_etl.etl_hts_test t\n"
+		        + "where t.test_type = 2\n"
+		        + "  and t.final_test_result = 'Positive'\n"
+		        + "  and t.visit_date between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate);";
+		return qry;
+	}
+	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old started on CTX
-	 * 
+	 *
 	 * @return
 	 */
 	public static String hei3To12MonthsOldOnCTXQuery() {
@@ -1859,10 +1913,10 @@ public class SimsReportQueries {
 		        + "             on e.patient_id = v.patient_id\n" + "order by RAND()\n" + "limit 10;";
 		return qry;
 	}
-	
+
 	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 24-36 months old
-	 * 
+	 *
 	 * @return
 	 */
 	public static String hei24To36MonthsOldQuery() {
@@ -1872,10 +1926,10 @@ public class SimsReportQueries {
 		        + "limit 10;";
 		return qry;
 	}
-	
+
 	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old
-	 * 
+	 *
 	 * @return
 	 */
 	public static String hei3To12MonthsOldQuery() {
@@ -1885,13 +1939,14 @@ public class SimsReportQueries {
 		        + "     order by RAND() \n" + "     limit 10;";
 		return qry;
 	}
-	
+
 	public static String vmmcClientsQuery() {
 		String qry = "select e. patient_id from  kenyaemr_etl.etl_vmmc_enrolment e\n"
 		        + "order by e.date_created  desc limit 10;";
 		return qry;
 	}
-	
+
+
 	/**
 	 * Cohort definition evaluator of pediatric patients who newly initiated on ART in the last 3
 	 * months.
@@ -1925,7 +1980,7 @@ public class SimsReportQueries {
 		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
 		return qry;
 	}
-	
+
 	/**
 	 * Cohort definition evaluator of adult and adolescent patients ≥15 years old who newly
 	 * initiated ART in the last 3 months .
@@ -1959,5 +2014,5 @@ public class SimsReportQueries {
 		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
 		return qry;
 	}
-	
+
 }
