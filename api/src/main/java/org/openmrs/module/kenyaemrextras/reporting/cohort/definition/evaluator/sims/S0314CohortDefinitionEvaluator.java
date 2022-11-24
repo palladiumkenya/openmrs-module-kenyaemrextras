@@ -16,7 +16,6 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyaemr.api.KenyaEmrService;
 import org.openmrs.module.kenyaemrextras.metadata.ExtrasMetadata;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0312CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0314CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.library.sims.SimsReportQueries;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
