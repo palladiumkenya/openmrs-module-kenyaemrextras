@@ -124,6 +124,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition hei3To12MonthsOldOnCTXBy8WeeksDSD = hei3To12MonthsOldOnCTXBy8WeeksDatasetDefinition("S_04_18");
 		DataSetDefinition hei24To36MonthsWithDocumentedFinalResultDSD = hei24To36MonthsWithDocumentedFinalResultDatasetDefinition("S_04_19");
 		DataSetDefinition hei3To12MonthsOldLinkedToTreatmentDSD = hei3To12MonthsOldLinkedToTreatmentDatasetDefinition("S_04_20");
+		DataSetDefinition vmmcClientsDSD = vmmcClientsDatasetDefinition("S_05_01");
 		
 		return Arrays
 		        .asList(ReportUtils.map(newlyInitiatedOnArtPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
@@ -178,7 +179,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		                earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                hei3To12MonthsOldOnCTXBy8WeeksDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                hei24To36MonthsWithDocumentedFinalResultDSD, "startDate=${startDate},endDate=${endDate}"),
-		            ReportUtils.map(hei3To12MonthsOldLinkedToTreatmentDSD, "startDate=${startDate},endDate=${endDate}"));
+		            ReportUtils.map(hei3To12MonthsOldLinkedToTreatmentDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(vmmcClientsDSD, "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -2220,6 +2222,55 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("HEI 3 to 12 months");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * Precision and safeguarding of VMMC Clinical Records: Do the records contain the following:
+	 * complete contact details, history and physical exam, weight, Blood Pressure, surgical method,
+	 * follow-up date and presence/absence of Adverse Events, and stored in a locked location?
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition vmmcClientsDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		PatientIdentifierType openMRSId = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.OPENMRS_ID);
+		DataDefinition identifierOpenMRSDef = new ConvertedPatientDataDefinition("identifier",
+		        new PatientIdentifierDataDefinition(openMRSId.getName(), openMRSId), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("OpenMRS ID", identifierOpenMRSDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsVMMCDocumentationDataDefinition simsVMMCDocumentationDataDefinition = new SimsVMMCDocumentationDataDefinition();
+		simsVMMCDocumentationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		simsVMMCDocumentationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("VMMC Documentation", simsVMMCDocumentationDataDefinition, indParams, null);
+		
+		CohortDefinition cd = new S0501CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("VMMC Clients");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;

@@ -1884,4 +1884,10 @@ public class SimsReportQueries {
 		return qry;
 	}
 	
+	public static String vmmcClientsQuery() {
+		String qry = "select e. patient_id from  kenyaemr_etl.etl_vmmc_enrolment e\n"
+		        + "order by e.date_created  desc limit 10;";
+		return qry;
+	}
+	
 }
