@@ -38,7 +38,7 @@ public class SimsPedSmearCultureXpertResultsDataEvaluator implements PersonDataE
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select t.patient_id,\n"
-		        + "if((testResult in (162203,162204,162104,703,1362,1363,1364) or genexpert_result in (162204,664)\n"
+		        + "if((testResult in (162203,162204,162104,703,1362,1363,1364,664) or genexpert_result in (162204,664)\n"
 		        + " or spatum_smear_result in(664, 703)  or chestXrayResult in (1115,152526)),'Y','N'  ) from (\n"
 		        + "  select fup.patient_id, l.testResult, \n"
 		        + "  mid(max(concat(fup.visit_date,fup.genexpert_result)),11) as genexpert_result,\n"
@@ -48,7 +48,7 @@ public class SimsPedSmearCultureXpertResultsDataEvaluator implements PersonDataE
 		        + "  from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "  left join (\n"
 		        + "  select patient_id, mid(max(concat(x.visit_date,x.test_result)),11) as testResult from kenyaemr_etl.etl_laboratory_extract x \n"
-		        + "  where x.lab_test in (162202,1465,307) and x.test_result in (162203,162204,162104,703,1362,1363,1364) and x.visit_date <= date(:endDate)\n"
+		        + "  where x.lab_test in (162202,1465,307) and x.test_result in (162203,162204,162104,703,1362,1363,1364,664) and x.visit_date <= date(:endDate)\n"
 		        + "    GROUP BY x.patient_id\n" + "  ) l on fup.patient_id = l.patient_id\n"
 		        + "  where fup.visit_date <= date(:endDate)\n" + "  GROUP  BY fup.patient_id\n" + "  ) t";
 		
