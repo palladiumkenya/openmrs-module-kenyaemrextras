@@ -45,8 +45,9 @@ public class SimsPedsRecentVLTestOrderedDataEvaluator implements PersonDataEvalu
 		        + "select x.patient_id, max(x.visit_date) ,x.test_result, \n"
 		        + "mid(max(concat(x.visit_date, x.date_test_requested)), 11)  as dateTestOrdered,\n"
 		        + "mid(max(concat(x.visit_date, x.test_result)), 11)  as lastVL\n"
-		        + "from kenyaemr_etl.etl_laboratory_extract x\n" + "where  lab_test in (856, 1305) \n"
-		        + "GROUP BY  x.patient_id\n" + ") l on d.patient_id = l.patient_id\n" + "group by d.patient_id\n" + ")t";
+		        + "from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "where  lab_test in (856, 1305) and x.visit_date <= date(:endDate)\n" + "GROUP BY  x.patient_id\n"
+		        + ") l on d.patient_id = l.patient_id\n" + "group by d.patient_id\n" + ")t";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
