@@ -1843,4 +1843,45 @@ public class SimsReportQueries {
 		return qry;
 	}
 	
+	/**
+	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old started on CTX
+	 * 
+	 * @return
+	 */
+	public static String hei3To12MonthsOldOnCTXQuery() {
+		String qry = "select e.patient_id\n" + "from kenyaemr_etl.etl_hei_enrollment e\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = e.patient_id\n"
+		        + "          and timestampdiff(MONTH, d.dob, date(:endDate)) between 3 and 12\n"
+		        + "  join (select v.patient_id\n" + "             from kenyaemr_etl.etl_hei_follow_up_visit v\n"
+		        + "             where v.visit_date <= date(:endDate) and (v.ctx_given = 105281)) v\n"
+		        + "             on e.patient_id = v.patient_id\n" + "order by RAND()\n" + "limit 10;";
+		return qry;
+	}
+	
+	/**
+	 * Cohort definition :Evaluator for CohortDefinition: of HEI 24-36 months old
+	 * 
+	 * @return
+	 */
+	public static String hei24To36MonthsOldQuery() {
+		String qry = "select e.patient_id\n" + "from kenyaemr_etl.etl_hei_enrollment e\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = e.patient_id\n"
+		        + "          and timestampdiff(MONTH, d.dob, date(:endDate)) between 24 and 36\n" + "order by RAND()\n"
+		        + "limit 10;";
+		return qry;
+	}
+	
+	/**
+	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old
+	 * 
+	 * @return
+	 */
+	public static String hei3To12MonthsOldQuery() {
+		String qry = "select e.patient_id \n" + "     from kenyaemr_etl.etl_hei_enrollment e \n"
+		        + "       inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = e.patient_id \n"
+		        + "               and timestampdiff(MONTH, d.dob, date(:endDate)) between 3 and 12\n"
+		        + "     order by RAND() \n" + "     limit 10;";
+		return qry;
+	}
+	
 }
