@@ -16,7 +16,7 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyaemr.api.KenyaEmrService;
 import org.openmrs.module.kenyaemrextras.metadata.ExtrasMetadata;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0315CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0419CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.library.sims.SimsReportQueries;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Evaluator for CohortDefinition: HIV-positive KPs patients : In KP program and on ART >=12 months
+ * Evaluator for CohortDefinition: of HEI 24-36 months old
  */
-@Handler(supports = { S0315CohortDefinition.class })
-public class S0315CohortDefinitionEvaluator implements CohortDefinitionEvaluator {
+@Handler(supports = { S0419CohortDefinition.class })
+public class S0419CohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -49,14 +49,14 @@ public class S0315CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
 		
-		S0315CohortDefinition definition = (S0315CohortDefinition) cohortDefinition;
+		S0419CohortDefinition definition = (S0419CohortDefinition) cohortDefinition;
 		
 		if (definition == null)
 			return null;
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = SimsReportQueries.txCurrKpMoreThan12MonthsOnArtQuery();
+		String qry = SimsReportQueries.hei24To36MonthsOldQuery();
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
