@@ -944,7 +944,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
-
+		
 		SimsKPsMissedAppTrackingDocumentationStatusDataDefinition missedAppKPsTracingDocumentationStatusDataDefinition = new SimsKPsMissedAppTrackingDocumentationStatusDataDefinition();
 		missedAppKPsTracingDocumentationStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date",
 		        Date.class));

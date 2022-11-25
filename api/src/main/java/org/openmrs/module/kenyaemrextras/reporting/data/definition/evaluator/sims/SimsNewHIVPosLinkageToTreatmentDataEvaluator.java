@@ -37,11 +37,32 @@ public class SimsNewHIVPosLinkageToTreatmentDataEvaluator implements PersonDataE
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select e.patient_id,if(d.art_client is not null,'Y','N') as is_on_art\n"
-		        + "from kenyaemr_etl.etl_tb_enrollment e\n" + "         left join\n"
-		        + "     (select d.patient_id as art_client\n" + "      from kenyaemr_etl.etl_drug_event d\n"
-		        + "      where d.date_started <= date(:endDate)\n" + "        and d.program = 'HIV'\n"
-		        + "        and d.discontinued is null) d on e.patient_id = d.art_client;";
+		String qry = "select a.patient_id, if(a.art_client is not null, 'Y', 'N') as on_art\n"
+		        + "from (select dem.patient_id,\n"
+		        + "             disc.effective_disc_date as disc_date,\n"
+		        + "             max(e.visit_date)        as enr_date,\n"
+		        + "             d.patient_id             as art_client,\n"
+		        + "             disc.patient_id          as disc_patient\n"
+		        + "      from kenyaemr_etl.etl_patient_demographics dem\n"
+		        + "               left join kenyaemr_etl.etl_hiv_enrollment e on dem.patient_id = e.patient_id\n"
+		        + "               left join (select d.patient_id,\n"
+		        + "                                 mid(max(concat(d.visit_date, d.date_started)), 11) as date_started\n"
+		        + "                          from kenyaemr_etl.etl_drug_event d\n"
+		        + "                          where d.program = 'HIV'\n"
+		        + "                            and d.date_started <= date(:endDate)\n"
+		        + "                            and d.discontinued is null\n"
+		        + "                          group by d.patient_id) d\n"
+		        + "                         on dem.patient_id = d.patient_id\n"
+		        + "               left join (select patient_id,\n"
+		        + "                                 max(visit_date) as visit_date,\n"
+		        + "                                 mid(max(concat(date(visit_date), date(effective_discontinuation_date))),\n"
+		        + "                                     11)         as effective_disc_date\n"
+		        + "                          from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "                          where date(visit_date) <= date(:endDate)\n"
+		        + "                            and program_name = 'TB'\n"
+		        + "                          group by patient_id) disc on dem.patient_id = disc.patient_id\n"
+		        + "      group by dem.patient_id) a\n" + "where (a.disc_date > a.enr_date\n"
+		        + "   or a.disc_patient is null);";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
