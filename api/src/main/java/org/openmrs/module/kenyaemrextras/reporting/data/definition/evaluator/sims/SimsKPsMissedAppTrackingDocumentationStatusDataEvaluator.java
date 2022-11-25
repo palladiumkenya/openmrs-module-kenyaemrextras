@@ -44,7 +44,7 @@ public class SimsKPsMissedAppTrackingDocumentationStatusDataEvaluator implements
 		        + "      from kenyaemr_etl.etl_patient_hiv_followup f\n"
 		        + "               left join (select t.client_id, max(t.visit_date) as tracking_date\n"
 		        + "                          from kenyaemr_etl.etl_peer_tracking t\n"
-		        + "                          where t.visit_date <= date(:endDate) group by t.client_id) t on f.patient_id = t.client_id\n"
+		        + "                          where t.visit_date <= date(:endDate) and t.attempt_number > 1 group by t.client_id) t on f.patient_id = t.client_id\n"
 		        + "      where f.visit_date <= date(:endDate)\n" + "      group by f.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
