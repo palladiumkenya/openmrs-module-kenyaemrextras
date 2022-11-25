@@ -1848,7 +1848,7 @@ public class SimsReportQueries {
 	/**
 	 * S_08_02: 10 TB patients diagnosed with HIV more than 3 months but less than 12 months prior
 	 * to the SIMS assessment.
-	 *
+	 * 
 	 * @return
 	 */
 	public static String artProvisionForHIVPosAdultTBPatients() {
@@ -1883,12 +1883,12 @@ public class SimsReportQueries {
 		        + " order by RAND() limit 10;";
 		return qry;
 	}
-
+	
 	/**
 	 * S_07_03: 10 clients identified as HIV positive within the last 3 months from the HTS register
 	 * to determine the percentage of HIV positive clients who were successfully linked to treatment
 	 * services.
-	 *
+	 * 
 	 * @return
 	 */
 	public static String htsLinkageToHIVCareAndTreatment() {
@@ -1899,9 +1899,10 @@ public class SimsReportQueries {
 		        + "  and t.visit_date between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate);";
 		return qry;
 	}
+	
 	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old started on CTX
-	 *
+	 * 
 	 * @return
 	 */
 	public static String hei3To12MonthsOldOnCTXQuery() {
@@ -1913,10 +1914,10 @@ public class SimsReportQueries {
 		        + "             on e.patient_id = v.patient_id\n" + "order by RAND()\n" + "limit 10;";
 		return qry;
 	}
-
+	
 	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 24-36 months old
-	 *
+	 * 
 	 * @return
 	 */
 	public static String hei24To36MonthsOldQuery() {
@@ -1926,10 +1927,10 @@ public class SimsReportQueries {
 		        + "limit 10;";
 		return qry;
 	}
-
+	
 	/**
 	 * Cohort definition :Evaluator for CohortDefinition: of HEI 3-12 months old
-	 *
+	 * 
 	 * @return
 	 */
 	public static String hei3To12MonthsOldQuery() {
@@ -1939,14 +1940,13 @@ public class SimsReportQueries {
 		        + "     order by RAND() \n" + "     limit 10;";
 		return qry;
 	}
-
+	
 	public static String vmmcClientsQuery() {
 		String qry = "select e. patient_id from  kenyaemr_etl.etl_vmmc_enrolment e\n"
 		        + "order by e.date_created  desc limit 10;";
 		return qry;
 	}
-
-
+	
 	/**
 	 * Cohort definition evaluator of pediatric patients who newly initiated on ART in the last 3
 	 * months.
@@ -1980,7 +1980,7 @@ public class SimsReportQueries {
 		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
 		return qry;
 	}
-
+	
 	/**
 	 * Cohort definition evaluator of adult and adolescent patients ≥15 years old who newly
 	 * initiated ART in the last 3 months .
@@ -2014,5 +2014,5 @@ public class SimsReportQueries {
 		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
 		return qry;
 	}
-
+	
 }
