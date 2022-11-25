@@ -37,7 +37,7 @@ public class SimsHivDiagnosisDateDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select e.patient_id,\n"
-		        + " e.date_confirmed_hiv_positive from kenyaemr_etl.etl_hiv_enrollment e where date(e.visit_date) between date(:startDate) and date(:endDate)\n"
+		        + " e.date_confirmed_hiv_positive from kenyaemr_etl.etl_hiv_enrollment e where date(e.visit_date) <= date(:endDate)\n"
 		        + "\tGROUP BY e.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
