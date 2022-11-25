@@ -40,7 +40,7 @@ public class SimsSameDayARTInitiationDataEvaluator implements PersonDataEvaluato
 		        + "from kenyaemr_etl.etl_hiv_enrollment e \n" + "left outer join (\n"
 		        + "  select d.patient_id, min(d.date_started) as date_started from kenyaemr_etl.etl_drug_event d\n"
 		        + "  where d.program = 'HIV'\n" + "  GROUP BY d.patient_id\n" + ") a on e.patient_id = a. patient_id\n"
-		        + "where date(e.visit_date) between date(:startDate) and date(:endDate)\n" + "GROUP BY e.patient_id;";
+		        + "where date(e.visit_date) <= date(:endDate)\n" + "GROUP BY e.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
