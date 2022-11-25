@@ -442,7 +442,7 @@ public class SimsReportQueries {
 		        + "         group by patient_id\n"
 		        + "         having (\n"
 		        + "                        (timestampdiff(DAY, date(latest_tca), date(:endDate)) between 1 and 30) and\n"
-		        + "                        ((date(d.effective_disc_date) > date(curdate()) or\n"
+		        + "                        ((date(d.effective_disc_date) > date(:endDate) or\n"
 		        + "                          date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "                        and (date(latest_vis_date) > date(date_discontinued) and\n"
 		        + "                             date(latest_tca) > date(date_discontinued) or disc_patient is null)\n"
