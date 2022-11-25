@@ -28,16 +28,18 @@ public class SimsReportQueries {
 		        + "having (\n"
 		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) between 1 and 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null)\n"
-		        + ")\n" + ") t limit 10;";
+		        + ")\n" + ") t order by RAND() limit 10;";
 		return qry;
 	}
 	
 	public static String newlyDiagnosedQuery() {
 		String qry = "select e.patient_id\n"
-		        + " from kenyaemr_etl.etl_hiv_enrollment e \n"
-		        + " join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
-		        + " left join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id = e.patient_id and fup.visit_date between date(:startDate) and date(:endDate)\n"
-		        + " where date(e.date_confirmed_hiv_positive) between date(:startDate) and date(:endDate) and timestampdiff(YEAR ,p.dob,date(:endDate)) >= 15 ";
+		        + "from kenyaemr_etl.etl_hiv_enrollment e \n"
+		        + "join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
+		        + "left join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id = e.patient_id \n"
+		        + "and fup.visit_date between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate)\n"
+		        + "where date(e.date_confirmed_hiv_positive) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate) \n"
+		        + "and timestampdiff(YEAR ,p.dob,date(:endDate)) >= 15 order by RAND() limit 10";
 		return qry;
 	}
 	
@@ -91,7 +93,7 @@ public class SimsReportQueries {
 		        + "                                     having max(visit_date) between\n"
 		        + "                        date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
 		        + "                                     )vl\n"
-		        + "                            on t.patient_id = vl.patient_id where vl_result >= 1000)a limit 10";
+		        + "                            on t.patient_id = vl.patient_id where vl_result >= 1000)a  order by RAND() limit 10";
 		return qry;
 	}
 	
@@ -128,7 +130,7 @@ public class SimsReportQueries {
 		        + "        (\n"
 		        + "            ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "                and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15\n"
-		        + "            )\n" + "        ) order by date_started desc\n" + "    ) t limit 10";
+		        + "            )\n" + "        )\n" + "    ) t order by RAND() limit 10";
 		return qry;
 		
 	}
@@ -161,7 +163,7 @@ public class SimsReportQueries {
 		        + "(\n"
 		        + "    ((timestampdiff(DAY,date(latest_tca),date(:endDate )) <= 30) and ((date(d.effective_disc_date) > date(:endDate ) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "        and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15 and tbStatus =142177 \n"
-		        + "    )        ) order by date_started desc ) t limit 10";
+		        + "    )        ) ) t order by RAND() limit 10";
 		return qry;
 	}
 	
@@ -192,7 +194,7 @@ public class SimsReportQueries {
 		        + "        (\n"
 		        + "            ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "                and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age <15\n"
-		        + "            )\n" + "        ) order by date_started desc\n" + "    ) t limit 10";
+		        + "            )\n" + "        ) \n" + "    ) t  order by RAND() limit 10";
 		return qry;
 		
 	}
@@ -223,7 +225,7 @@ public class SimsReportQueries {
 		        + "having (\n"
 		        + "(timestampdiff(DAY,date(latest_tca),date(:endDate)) between 1 and 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null)\n"
 		        + "and (date(latest_vis_date) > date(date_discontinued) and date(latest_tca) > date(date_discontinued) or disc_patient is null) and age <15\n"
-		        + ") ) t limit 10;";
+		        + ") ) t order by RAND() limit 10;";
 		return qry;
 	}
 	
@@ -268,7 +270,7 @@ public class SimsReportQueries {
 		        + "    (\n"
 		        + "        ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "            and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=15 and gender='F' and screening_result ='Positive'\n"
-		        + "        )   ) order by date_started desc ) t limit 10 ";
+		        + "        )   )  ) t order by RAND() limit 10 ";
 		return qry;
 	}
 	
@@ -476,7 +478,7 @@ public class SimsReportQueries {
 		        + "  (\n"
 		        + "      ((timestampdiff(DAY,date(latest_tca),date(:endDate )) <= 30) and ((date(d.effective_disc_date) > date(:endDate ) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "          and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age <15 and tbStatus =142177 \n"
-		        + "      )        ) order by date_started desc ) t limit 5";
+		        + "      )        ) ) t order by RAND() limit 5";
 		return qry;
 	}
 	
@@ -1075,7 +1077,7 @@ public class SimsReportQueries {
 		        + "    ((timestampdiff(DAY,date(latest_tca),date(\"2022-10-30\")) <= 30) and ((date(d.effective_disc_date) > date(\"2022-10-30\") or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
 		        + "    and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=10 and age <= 19\n"
 		        + "    )\n"
-		        + "    ) order by date_started desc\n"
+		        + "    )\n"
 		        + ") t\n"
 		        + "inner join (\n"
 		        + "    select\n"
@@ -1887,6 +1889,74 @@ public class SimsReportQueries {
 	public static String vmmcClientsQuery() {
 		String qry = "select e. patient_id from  kenyaemr_etl.etl_vmmc_enrolment e\n"
 		        + "order by e.date_created  desc limit 10;";
+		return qry;
+	}
+	
+	/**
+	 * Cohort definition evaluator of pediatric patients who newly initiated on ART in the last 3
+	 * months.
+	 */
+	public static String pedNewOnARTInLast3Months() {
+		String qry = "select net.patient_id  \n"
+		        + "from (  \n"
+		        + "select e.patient_id,e.date_started,  \n"
+		        + "e.gender, \n"
+		        + "e.dob, \n"
+		        + "d.visit_date as dis_date,  \n"
+		        + "if(d.visit_date is not null, 1, 0) as TOut, \n"
+		        + "e.regimen, e.regimen_line, e.alternative_regimen,  \n"
+		        + "mid(max(concat(fup.visit_date,fup.next_appointment_date)),11) as latest_tca,  \n"
+		        + "max(if(enr.date_started_art_at_transferring_facility is not null and enr.facility_transferred_from is not null, 1, 0)) as TI_on_art, \n"
+		        + "max(if(enr.transfer_in_date is not null, 1, 0)) as TIn,  \n"
+		        + "max(fup.visit_date) as latest_vis_date\n"
+		        + "from (select e.patient_id,p.dob,p.Gender,min(e.date_started) as date_started,  \n"
+		        + "mid(min(concat(e.date_started,e.regimen_name)),11) as regimen,  \n"
+		        + "mid(min(concat(e.date_started,e.regimen_line)),11) as regimen_line,  \n"
+		        + "max(if(discontinued,1,0))as alternative_regimen  \n"
+		        + "from kenyaemr_etl.etl_drug_event e\n"
+		        + "join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
+		        + "where e.program = 'HIV'\n"
+		        + "group by e.patient_id) e  \n"
+		        + "left outer join kenyaemr_etl.etl_patient_program_discontinuation d on d.patient_id=e.patient_id and d.program_name='HIV' \n"
+		        + "left outer join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id=e.patient_id  \n"
+		        + "left outer join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id=e.patient_id  \n"
+		        + "where date(e.date_started) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate)\n"
+		        + "and timestampdiff(YEAR ,e.dob,date(:endDate)) <= 15\n"
+		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
+		return qry;
+	}
+	
+	/**
+	 * Cohort definition evaluator of adult and adolescent patients ≥15 years old who newly
+	 * initiated ART in the last 3 months .
+	 */
+	public static String newOnARTInLast3Months() {
+		String qry = "select net.patient_id  \n"
+		        + "from (  \n"
+		        + "select e.patient_id,e.date_started,  \n"
+		        + "e.gender, \n"
+		        + "e.dob, \n"
+		        + "d.visit_date as dis_date,  \n"
+		        + "if(d.visit_date is not null, 1, 0) as TOut, \n"
+		        + "e.regimen, e.regimen_line, e.alternative_regimen,  \n"
+		        + "mid(max(concat(fup.visit_date,fup.next_appointment_date)),11) as latest_tca,  \n"
+		        + "max(if(enr.date_started_art_at_transferring_facility is not null and enr.facility_transferred_from is not null, 1, 0)) as TI_on_art, \n"
+		        + "max(if(enr.transfer_in_date is not null, 1, 0)) as TIn,  \n"
+		        + "max(fup.visit_date) as latest_vis_date\n"
+		        + "from (select e.patient_id,p.dob,p.Gender,min(e.date_started) as date_started,  \n"
+		        + "mid(min(concat(e.date_started,e.regimen_name)),11) as regimen,  \n"
+		        + "mid(min(concat(e.date_started,e.regimen_line)),11) as regimen_line,  \n"
+		        + "max(if(discontinued,1,0))as alternative_regimen  \n"
+		        + "from kenyaemr_etl.etl_drug_event e\n"
+		        + "join kenyaemr_etl.etl_patient_demographics p on p.patient_id=e.patient_id\n"
+		        + "where e.program = 'HIV'\n"
+		        + "group by e.patient_id) e  \n"
+		        + "left outer join kenyaemr_etl.etl_patient_program_discontinuation d on d.patient_id=e.patient_id and d.program_name='HIV' \n"
+		        + "left outer join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id=e.patient_id  \n"
+		        + "left outer join kenyaemr_etl.etl_patient_hiv_followup fup on fup.patient_id=e.patient_id  \n"
+		        + "where date(e.date_started) between date_sub(date_add(date(:endDate), INTERVAL 1 DAY), INTERVAL 3 MONTH) and date(:endDate)\n"
+		        + "and timestampdiff(YEAR ,e.dob,date(:endDate)) >= 15\n"
+		        + "group by e.patient_id                 having TI_on_art=0 \n" + ")net order by RAND() limit 10 ;\n";
 		return qry;
 	}
 	

@@ -37,8 +37,7 @@ public class SimsHivARTInitiationDateDataEvaluator implements PersonDataEvaluato
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select d.patient_id, min(d.date_started) date_started from kenyaemr_etl.etl_drug_event d\n"
-		        + " where date(date_started) between date(:startDate) and date(:endDate) and d.program = 'HIV'\n"
-		        + " GROUP BY d.patient_id";
+		        + " where date(date_started) <= date(:endDate) and d.program = 'HIV'\n" + " GROUP BY d.patient_id";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
