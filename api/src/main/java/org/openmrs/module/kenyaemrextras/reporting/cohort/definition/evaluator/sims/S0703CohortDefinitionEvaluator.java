@@ -3,7 +3,7 @@
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
  * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
  * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
- * <p>
+ *
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
@@ -16,7 +16,8 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyaemr.api.KenyaEmrService;
 import org.openmrs.module.kenyaemrextras.metadata.ExtrasMetadata;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0310CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S02012CohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0703CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.library.sims.SimsReportQueries;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -30,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 /**
- * Evaluator for S0310CohortDefinition
+ * Evaluator for S0207CohortDefinition: clients identified as HIV positive within the last 3 months
+ * from the HTS register to determine the percentage of HIV positive clients who were successfully
+ * linked to treatment services.
  */
-@Handler(supports = { S0310CohortDefinition.class })
-public class S0310CohortDefinitionEvaluator implements CohortDefinitionEvaluator {
+@Handler(supports = { S0703CohortDefinition.class })
+public class S0703CohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -43,14 +46,14 @@ public class S0310CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
 		
-		S0310CohortDefinition definition = (S0310CohortDefinition) cohortDefinition;
+		S0703CohortDefinition definition = (S0703CohortDefinition) cohortDefinition;
 		
 		if (definition == null)
 			return null;
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = SimsReportQueries.rapidARTInitiationKPs();
+		String qry = SimsReportQueries.htsLinkageToHIVCareAndTreatment();
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
@@ -62,41 +65,6 @@ public class S0310CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 		List<Integer> ptIds = evaluationService.evaluateToList(builder, Integer.class, context);
 		newCohort.setMemberIds(new HashSet<Integer>(ptIds));
 		return new EvaluatedCohort(newCohort, definition, context);
-		
-		/*Map<String, Object> m = new HashMap<String, Object>();
-		
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		
-		m.put("startDate", startDate);
-		m.put("endDate", endDate);
-		TreeMap<Double, Integer> txcurrKPsWithVisits = (TreeMap<Double, Integer>) makePatientDataMapFromSQL(
-		    SimsReportQueries.txCurrKPsWithVisitsLast12Months(), m);
-		
-		int sampleSize = 0;
-		
-		if (txcurrKPsWithVisits != null) {
-			Integer allPatients = txcurrKPsWithVisits.size();
-			S0302CohortDefinitionEvaluator.DQASampleSizeConfiguration conf = getSampleConfiguration();
-			sampleSize = getSampleSize(allPatients, conf);
-		}
-		int kps = sampleSize;
-		Map<Integer, String> buildingCohort = new HashMap<Integer, String>();
-		if (txcurrKPsWithVisits != null) {
-			int i = 0;
-			for (Double rand : txcurrKPsWithVisits.keySet()) {
-				if (i < kps) {
-					newCohort.addMember(txcurrKPsWithVisits.get(rand));
-					buildingCohort.put(txcurrKPsWithVisits.get(rand), "TX_CURR KPs");
-					i++;
-				} else {
-					break;
-				}
-			}
-		}
-		
-		PersistedCohort.evaluatedCohort = buildingCohort;
-		return new EvaluatedCohort(newCohort, definition, context);*/
 		
 	}
 	

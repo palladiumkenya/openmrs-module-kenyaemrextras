@@ -43,9 +43,12 @@ public class SimsKPsMissedAppTracingResultsDocumentationStatusDataEvaluator impl
 		        + "             t.tracking_date,\n"
 		        + "             t.tracing_outcome\n"
 		        + "      from kenyaemr_etl.etl_patient_hiv_followup f\n"
-		        + "               left join (select t.client_id, max(t.visit_date) as tracking_date,mid(max(concat(t.visit_date,t.tracing_outcome)),11) as tracing_outcome\n"
+		        + "               left join (select t.client_id,\n"
+		        + "                                 max(t.visit_date)                                     as tracking_date,\n"
+		        + "                                 mid(max(concat(t.visit_date, t.tracing_outcome)), 11) as tracing_outcome\n"
 		        + "                          from kenyaemr_etl.etl_peer_tracking t\n"
-		        + "                          where t.visit_date <= date(:endDate) group by t.client_id) t on f.patient_id = t.client_id\n"
+		        + "                          where t.visit_date <= date(:endDate) and t.attempt_number > 1\n"
+		        + "                          group by t.client_id) t on f.patient_id = t.client_id\n"
 		        + "      where f.visit_date <= date(:endDate)\n" + "      group by f.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();

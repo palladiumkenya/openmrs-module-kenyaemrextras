@@ -17,6 +17,7 @@ import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
+import org.openmrs.module.kenyaemr.metadata.MchMetadata;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.S0302CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.*;
@@ -121,6 +122,8 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition txCurrPregnantBFPartnerServicesDSD = txCurrPregnantBFPartnerServicesDatasetDefinition("S_04_07");
 		DataSetDefinition earlyInfantDiagnosisDSD = earlyInfantDiagnosisDatasetDefinition("S_04_15");
 		DataSetDefinition earlyInfantConfirmatoryTestingDSD = earlyInfantConfirmatoryTestingDatasetDefinition("S_04_17");
+		DataSetDefinition artProvisionForHIVPosAdultTBPatientsDSD = artProvisionForHIVPosAdultTBPatients("S_08_02");
+		DataSetDefinition htsLinkageToHIVCareAndTreatmentDSD = htsLinkageToHIVCareAndTreatment("S_07_03");
 		DataSetDefinition hei3To12MonthsOldOnCTXBy8WeeksDSD = hei3To12MonthsOldOnCTXBy8WeeksDatasetDefinition("S_04_18");
 		DataSetDefinition hei24To36MonthsWithDocumentedFinalResultDSD = hei24To36MonthsWithDocumentedFinalResultDatasetDefinition("S_04_19");
 		DataSetDefinition hei3To12MonthsOldLinkedToTreatmentDSD = hei3To12MonthsOldLinkedToTreatmentDatasetDefinition("S_04_20");
@@ -175,6 +178,10 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		                txCurrPregnantBFVLLoadAccessAndMonitoringDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(txCurrPregnantBFHighVLManagementDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(txCurrPregnantBFPartnerServicesDSD, "startDate=${startDate},endDate=${endDate}"),
+		            ReportUtils.map(earlyInfantDiagnosisDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                artProvisionForHIVPosAdultTBPatientsDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils
+		                    .map(htsLinkageToHIVCareAndTreatmentDSD, "startDate=${startDate},endDate=${endDate}"),
 		            ReportUtils.map(earlyInfantDiagnosisDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                earlyInfantConfirmatoryTestingDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                hei3To12MonthsOldOnCTXBy8WeeksDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
@@ -938,7 +945,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		
-		SimsKPsMissedAppTracingResultsDocumentationStatusDataDefinition missedAppKPsTracingDocumentationStatusDataDefinition = new SimsKPsMissedAppTracingResultsDocumentationStatusDataDefinition();
+		SimsKPsMissedAppTrackingDocumentationStatusDataDefinition missedAppKPsTracingDocumentationStatusDataDefinition = new SimsKPsMissedAppTrackingDocumentationStatusDataDefinition();
 		missedAppKPsTracingDocumentationStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date",
 		        Date.class));
 		missedAppKPsTracingDocumentationStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -2000,12 +2007,17 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
+		PatientIdentifierType heiID = MetadataUtils.existing(PatientIdentifierType.class,
+		    MchMetadata._PatientIdentifierType.HEI_ID_NUMBER);
+		DataDefinition heiIdentifierDef = new ConvertedPatientDataDefinition("identifier",
+		        new PatientIdentifierDataDefinition(heiID.getName(), heiID), identifierFormatter);
 		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("heiID", heiIdentifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
@@ -2049,12 +2061,17 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
+		PatientIdentifierType heiID = MetadataUtils.existing(PatientIdentifierType.class,
+		    MchMetadata._PatientIdentifierType.HEI_ID_NUMBER);
+		DataDefinition heiIdentifierDef = new ConvertedPatientDataDefinition("identifier",
+		        new PatientIdentifierDataDefinition(heiID.getName(), heiID), identifierFormatter);
 		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("HEI ID", heiIdentifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
@@ -2271,6 +2288,89 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("VMMC Clients");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * TB patients diagnosed with HIV more than 3 months but less than 12 months prior to the SIMS
+	 * assessment.
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition artProvisionForHIVPosAdultTBPatients(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsHIVPosTBPatientARTInitiationStatusDataDefinition tbPatientArtInitiation = new SimsHIVPosTBPatientARTInitiationStatusDataDefinition();
+		tbPatientArtInitiation.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbPatientArtInitiation.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_08_02 Q2", tbPatientArtInitiation, indParams, null);
+		
+		CohortDefinition cd = new S0802CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	/**
+	 * HTS Linkage to HIV Care and Treatment
+	 * 
+	 * @param datasetName
+	 * @return
+	 */
+	protected PatientDataSetDefinition htsLinkageToHIVCareAndTreatment(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsNewHIVPosLinkageToTreatmentDataDefinition newHIVPosLinkageToTreatment = new SimsNewHIVPosLinkageToTreatmentDataDefinition();
+		newHIVPosLinkageToTreatment.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		newHIVPosLinkageToTreatment.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("S_07_03 Q4", newHIVPosLinkageToTreatment, indParams, null);
+		
+		CohortDefinition cd = new S0703CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
