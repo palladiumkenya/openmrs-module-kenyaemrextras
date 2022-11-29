@@ -56,7 +56,7 @@ public class S0311CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = SimsReportQueries.txCurrKpMoreThan12MonthsOnArtQuery();
+		String qry = SimsReportQueries.txCurrKpMoreThan12MonthsOnArtWithVlQuery();
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
