@@ -7,11 +7,11 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
+package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsKpRecentVLResultsDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsPedsRecentVLResultsDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.ETLDateBasedLastVisitDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.NupiVerificationDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -25,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates whether kp has most recent viral load results documented
+ * Evaluates Verification date Data Definition
  */
-@Handler(supports = SimsKpRecentVLResultsDataDefinition.class, order = 50)
-public class SimsKpRecentVLResultsDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = NupiVerificationDateDataDefinition.class, order = 50)
+public class NupiVerificationDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,21 +37,16 @@ public class SimsKpRecentVLResultsDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select patient_id,\n" + "if(t.lastVL is not null and dateTestOrdered is not null , 'Y','N')\n"
-		        + "  from (\n" + "select d.patient_id, d.dob as dob,\n"
-		        + "mid(max(concat(l.visit_date, l.test_result)), 11)  as lastVL,\n"
-		        + "mid(max(concat(l.visit_date, l.date_test_requested)), 11)  as dateTestOrdered,\n"
-		        + "mid(max(concat(l.visit_date, l.date_test_result_received)), 11)  as dateResultReceived\n"
-		        + "from kenyaemr_etl.etl_patient_demographics d\n" + "left join (\n"
-		        + "select x.patient_id, x.visit_date ,x.test_result, x.date_test_requested, x.date_test_result_received\n"
-		        + "  from kenyaemr_etl.etl_laboratory_extract x\n" + "  where  lab_test in (856, 1305)\n"
-		        + "  GROUP BY  x.patient_id\n" + ") l on d.patient_id = l.patient_id\n" + "group by d.patient_id\n" + ")t;";
+		String qry = "select pi.patient_id,pi.date_created from patient_identifier pi\n"
+		        + "  join patient_identifier_type pt on pt.patient_identifier_type_id = pi.identifier_type and pt.uuid = 'f85081e2-b4be-4e48-b3a4-7994b69bb101'\n"
+		        + "where pi.creator = 1;";
+		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
+		queryBuilder.append(qry);
 		Date startDate = (Date) context.getParameterValue("startDate");
+		queryBuilder.addParameter("startDate", startDate);
 		Date endDate = (Date) context.getParameterValue("endDate");
 		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
-		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);
 		return c;

@@ -71,6 +71,7 @@
                 <ref bean="kenyaemr.extras.report.dqaReport"/>
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
+                <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
                 <ref bean="kenyaemrextras.common.report.simsReport"/>
             </set>
         </property>
@@ -119,13 +120,22 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:appointments_attrition.xls" />
-        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition | sheet:3,row:6,dataset:missedAppointments | sheet:4,row:6,dataset:missedAppointmentsUnder7DaysRTC | sheet:5,row:6,dataset:missedAppointments8To30DaysRTC | sheet:6,row:6,dataset:missedAppointmentsOver30Days | sheet:7,row:6,dataset:missedAppointmentsOver30DaysRTC | sheet:8,row:6,dataset:ltfuClients" />
+        <property name="repeatingSection" value="sheet:2,row:6,dataset:appointmentAndAttrition | sheet:3,row:6,dataset:missedAppointments  | sheet:4,row:6,dataset:missedAppointmentsUnder31DaysNotRTC | sheet:5,row:6,dataset:missedAppointmentsUnder7DaysRTC | sheet:6,row:6,dataset:missedAppointments8To30DaysRTC | sheet:7,row:6,dataset:missedAppointmentsOver30Days | sheet:8,row:6,dataset:missedAppointmentsOver30DaysRTC | sheet:9,row:6,dataset:ltfuClients" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.facilityClinicalAssessment" class="org.openmrs.module.kenyacore.report.IndicatorReportDescriptor">
         <property name="targetUuid" value="dada7e63-7b73-475d-995e-007f22dbc188" />
         <property name="name" value="Facility Clinical Assessment Report" />
         <property name="description" value="Facility Clinical Assessment Report for Key Indicators" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set></property>
+    </bean>
+    <bean id="kenyaemrextras.common.report.automatedNupiClients" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="65bd818a-5a83-4ed2-9191-065e1fb49e2b" />
+        <property name="name" value="Linelist of clients verified for NUPI automatically" />
+        <property name="description" value="Linelist of clients verified for NUPI automatically or by admin" />
         <property name="apps">
             <set>
                 <ref bean="kenyaemr.app.reports" />
