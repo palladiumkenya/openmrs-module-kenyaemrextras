@@ -44,9 +44,8 @@ public class SimsReportQueries {
 	}
 	
 	/**
-	*Adult and adolescent patients on ART ≥ 12 months with virologic non-suppression.
-	*
-	* */
+	 * Adult and adolescent patients on ART ≥ 12 months with virologic non-suppression.
+	 */
 	public static String unSupressedVLQuery() {
 		String qry = "select a.patient_id as patient_id\n"
 		        + "                        from(select t.patient_id,vl.vl_date,vl.lab_test,vl.vl_result,vl.urgency from (\n"
@@ -98,9 +97,10 @@ public class SimsReportQueries {
 	}
 	
 	/**
-	* Instructions: Review 10 register entries (individual or index/partner testing logbook) or charts (whichever source has the most updated information)
-	* of HIV-positive adult and adolescent patients ≥15 years old on ART ≥12 months.
-	* */
+	 * Instructions: Review 10 register entries (individual or index/partner testing logbook) or
+	 * charts (whichever source has the most updated information) of HIV-positive adult and
+	 * adolescent patients ≥15 years old on ART ≥12 months.
+	 */
 	public static String currentlyOnArtQuery() {
 		String qry = "select t.patient_id from (\n"
 		        + "    select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
@@ -132,9 +132,10 @@ public class SimsReportQueries {
 		return qry;
 		
 	}
-
+	
 	/**
 	 * Adults current on ART with presumed TB
+	 * 
 	 * @return
 	 */
 	public static String currentOnARTWithPresumptiveTBQuery() {
@@ -168,9 +169,10 @@ public class SimsReportQueries {
 		        + "    )        ) ) t order by RAND() limit 10";
 		return qry;
 	}
-
+	
 	/**
 	 * Pediatric patients <15 years old on ART ≥12 months
+	 * 
 	 * @return
 	 */
 	public static String pedsCurrentlyOnArtMoreThan12MonthsQuery() {
@@ -204,10 +206,11 @@ public class SimsReportQueries {
 		return qry;
 		
 	}
-
+	
 	/**
-	 * Pediatric ART patients: Review tracking documentation
-	 * for the last 10 pediatric ART patients who missed their most recent appointment.
+	 * Pediatric ART patients: Review tracking documentation for the last 10 pediatric ART patients
+	 * who missed their most recent appointment.
+	 * 
 	 * @return
 	 */
 	public static String pedMissedAppointment() {
@@ -248,10 +251,11 @@ public class SimsReportQueries {
 		        + " where date(e.date_confirmed_hiv_positive) between date(:startDate) and date(:endDate) and timestampdiff(YEAR ,p.dob,date(:endDate)) < 15 ";
 		return qry;
 	}
-
+	
 	/**
-	 * All women screened 90 days prior OR the previous 10 entries/records (whichever is less),
-	 *of women with positive cervical cancer screening test results
+	 * All women screened 90 days prior OR the previous 10 entries/records (whichever is less), of
+	 * women with positive cervical cancer screening test results
+	 * 
 	 * @return
 	 */
 	public static String adultsOnArtScreenedForCervicalCancerQuery() {
@@ -465,10 +469,11 @@ public class SimsReportQueries {
 		        + "                    )) t order by RAND() limit 10;";
 		return query;
 	}
-
+	
 	/**
-	 * Pediatric ART patients: Review the last 5 entries in the line list/register of HIV-positive pediatric patients
-	 * <15 years with presumptive TB recorded in line list/register. S_02_29
+	 * Pediatric ART patients: Review the last 5 entries in the line list/register of HIV-positive
+	 * pediatric patients <15 years with presumptive TB recorded in line list/register. S_02_29
+	 * 
 	 * @return
 	 */
 	public static String pedscurrentOnARTWithPresumptiveTBQuery() {
@@ -776,11 +781,12 @@ public class SimsReportQueries {
 		        + "                    ) and age >= 15) and TI_on_art = 0 and tb_case =142177)t order by RAND() limit 10;";
 		return query;
 	}
-
+	
 	/**
-	 * Pediatric patients: In the selected register, review the last 10 patient entries to check for documented HIV status
-	 * (e.g., positive, negative, declined)
-	 * Clarification was made that these are peds listed by the index client as contacts(S_02_25)
+	 * Pediatric patients: In the selected register, review the last 10 patient entries to check for
+	 * documented HIV status (e.g., positive, negative, declined) Clarification was made that these
+	 * are peds listed by the index client as contacts(S_02_25)
+	 * 
 	 * @return
 	 */
 	public static String pedListedAsContacts() {
@@ -1071,10 +1077,12 @@ public class SimsReportQueries {
 		        + "            and TI_on_art = 0) t order by t.visit_date desc limit 10;";
 		return query;
 	}
-
+	
 	/**
-	 * Instructions: Pediatric ART patients: Review 10 records (e.g., charts, high viral load register, EMR entries)
-	 * of 5 pediatric (<10 years old) and 5 adolescent (10-19 years old) patients on ART ≥12 months with virologic non-suppression.
+	 * Instructions: Pediatric ART patients: Review 10 records (e.g., charts, high viral load
+	 * register, EMR entries) of 5 pediatric (<10 years old) and 5 adolescent (10-19 years old)
+	 * patients on ART ≥12 months with virologic non-suppression.
+	 * 
 	 * @return
 	 */
 	public static String pedUnsupressedVLQuery() {
