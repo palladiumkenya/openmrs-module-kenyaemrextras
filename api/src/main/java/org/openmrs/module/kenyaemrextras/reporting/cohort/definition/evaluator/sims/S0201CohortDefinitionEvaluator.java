@@ -17,7 +17,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyaemr.api.KenyaEmrService;
 import org.openmrs.module.kenyaemrextras.metadata.ExtrasMetadata;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.S0201CohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.SurgeCohortLibrary;
+import org.openmrs.module.kenyaemrextras.reporting.library.sims.SimsReportQueries;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -45,9 +45,6 @@ public class S0201CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 	private final Log log = LogFactory.getLog(this.getClass());
 	
 	@Autowired
-	private SurgeCohortLibrary surgeCohorts;
-	
-	@Autowired
 	EvaluationService evaluationService;
 	
 	@Override
@@ -58,14 +55,12 @@ public class S0201CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 		if (definition == null)
 			return null;
 		
-		SqlCohortDefinition newOnARTCohortDefinition = (SqlCohortDefinition) surgeCohorts.newOnArt();
-		
 		Cohort newCohort = new Cohort();
 		
 		// ----------------------------
 		//Cohort newCohort = new Cohort();
 		
-		String qry = newOnARTCohortDefinition.getQuery();
+		String qry = SimsReportQueries.newOnARTInLast3Months();
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);

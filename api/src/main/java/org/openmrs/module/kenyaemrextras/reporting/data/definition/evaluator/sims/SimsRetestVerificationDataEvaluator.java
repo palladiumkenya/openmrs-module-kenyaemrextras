@@ -37,10 +37,15 @@ public class SimsRetestVerificationDataEvaluator implements PersonDataEvaluator 
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select test.patient_id,\n"
-		        + "if(mid(max(concat(test.visit_date, test.final_test_result)), 11) is not null,'Y','N')\n"
-		        + "             as test1result from kenyaemr_etl.etl_hts_test test where test.test_type = 2 and date(test.visit_date) between date(:startDate) and date(:endDate)\n"
-		        + "\tGROUP BY test.patient_id;";
+		String qry = "select a.patient_id, if(retestDate is not null and retestDate <= date_started ,'Y','N' ) from (\n"
+		        + "select f.patient_id, x.date_started,retestDate from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "left outer join (\n"
+		        + "select t.patient_id, max(t.visit_date) as retestDate from kenyaemr_etl.etl_hts_test t\n"
+		        + "where t.test_type = 2 and date(t.visit_date) <= date(:endDate)\n" + "GROUP BY t.patient_id\n"
+		        + ") h on f.patient_id = h.patient_id\n" + "left outer join (\n"
+		        + "  select d.patient_id, min(d.date_started) as date_started from kenyaemr_etl.etl_drug_event d\n"
+		        + "  where d.program = 'HIV'\n" + "  GROUP BY d.patient_id\n" + ") x on f.patient_id = x.patient_id\n"
+		        + "where f.visit_date <= date(:endDate)\n" + "  GROUP BY f.patient_id\n" + ") a";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

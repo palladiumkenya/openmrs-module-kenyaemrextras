@@ -37,28 +37,17 @@ public class SimsChildListedAsContactDataEvaluator implements PersonDataEvaluato
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id,\n"
-		        + "IF(relationship is null, 'N/A',\n"
+		String qry = "select d.patient_id, IF(relationship is null, 'N/A',\n"
 		        + "if(find_in_set('not known', group_concat(case ifnull(t.hivStatus, 'was null')\n"
-		        + "when 'was null' then 'not known'\n"
-		        + "when '1067' then 'not known'\n"
-		        + "when '0' then 'not known'\n"
-		        + "when 'Unknown' then 'Unknown'\n"
-		        + "when '664' then 'Negative'\n"
-		        + "when '703' then 'Positive'\n"
-		        + "when 'Negative' then 'Negative'\n"
-		        + "when 'Positive' then 'Positive'\n"
-		        + "else t.hivStatus end)) != 0, 'N', 'Y')) AS hivstatus\n"
+		        + " when 'was null' then 'not known' when '1067' then 'not known' when '0' then 'not known'\n"
+		        + " when 'Unknown' then 'not known' when '664' then 'Negative' when '703' then 'Positive'\n"
+		        + " when 'Negative' then 'Negative' when 'Positive' then 'Positive'\n"
+		        + " else t.hivStatus end)) != 0, 'N', 'Y')) AS hivstatus\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "         left join (\n"
-		        + "    select c.id    as contact_id,\n"
-		        + "           c.patient_related_to  as patient_id,\n"
-		        + "           c.baseline_hiv_status as hivStatus,\n"
-		        + "           c.relationship_type   as relationship\n"
-		        + "          \n"
-		        + "    from kenyaemr_etl.etl_patient_contact c\n"
-		        + "    where c.relationship_type = 1528 and  (timestampdiff(YEAR ,date(c.birth_date),date(:endDate)) < 15)\n"
-		        + "      and c.voided = 0) t on d.patient_id = t.patient_id\n" + "group by d.patient_id;\n";
+		        + "left join (\n"
+		        + "select c.id    as contact_id, c.patient_related_to  as patient_id,c.baseline_hiv_status as hivStatus, c.relationship_type   as relationship\n"
+		        + "from kenyaemr_etl.etl_patient_contact c\n" + "where c.relationship_type =1528\n"
+		        + "and c.voided = 0) t on d.patient_id = t.patient_id\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -59,7 +59,7 @@ public class S0218CohortDefinitionEvaluator implements CohortDefinitionEvaluator
 		// ----------------------------
 		//Cohort newCohort = new Cohort();
 		
-		String qry = SimsReportQueries.pedNewlyDiagnosedQuery();
+		String qry = SimsReportQueries.pedNewOnARTInLast3Months();
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
