@@ -101,14 +101,14 @@
 
     <bean id="kenyaemr.extras.report.dqaReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="80bdfe91-10fc-49d3-86c5-f3898c496219" />
-        <property name="name" value="DQA Report (2021)" />
+        <property name="name" value="DQA Report (2022)" />
         <property name="description" value="A report for DQA" />
         <property name="apps">
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
-        <property name="repeatingSection" value="sheet:1,row:10,dataset:activePatients | sheet:2,row:10,dataset:activePatientsDqa | sheet:3,row:10,dataset:unverifiedPatientsDqa" />
+        <property name="repeatingSection" value="sheet:1,row:10,dataset:activePatients | sheet:2,row:10,dataset:activePatientsDqa" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.appointmentAndAttrition" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
