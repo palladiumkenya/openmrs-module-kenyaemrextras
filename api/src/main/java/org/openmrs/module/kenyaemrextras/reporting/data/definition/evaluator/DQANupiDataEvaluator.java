@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQALastVLDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQANupiDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates TB screening on last visit Data Definition
+ * Evaluates Clients verified and issued with NUPI Data Definition
  */
-@Handler(supports = DQATBScreeningLastVisitDataDefinition.class, order = 50)
-public class DQATBScreeningLastVisitDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQANupiDataDefinition.class, order = 50)
+public class DQANupiDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,14 +37,7 @@ public class DQATBScreeningLastVisitDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,\n"
-		        + "       if(a.person_present = 161642, 'NA',\n"
-		        + "          if( a.tb_screened in (1660, 1662, 142177), 'Yes', 'No')) as tb_screened\n"
-		        + "from (select tb.patient_id,\n"
-		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.resulting_tb_status, 0))), 11) as tb_screened,\n"
-		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.person_present, 0))), 11)      as person_present\n"
-		        + "      from kenyaemr_etl.etl_tb_screening tb\n" + "      where tb.visit_date <= date(:endDate)\n"
-		        + "      group by tb.patient_id) a;";
+		String qry = "select patient_id, national_unique_patient_identifier  as has_NUPI from kenyaemr_etl.etl_patient_demographics;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
