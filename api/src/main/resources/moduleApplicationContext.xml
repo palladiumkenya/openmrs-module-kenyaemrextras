@@ -72,6 +72,7 @@
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
+                <ref bean="kenyaemrextras.common.report.simsReport"/>
             </set>
         </property>
     </bean>
@@ -100,14 +101,14 @@
 
     <bean id="kenyaemr.extras.report.dqaReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="80bdfe91-10fc-49d3-86c5-f3898c496219" />
-        <property name="name" value="DQA Report (2021)" />
+        <property name="name" value="DQA Report (2022)" />
         <property name="description" value="A report for DQA" />
         <property name="apps">
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
-        <property name="repeatingSection" value="sheet:1,row:9,dataset:activePatients | sheet:2,row:9,dataset:activePatientsDqa" />
+        <property name="repeatingSection" value="sheet:1,row:10,dataset:activePatients | sheet:2,row:10,dataset:activePatientsDqa" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.appointmentAndAttrition" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
@@ -139,5 +140,42 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-        </bean>
+    </bean>
+
+    <bean id="kenyaemrextras.common.report.simsReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="13111c9a-095b-4bcc-80e7-ea3598a3f0e7" />
+        <property name="name" value="SIMS Report" />
+        <property name="description" value="SIMS Report" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set>
+        </property>
+        <property name="template" value="kenyaemrextras:sims.xls" />
+        <property name="repeatingSection" value="sheet:2,row:7,dataset:S_02_01 | sheet:3,row:7,dataset:S_02_02
+        | sheet:4,row:7,dataset:S_02_03 | sheet:5,row:7,dataset:S_02_04 | sheet:6,row:7,dataset:S_02_05
+        | sheet:7,row:7,dataset:S_02_07 | sheet:8,row:7,dataset:S_02_12 | sheet:10,row:7,dataset:S_02_17 | sheet:11,row:7,dataset:S_02_18 | sheet:12,row:7,dataset:S_02_19
+        | sheet:13,row:7,dataset:S_02_22 | sheet:14,row:7,dataset:S_02_23 | sheet:15,row:7,dataset:S_02_25 | sheet:16,row:7,dataset:S_02_26
+        | sheet:17,row:7,dataset:S_02_27 | sheet:18,row:7,dataset:S_02_28 | sheet:19,row:7,dataset:S_02_29
+        | sheet:21,row:7,dataset:S_03_02 | sheet:22,row:7,dataset:S_03_05
+        | sheet:23,row:7,dataset:S_03_08 | sheet:24,row:7,dataset:S_03_09
+        | sheet:25,row:7,dataset:S_03_10
+        | sheet:26,row:7,dataset:S_03_11 | sheet:27,row:7,dataset:S_03_12
+        | sheet:28,row:7,dataset:S_03_14 | sheet:29,row:7,dataset:S_03_15
+        | sheet:30,row:7,dataset:S_03_16 | sheet:31,row:7,dataset:S_03_17
+        | sheet:32,row:7,dataset:S_03_18 | sheet:33,row:7,dataset:S_03_19
+        | sheet:35,row:7,dataset:S_03_24 | sheet:36,row:7,dataset:S_04_01
+        | sheet:37,row:7,dataset:S_04_02 | sheet:38,row:7,dataset:S_04_03
+        | sheet:39,row:7,dataset:S_04_04 | sheet:40,row:7,dataset:S_04_07
+        | sheet:41,row:7,dataset:S_04_08
+        | sheet:42,row:7,dataset:S_04_09 | sheet:43,row:7,dataset:S_04_10
+        | sheet:44,row:7,dataset:S_04_11 | sheet:45,row:7,dataset:S_04_12
+        | sheet:46,row:7,dataset:S_04_13 | sheet:47,row:7,dataset:S_04_14
+        | sheet:48,row:7,dataset:S_04_15 | sheet:49,row:7,dataset:S_04_17
+         | sheet:50,row:8,dataset:S_04_18 | sheet:51,row:8,dataset:S_04_19
+        | sheet:52,row:8,dataset:S_04_20  | sheet:53,row:8,dataset:S_05_01
+        | sheet:48,row:7,dataset:S_04_15 | sheet:49,row:7,dataset:S_04_17
+        | sheet:59,row:7,dataset:S_07_03 | sheet:62,row:7,dataset:S_08_02"/>
+
+    </bean>
 </beans>

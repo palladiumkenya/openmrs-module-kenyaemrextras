@@ -18,16 +18,7 @@ import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicateActiveCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACohortCategoryDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACurrentRegimenDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAHeightDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQALastVLDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQALastVisitDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAWeightDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastAppointmentPeriodDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastDSDModelDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
@@ -150,6 +141,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Height", heightDataDefinition, indParams, null);
 		
+		DQAARTInitiationDateDataDefinition artInitiationDataDefinition = new DQAARTInitiationDateDataDefinition();
+		artInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		artInitiationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("ART Initiation date", artInitiationDataDefinition, indParams, new DateConverter(DATE_FORMAT));
+		
 		DQACurrentRegimenDataDefinition currentRegimenDataDefinition = new DQACurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -161,6 +158,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastAppointmentPeriodDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("Drug dosage given (Duration)", lastAppointmentPeriodDataDefinition, indParams, null);
+		
+		DQATBScreeningStatusLastVisitDataDefinition tbScreeningStatusDataDefinition = new DQATBScreeningStatusLastVisitDataDefinition();
+		tbScreeningStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("TB Screening status", tbScreeningStatusDataDefinition, indParams, null);
 		
 		EverOnIPTDataDefinition everOnIPTDataDefinition = new EverOnIPTDataDefinition();
 		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -234,6 +237,13 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Height", heightDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
+		DQAARTInitiationDateDataDefinition artInitiationDateDataDefinition = new DQAARTInitiationDateDataDefinition();
+		artInitiationDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		artInitiationDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("ART Initiation date", artInitiationDateDataDefinition, indParams,
+		    new DQADefaultDataCompletenessDataConverter());
+		
 		DQACurrentRegimenDataDefinition currentRegimenDataDefinition = new DQACurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -247,6 +257,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Drug dosage given (Duration)", lastAppointmentPeriodDataDefinition, indParams,
 		    new DQADefaultDataCompletenessDataConverter());
+		
+		DQATBScreeningLastVisitDataDefinition tbScreeningDataDefinition = new DQATBScreeningLastVisitDataDefinition();
+		tbScreeningDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("TB Screening", tbScreeningDataDefinition, indParams, null);
 		
 		EverOnIPTDataDefinition everOnIPTDataDefinition = new EverOnIPTDataDefinition();
 		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
