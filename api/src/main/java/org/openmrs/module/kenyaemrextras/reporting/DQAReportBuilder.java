@@ -18,7 +18,10 @@ import org.openmrs.module.kenyacore.report.builder.Builds;
 import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
 import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVisitDateDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLNextAppointmentDateDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicateActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
@@ -145,7 +148,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Height", heightDataDefinition, indParams, null);
 		
-		DQAARTInitiationDateDataDefinition artInitiationDataDefinition = new DQAARTInitiationDateDataDefinition();
+		ETLArtStartDateDataDefinition artInitiationDataDefinition = new ETLArtStartDateDataDefinition();
 		artInitiationDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		artInitiationDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -199,11 +202,17 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
 		
-		DQALastVisitDataDefinition lastVisitDateDataDefinition = new DQALastVisitDataDefinition();
+		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Date of last appointment", lastVisitDateDataDefinition, indParams, null);
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams, null);
+		
+		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams, null);
 		
 		DQACohortCategoryDataDefinition cohortCategoryDataDefinition = new DQACohortCategoryDataDefinition();
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -216,7 +225,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("NUPI", nupiDataDefinition, indParams);
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
-		        new DateConfirmedHivPositiveCalculation()), "");
+		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
 		
 		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -261,7 +270,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Height", heightDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
-		DQAARTInitiationDateDataDefinition artInitiationDateDataDefinition = new DQAARTInitiationDateDataDefinition();
+		ETLArtStartDateDataDefinition artInitiationDateDataDefinition = new ETLArtStartDateDataDefinition();
 		artInitiationDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		artInitiationDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -320,11 +329,19 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams,
 		    new DQADefaultDataCompletenessDataConverter());
 		
-		DQALastVisitDataDefinition lastVisitDateDataDefinition = new DQALastVisitDataDefinition();
+		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Date of last appointment", lastVisitDateDataDefinition, indParams, new DQADefaultYesDataConverter());
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams,
+		    new DQADefaultYesDataConverter());
+		
+		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams,
+		    new DQADefaultYesDataConverter());
 		
 		DQACohortCategoryDataDefinition cohortCategoryDataDefinition = new DQACohortCategoryDataDefinition();
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
