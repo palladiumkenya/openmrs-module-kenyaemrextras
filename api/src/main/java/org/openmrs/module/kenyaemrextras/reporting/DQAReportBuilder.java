@@ -28,6 +28,7 @@ import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
+import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.DQAIndicatorLibrary;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
@@ -43,13 +44,16 @@ import org.openmrs.module.reporting.data.person.definition.ConvertedPersonDataDe
 import org.openmrs.module.reporting.data.person.definition.GenderDataDefinition;
 import org.openmrs.module.reporting.data.person.definition.PersonIdDataDefinition;
 import org.openmrs.module.reporting.data.person.definition.PreferredNameDataDefinition;
+import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -57,6 +61,9 @@ import java.util.List;
 @Component
 @Builds({ "kenyaemr.extras.report.dqaReport" })
 public class DQAReportBuilder extends AbstractHybridReportBuilder {
+	
+	@Autowired
+	private DQAIndicatorLibrary dqaIndicators;
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	
@@ -108,7 +115,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition dqaPatientsDSD = dqaPatients;
 		
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -362,6 +370,29 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
 		return dsd;
+	}
+	
+	protected DataSetDefinition artPedsOnDTGIndicators() {
+		
+		ArrayList<String> weightBand = new ArrayList<String>(Arrays.asList("3 and 5.9", "6 and 9.9", "10 and 13.9",
+		    "14 and 19.9"));
+		
+		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
+		cohortDsd.setName("ART-Peds-on-DTG");
+		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		cohortDsd.addColumn("Peds on DTG regimen (3-5.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(0)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (6-9.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(1)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (10-13.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(2)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (14-19.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(3)), indParams), "");
+		
+		return cohortDsd;
 	}
 	
 }
