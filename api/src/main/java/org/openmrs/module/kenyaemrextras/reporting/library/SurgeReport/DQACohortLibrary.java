@@ -137,34 +137,76 @@ public class DQACohortLibrary {
 		        + "      from kenyaemr_etl.etl_patient_triage t\n" + "      where date(t.visit_date) <= date(:endDate)\n"
 		        + "      GROUP BY t.patient_id) a\n"
 		        + "inner join kenyaemr_etl.etl_patient_demographics d on a.patient_id = d.patient_id\n"
-		        + "where a.weight between " + weightBand + "\n"
+		        + "where a.weight between " + weightBand + " \n"
 		        + "and timestampdiff(YEAR, date(d.DOB), date(:endDate)) <= 14;";
 		cd.setName("aged14AndBelowWeights");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setDescription("aged14AndBelowWeights");
-		
 		return cd;
 	}
 	
 	/**
-	 * Returns clients on DTG as of the reporting period
+	 * Returns clients on DTG as of the current date
 	 * 
 	 * @param
 	 * @return
 	 */
 	public CohortDefinition clientsOnDTG() {
 		SqlCohortDefinition cd = new SqlCohortDefinition();
-		String sqlQuery = "select de.patient_id\n" + "from kenyaemr_etl.etl_drug_event de\n" + "where de.program = 'HIV'\n"
-		        + "  and (de.discontinued is null or de.date_discontinued > date(:endDate))\n"
-		        + "  and de.date_started <= date(:endDate)\n" + "group by de.patient_id\n"
-		        + "having mid(max(concat(de.visit_date, de.regimen)), 11) like ('%DTG%');";
+		String sqlQuery = "select a.patient_id\n"
+		        + "from (select de.patient_id, mid(max(concat(de.visit_date, de.regimen_name)), 11) as current_regimen\n"
+		        + "      from kenyaemr_etl.etl_drug_event de\n" + "      where de.program = 'HIV'\n"
+		        + "        and de.discontinued is null\n" + "        and de.date_started <= date(curdate())\n"
+		        + "      group by de.patient_id) a\n" + "where a.current_regimen like ('%DTG%');";
 		cd.setName("clientsOnDTG");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setDescription("clientsOnDTG");
+		
+		return cd;
+	}
+	
+	/**
+	 * TX_CURR based on current date (specific to 2022 DTG)
+	 * 
+	 * @return
+	 */
+	public CohortDefinition dtg22TxCurrBasedOnCurrDate() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select t.patient_id\n"
+		        + "from(\n"
+		        + "    select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
+		        + "           greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
+		        + "           greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
+		        + "           greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
+		        + "           d.patient_id as disc_patient,\n"
+		        + "           d.effective_disc_date as effective_disc_date,\n"
+		        + "           max(d.visit_date) as date_discontinued,\n"
+		        + "           de.patient_id as started_on_drugs\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "           join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+		        + "           join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+		        + "           left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and date(date_started) <= date(curdate())\n"
+		        + "           left outer JOIN\n"
+		        + "             (select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "              where date(visit_date) <= date(curdate()) and program_name='HIV'\n"
+		        + "              group by patient_id\n"
+		        + "             ) d on d.patient_id = fup.patient_id\n"
+		        + "    where fup.visit_date <= date(curdate())\n"
+		        + "    group by patient_id\n"
+		        + "    having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
+		        + "        (\n"
+		        + "            ((timestampdiff(DAY,date(latest_tca),date(curdate())) <= 30) and ((date(d.effective_disc_date) > date(curdate()) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
+		        + "              and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null)\n"
+		        + "            )\n" + "        )\n" + "    ) t;";
+		cd.setName("dtg22TxCurrBasedOnCurrDate");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("dtg22TxCurrBasedOnCurrDate");
 		
 		return cd;
 	}
@@ -179,12 +221,12 @@ public class DQACohortLibrary {
 		CompositionCohortDefinition cd = new CompositionCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.addSearch("txcurr",
-		    ReportUtils.map(datimCohortLibrary.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"));
+		cd.addSearch("txcurrDTG222",
+		    ReportUtils.map(dtg22TxCurrBasedOnCurrDate(), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("aged14AndBelowWeights",
 		    ReportUtils.map(aged14AndBelowWeights(ageBand), "startDate=${startDate},endDate=${endDate}"));
 		cd.addSearch("clientsOnDTG", ReportUtils.map(clientsOnDTG(), "startDate=${startDate},endDate=${endDate}"));
-		cd.setCompositionString("txcurr AND aged14AndBelowWeights AND clientsOnDTG");
+		cd.setCompositionString("txcurrDTG222 AND aged14AndBelowWeights AND clientsOnDTG");
 		return cd;
 	}
 }
