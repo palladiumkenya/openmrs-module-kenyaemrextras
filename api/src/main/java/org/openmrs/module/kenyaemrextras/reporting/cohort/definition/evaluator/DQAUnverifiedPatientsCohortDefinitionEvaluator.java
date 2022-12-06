@@ -49,9 +49,10 @@ public class DQAUnverifiedPatientsCohortDefinitionEvaluator implements CohortDef
 		Cohort newCohort = new Cohort();
 		
 		String qry = "select fup.patient_id from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "   inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
 		        + "where fup.visit_date between '2022-06-01' and '2022-09-30'\n"
-		        + "      and (d.national_unique_patient_identifier is null or d.national_unique_patient_identifier = '');";
+		        + "      and (d.national_unique_patient_identifier is null or d.national_unique_patient_identifier = '')\n"
+		        + "order by RAND() limit 10;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);

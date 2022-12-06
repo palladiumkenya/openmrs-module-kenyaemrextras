@@ -129,8 +129,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
