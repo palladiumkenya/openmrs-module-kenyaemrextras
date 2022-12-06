@@ -24,6 +24,7 @@ import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLa
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLNextAppointmentDateDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicateActiveCohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAUnverifiedPatientsCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
@@ -103,6 +104,14 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
 	}
 	
+	protected Mapped<CohortDefinition> unverifiedPatientsCohort() {
+		CohortDefinition cd = new DQAUnverifiedPatientsCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("DQA Unverified Patients");
+		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
+	}
+	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
 		
@@ -114,8 +123,13 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dqaPatients.addRowFilter(activeDuplicatePatientsCohort());
 		DataSetDefinition dqaPatientsDSD = dqaPatients;
 		
+		PatientDataSetDefinition unverifiedPatients = dqaUnverifiedPatientsDatasetDefinition("unverifiedPatientsDqa");
+		unverifiedPatients.addRowFilter(unverifiedPatientsCohort());
+		DataSetDefinition unverifiedPatientsDSD = unverifiedPatients;
+		
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"));
 		
 	}
@@ -368,6 +382,37 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition dqaUnverifiedPatientsDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn));
+		
+		dsd.addColumn("CCC No", identifierDef, "");
+		
+		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams, null);
+		
+		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams, null);
 		
 		return dsd;
 	}
