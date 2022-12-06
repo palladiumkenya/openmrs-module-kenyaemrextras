@@ -398,14 +398,15 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
-		        upn.getName(), upn), new DQAIdentifierCompletenessDataConverter());
+		        upn.getName(), upn));
 		
 		dsd.addColumn("CCC No", identifierDef, "");
 		
-		DQALastVisitDataDefinition lastVisitDateDataDefinition = new DQALastVisitDataDefinition();
+		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Last appointment date", lastVisitDateDataDefinition, indParams, new DQADefaultYesDataConverter());
+		
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams, null);
 		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
