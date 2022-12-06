@@ -129,8 +129,11 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"),
+<<<<<<< HEAD
+		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"));
+=======
 				ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
+>>>>>>> Added an unverified Patients dataset
 		
 	}
 	
@@ -385,6 +388,32 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		return dsd;
 	}
+<<<<<<< HEAD
+	
+	protected DataSetDefinition artPedsOnDTGIndicators() {
+		
+		ArrayList<String> weightBand = new ArrayList<String>(Arrays.asList("3 and 5.9", "6 and 9.9", "10 and 13.9",
+		    "14 and 19.9"));
+		
+		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
+		cohortDsd.setName("ART-Peds-on-DTG");
+		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		cohortDsd.addColumn("Peds on DTG regimen (3-5.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(0)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (6-9.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(1)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (10-13.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(2)), indParams), "");
+		cohortDsd.addColumn("Peds on DTG regimen (14-19.9 kgs)", "",
+		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(3)), indParams), "");
+		
+		return cohortDsd;
+	}
+	
+=======
 
 	protected PatientDataSetDefinition dqaUnverifiedPatientsDatasetDefinition(String datasetName) {
 
@@ -412,27 +441,5 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 
 		return dsd;
 	}
-	protected DataSetDefinition artPedsOnDTGIndicators() {
-		
-		ArrayList<String> weightBand = new ArrayList<String>(Arrays.asList("3 and 5.9", "6 and 9.9", "10 and 13.9",
-		    "14 and 19.9"));
-		
-		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
-		cohortDsd.setName("ART-Peds-on-DTG");
-		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		String indParams = "startDate=${startDate},endDate=${endDate}";
-		cohortDsd.addColumn("Peds on DTG regimen (3-5.9 kgs)", "",
-		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(0)), indParams), "");
-		cohortDsd.addColumn("Peds on DTG regimen (6-9.9 kgs)", "",
-		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(1)), indParams), "");
-		cohortDsd.addColumn("Peds on DTG regimen (10-13.9 kgs)", "",
-		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(2)), indParams), "");
-		cohortDsd.addColumn("Peds on DTG regimen (14-19.9 kgs)", "",
-		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(3)), indParams), "");
-		
-		return cohortDsd;
-	}
-	
+>>>>>>> Added an unverified Patients dataset
 }
