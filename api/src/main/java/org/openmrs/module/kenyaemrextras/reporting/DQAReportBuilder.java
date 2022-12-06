@@ -163,6 +163,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("Drug dosage given (Duration)", lastAppointmentPeriodDataDefinition, indParams, null);
 		
+		DQAMUACValueDataDefinition muacDataDefinition = new DQAMUACValueDataDefinition();
+		muacDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
+		
 		DQATBScreeningStatusLastVisitDataDefinition tbScreeningStatusDataDefinition = new DQATBScreeningStatusLastVisitDataDefinition();
 		tbScreeningStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tbScreeningStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -173,7 +179,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		everOnIPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("TPT/IPT initiated", everOnIPTDataDefinition, indParams, null);
+		dsd.addColumn("TPT Status", everOnIPTDataDefinition, indParams, null);
 		
 		LastNutritionAssessmentDataDefinition lastNutritionAssessmentDataDefinition = new LastNutritionAssessmentDataDefinition();
 		lastNutritionAssessmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -276,6 +282,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Drug dosage given (Duration)", lastAppointmentPeriodDataDefinition, indParams,
 		    new DQADefaultDataCompletenessDataConverter());
 		
+		DQAMUACDataDefinition muacDataDefinition = new DQAMUACDataDefinition();
+		muacDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
+		
 		DQATBScreeningLastVisitDataDefinition tbScreeningDataDefinition = new DQATBScreeningLastVisitDataDefinition();
 		tbScreeningDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tbScreeningDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -286,7 +298,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		everOnIPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("TPT/IPT initiated", everOnIPTDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+		dsd.addColumn("TPT Status", everOnIPTDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
 		LastNutritionAssessmentDataDefinition lastNutritionAssessmentDataDefinition = new LastNutritionAssessmentDataDefinition();
 		lastNutritionAssessmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
