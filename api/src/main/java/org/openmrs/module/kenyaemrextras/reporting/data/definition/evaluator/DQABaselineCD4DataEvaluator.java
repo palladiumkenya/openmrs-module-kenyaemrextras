@@ -37,25 +37,19 @@ public class DQABaselineCD4DataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select patient_id,baselineCD4\n"
-		        + "  from (      select d.patient_id,\n"
-		        + "                              mid(min(concat(enr.visit_date, enr.date_confirmed_hiv_positive)), 11)  as dateConfirmedHiv,\n"
-		        + "                              mid(min(concat(l.visit_date, l.test_result)), 11)  as baselineCD4,\n"
-		        + "                              mid(min(concat(l.visit_date, l.date_test_requested)), 11)  as dateTestOrdered\n"
-		        + "                       from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "                         left join (\n"
-		        + "                                     select x.patient_id, x.visit_date ,x.test_result, x.date_test_requested\n"
-		        + "                                     from kenyaemr_etl.etl_laboratory_extract x\n"
-		        + "                                     where  lab_test in (5497)\n"
-		        + "                                     GROUP BY  x.patient_id\n"
-		        + "                                   ) l on d.patient_id = l.patient_id\n"
-		        + "                         left join (\n"
-		        + "                                     select e.patient_id, e.visit_date ,e.date_confirmed_hiv_positive\n"
-		        + "                                     from kenyaemr_etl.etl_hiv_enrollment e\n"
-		        + "                                     GROUP BY  e.patient_id\n"
-		        + "                                   ) enr on d.patient_id = enr.patient_id\n"
-		        + "                       group by d.patient_id\n" + "                     )t\n"
-		        + "    where baselineCD4 is not null and (timestampdiff(WEEK,dateConfirmedHiv,dateTestOrdered))< 2;";
+		String qry = "select patient_id,baselineCD4\n" + "from (      select d.patient_id,\n"
+		        + "              mid(min(concat(l.visit_date, l.test_result)), 11)  as baselineCD4\n"
+		        + "            from kenyaemr_etl.etl_patient_demographics d\n" + "              inner join (\n"
+		        + "                          select x.patient_id, x.visit_date ,x.test_result\n"
+		        + "                          from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "                          where  lab_test in (5497)\n"
+		        + "                          GROUP BY  x.patient_id\n"
+		        + "                        ) l on d.patient_id = l.patient_id\n" + "              inner join (\n"
+		        + "                          select e.patient_id\n"
+		        + "                          from kenyaemr_etl.etl_hiv_enrollment e\n"
+		        + "                          GROUP BY  e.patient_id\n"
+		        + "                        ) enr on d.patient_id = enr.patient_id\n" + "            group by d.patient_id\n"
+		        + "     )t\n" + "where baselineCD4 is not null or baselineCD4 <> '';";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

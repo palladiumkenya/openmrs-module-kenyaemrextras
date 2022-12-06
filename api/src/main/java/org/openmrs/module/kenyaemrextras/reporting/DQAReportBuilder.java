@@ -103,7 +103,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		cd.setName("DQA Active Patients");
 		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
 	}
-
+	
 	protected Mapped<CohortDefinition> unverifiedPatientsCohort() {
 		CohortDefinition cd = new DQAUnverifiedPatientsCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -122,7 +122,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		PatientDataSetDefinition dqaPatients = dqaActiveDataSetVariablesDefinition("activePatientsDqa");
 		dqaPatients.addRowFilter(activeDuplicatePatientsCohort());
 		DataSetDefinition dqaPatientsDSD = dqaPatients;
-
+		
 		PatientDataSetDefinition unverifiedPatients = dqaUnverifiedPatientsDatasetDefinition("unverifiedPatientsDqa");
 		unverifiedPatients.addRowFilter(unverifiedPatientsCohort());
 		DataSetDefinition unverifiedPatientsDSD = unverifiedPatients;
@@ -130,7 +130,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"),
-				ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -385,33 +385,37 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		return dsd;
 	}
-
+	
 	protected PatientDataSetDefinition dqaUnverifiedPatientsDatasetDefinition(String datasetName) {
-
+		
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
 		String indParams = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
-				HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
-				upn.getName(), upn), new DQAIdentifierCompletenessDataConverter());
-
+		        upn.getName(), upn), new DQAIdentifierCompletenessDataConverter());
+		
 		dsd.addColumn("CCC No", identifierDef, "");
-
+		
 		DQALastVisitDataDefinition lastVisitDateDataDefinition = new DQALastVisitDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Date of last appointment", lastVisitDateDataDefinition, indParams, new DQADefaultYesDataConverter());
-
-
-
-
+		dsd.addColumn("Last appointment date", lastVisitDateDataDefinition, indParams, new DQADefaultYesDataConverter());
+		
+		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams, null);
+		
 		return dsd;
 	}
+	
 	protected DataSetDefinition artPedsOnDTGIndicators() {
 		
 		ArrayList<String> weightBand = new ArrayList<String>(Arrays.asList("3 and 5.9", "6 and 9.9", "10 and 13.9",

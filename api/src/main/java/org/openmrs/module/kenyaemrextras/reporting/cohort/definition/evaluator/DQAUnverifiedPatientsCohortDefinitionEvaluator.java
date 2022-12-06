@@ -34,31 +34,32 @@ import java.util.List;
 public class DQAUnverifiedPatientsCohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
+	
 	@Autowired
 	EvaluationService evaluationService;
-
+	
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
-
+		
 		DQAUnverifiedPatientsCohortDefinition definition = (DQAUnverifiedPatientsCohortDefinition) cohortDefinition;
-
+		
 		if (definition == null)
 			return null;
-
+		
 		Cohort newCohort = new Cohort();
-
-		String qry = "select fup.patient_id,d.national_unique_patient_identifier from kenyaemr_etl.etl_patient_hiv_followup fup\n" +
-				"   inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n" +
-				"where fup.visit_date between '2022-06-01' and '2022-09-30'\n" +
-				"      and (d.national_unique_patient_identifier is null or d.national_unique_patient_identifier = '');";
-
+		
+		String qry = "select fup.patient_id from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "   inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
+		        + "where fup.visit_date between '2022-06-01' and '2022-09-30'\n"
+		        + "      and (d.national_unique_patient_identifier is null or d.national_unique_patient_identifier = '');";
+		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
 		Date startDate = (Date) context.getParameterValue("startDate");
 		Date endDate = (Date) context.getParameterValue("endDate");
 		builder.addParameter("startDate", startDate);
 		builder.addParameter("endDate", endDate);
-
+		
 		List<Integer> ptIds = evaluationService.evaluateToList(builder, Integer.class, context);
 		newCohort.setMemberIds(new HashSet<Integer>(ptIds));
 		return new EvaluatedCohort(newCohort, definition, context);
