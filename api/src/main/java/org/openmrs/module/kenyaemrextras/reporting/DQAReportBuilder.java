@@ -15,7 +15,10 @@ import org.openmrs.module.kenyacore.report.ReportDescriptor;
 import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
+import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
+import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicateActiveCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
@@ -125,6 +128,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("CCC No Format", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
@@ -199,6 +203,19 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cohortCategoryDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Category", cohortCategoryDataDefinition, indParams, null);
+		
+		DQANupiDataDefinition nupiDataDefinition = new DQANupiDataDefinition();
+		nupiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nupiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("NUPI", nupiDataDefinition, indParams);
+		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
+		        new DateConfirmedHivPositiveCalculation()), "");
+		
+		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
+		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams);
 		return dsd;
 	}
 	
@@ -221,6 +238,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("CCC No Format", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", new DQADefaultYesDataConverter());
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new DQADefaultYesDataConverter());
 		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
@@ -300,6 +318,20 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cohortCategoryDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Category", cohortCategoryDataDefinition, indParams, null);
+		
+		DQANupiDataDefinition nupiDataDefinition = new DQANupiDataDefinition();
+		nupiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nupiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("NUPI", nupiDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
+		        new DateConfirmedHivPositiveCalculation()), "", new DQADefaultDataCompletenessDataConverter());
+		
+		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
+		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+		
 		return dsd;
 	}
 	
