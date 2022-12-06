@@ -14,27 +14,25 @@ import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationPropertyCachingStrategy;
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
-import java.util.Date;
-
 /**
- * DQA ART initiation Date Data Definition
+ * DQA MUAC value Data Definition
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-public class DQAARTInitiationDateDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+public class DQAMUACValueDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
 	
 	public static final long serialVersionUID = 1L;
 	
 	/**
 	 * Default Constructor
 	 */
-	public DQAARTInitiationDateDataDefinition() {
+	public DQAMUACValueDataDefinition() {
 		super();
 	}
 	
 	/**
 	 * Constructor to populate name only
 	 */
-	public DQAARTInitiationDateDataDefinition(String name) {
+	public DQAMUACValueDataDefinition(String name) {
 		super(name);
 	}
 	
@@ -44,6 +42,6 @@ public class DQAARTInitiationDateDataDefinition extends BaseDataDefinition imple
 	 * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
 	 */
 	public Class<?> getDataType() {
-		return Date.class;
+		return Integer.class;
 	}
 }
