@@ -36,4 +36,37 @@ public class DQAIndicatorLibrary {
 		    ReportUtils.map(dqaCohorts.artPedsOnDTG(ageBand), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
+	/**
+	 * Total visits
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortIndicator totalVisits() {
+		return cohortIndicator("Total ART clients visits",
+		    ReportUtils.map(dqaCohorts.totalVisits(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Total verified
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortIndicator totalVerified() {
+		return cohortIndicator("Total ART clients verified",
+		    ReportUtils.map(dqaCohorts.totalVerified(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
+	/**
+	 * Total unverified
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortIndicator totalUnverified() {
+		return cohortIndicator("Total ART clients verified",
+		    ReportUtils.map(dqaCohorts.totalUnverified(), "startDate=${startDate},endDate=${endDate}"));
+	}
+	
 }
