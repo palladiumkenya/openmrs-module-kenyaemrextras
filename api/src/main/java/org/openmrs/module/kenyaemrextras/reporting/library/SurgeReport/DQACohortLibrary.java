@@ -229,4 +229,68 @@ public class DQACohortLibrary {
 		cd.setCompositionString("txcurrDTG222 AND aged14AndBelowWeights AND clientsOnDTG");
 		return cd;
 	}
+	
+	/**
+	 * Returns total unique clients visits within period
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortDefinition totalVisits() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select fup.patient_id from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
+		        + "where fup.visit_date between '2022-06-01' and '2022-09-30'\n" + "group by fup.patient_id;";
+		cd.setName("totalARTClinicalVisits");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("totalARTClinicalVisits");
+		
+		return cd;
+	}
+	
+	/**
+	 * Returns total unique clients visits within period and verified
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortDefinition totalVerified() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select fup.patient_id from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
+		        + "where fup.visit_date between '2022-06-01' and '2022-09-30'\n"
+		        + "      and (d.national_unique_patient_identifier is not null or d.national_unique_patient_identifier <> '')\n"
+		        + "group by fup.patient_id;";
+		cd.setName("totalARTVerified");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("totalARTVerified");
+		
+		return cd;
+	}
+	
+	/**
+	 * Returns total unique clients visits within period and unverified
+	 * 
+	 * @param
+	 * @return
+	 */
+	public CohortDefinition totalUnverified() {
+		SqlCohortDefinition cd = new SqlCohortDefinition();
+		String sqlQuery = "select fup.patient_id from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id=fup.patient_id\n"
+		        + "where fup.visit_date between '2022-06-01' and '2022-09-30'\n"
+		        + "      and (d.national_unique_patient_identifier is null or d.national_unique_patient_identifier = '')\n"
+		        + "group by fup.patient_id;";
+		cd.setName("totalARTUnverified");
+		cd.setQuery(sqlQuery);
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setDescription("totalARTUnverified");
+		
+		return cd;
+	}
 }

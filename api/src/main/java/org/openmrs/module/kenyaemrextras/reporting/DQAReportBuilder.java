@@ -130,7 +130,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		return Arrays.asList(ReportUtils.map(activePatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(dqaPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(unverifiedPatientsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(artPedsOnDTGIndicators(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(verificationCascadeIndicators(), "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -436,6 +437,21 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(2)), indParams), "");
 		cohortDsd.addColumn("Peds on DTG regimen (14-19.9 kgs)", "",
 		    ReportUtils.map(dqaIndicators.artPedsOnDTG(weightBand.get(3)), indParams), "");
+		
+		return cohortDsd;
+	}
+	
+	protected DataSetDefinition verificationCascadeIndicators() {
+		
+		CohortIndicatorDataSetDefinition cohortDsd = new CohortIndicatorDataSetDefinition();
+		cohortDsd.setName("Verification");
+		cohortDsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cohortDsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		cohortDsd.addColumn("Total visits", "", ReportUtils.map(dqaIndicators.totalVisits(), indParams), "");
+		cohortDsd.addColumn("Verified", "", ReportUtils.map(dqaIndicators.totalVerified(), indParams), "");
+		cohortDsd.addColumn("Unverified", "", ReportUtils.map(dqaIndicators.totalUnverified(), indParams), "");
 		
 		return cohortDsd;
 	}
