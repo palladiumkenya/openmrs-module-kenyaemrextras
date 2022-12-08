@@ -270,12 +270,15 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), new DQAIdentifierCompletenessDataConverter());
+		DataDefinition cccIdentifierDef = new ConvertedPatientDataDefinition("identifier",
+		        new PatientIdentifierDataDefinition(upn.getName(), upn), identifierFormatter);
 		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
-		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("CCC No", cccIdentifierDef, "");
+		dsd.addColumn("CCC No 10 Digits", identifierDef, "");
 		dsd.addColumn("CCC No Format", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", new DQADefaultYesDataConverter());
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new DQADefaultYesDataConverter());
