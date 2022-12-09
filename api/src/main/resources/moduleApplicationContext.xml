@@ -107,7 +107,7 @@
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
         <property name="template" value="kenyaemrextras:dqaTemplate.xls" />
-        <property name="repeatingSection" value="sheet:1,row:4,dataset:activePatients | sheet:2,row:4,dataset:activePatientsDqa | sheet:4,row:4,dataset:unverifiedPatientsDqa" />
+        <property name="repeatingSection" value="sheet:1,row:4,dataset:activePatientsDqa | sheet:4,row:4,dataset:activePatients" />
     </bean>
 
     <bean id="kenyaemrextras.common.report.appointmentAndAttrition" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
