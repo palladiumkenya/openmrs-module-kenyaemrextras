@@ -36,9 +36,9 @@ public class DQAHeightDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select fup.patient_id,\n" + " mid(max(concat(fup.visit_date, fup.height)), 11) as height "
-		        + " from kenyaemr_etl.etl_patient_hiv_followup fup where date(fup.visit_date) <= date(:endDate)\n"
-		        + "\tGROUP BY fup.patient_id;";
+		String qry = "select t.patient_id, mid(max(concat(t.visit_date, t.height)), 11) as height\n"
+		        + "from kenyaemr_etl.etl_patient_triage t\n" + "where date(t.visit_date) <= date(:endDate)\n"
+		        + "GROUP BY t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
