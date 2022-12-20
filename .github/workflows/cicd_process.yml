@@ -22,7 +22,7 @@ jobs:
           sudo mkdir openmrs-module-kenyaemrextras
           sudo chown -R cicd2:cicd2 openmrs-module-kenyaemrextras
           git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras 
-          git clone -b simss-tool https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
+          git clone -b master https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
           cd /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras
           git status 
           mvn clean install -DskipTests
