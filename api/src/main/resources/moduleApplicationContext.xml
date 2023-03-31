@@ -67,6 +67,7 @@
         <property name="commonReports">
             <set>
                 <ref bean="kenyaemrextras.common.report.weeklysurge"/>
+                <ref bean="kenyaemrextras.common.report.mortalityaudittool"/>
                 <ref bean="kenyaemrextras.common.report.monthlySurgeReport"/>
                 <ref bean="kenyaemr.extras.report.dqaReport"/>
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
@@ -141,4 +142,18 @@
             </set></property>
     </bean>
 
+    <bean id="kenyaemrextras.common.report.mortalityaudittool" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="6ea7be56-c36c-46d4-beda-62f9965fac5e" />
+        <property name="name" value="Mortality Audit Linelist" />
+        <property name="description" value="Report for Mortality Audit" />
+        <property name="apps">
+            <set>
+                <ref bean="kenyaemr.app.reports" />
+            </set></property>
+<!--
+        <property name="template" value="mortality_audit_tool.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:DeceasedHIVPatients | sheet:2,row:6,dataset:DeceasedHIVTBPatients | sheet:3,row:6,dataset:DeceasedTBPatients  | sheet:4,row:6,dataset:DeceasedHEIs" />
+-->
+
+    </bean>
 </beans>
