@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAHeightDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherDateArtInitiatedDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherHaartStatusDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -20,14 +21,13 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates DQA height Data Definition
+ * Evaluates Hei Mother Date Art Initiated DataDefinition
  */
-@Handler(supports = DQAHeightDataDefinition.class, order = 50)
-public class DQAHeightDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = HeiMotherDateArtInitiatedDataDefinition.class, order = 50)
+public class HeiMotherDateArtInitiatedDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,15 +36,17 @@ public class DQAHeightDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id, mid(max(concat(date(t.visit_date), t.height)), 11) as height\n"
-		        + "from kenyaemr_etl.etl_patient_triage t\n" + "where date(t.visit_date) <= date(:endDate)\n"
-		        + "GROUP BY t.patient_id;";
-		
+		String qry = "select distinct r.person_a,\n"
+		        + "  coalesce(date(de.date_started),date(v.date_given_haart),date(ld.visit_date),date(pnc.visit_date)) as date_initiated_art\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
+		        + "  inner join kenyaemr_etl.etl_mch_enrollment mch on mch.patient_id = d.patient_id\n"
+		        + "  left  join kenyaemr_etl.etl_drug_event de on de.patient_id = d.patient_id\n"
+		        + "  left join kenyaemr_etl.etl_mch_antenatal_visit v on v.patient_id = d.patient_id\n"
+		        + "  left join kenyaemr_etl.etl_mchs_delivery ld on ld.patient_id = d.patient_id and ld.mother_started_haart_at_maternity = 1065\n"
+		        + "  left join kenyaemr_etl.etl_mch_postnatal_visit pnc on pnc.patient_id = d.patient_id and pnc.mother_haart_given = 1065;\n";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);

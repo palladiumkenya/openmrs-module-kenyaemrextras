@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAHeightDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherGestationAgeDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -20,14 +20,13 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates DQA height Data Definition
+ * Evaluates Gestation Age
  */
-@Handler(supports = DQAHeightDataDefinition.class, order = 50)
-public class DQAHeightDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = HeiMotherGestationAgeDataDefinition.class, order = 50)
+public class HeiMotherGestationAgeDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,15 +35,16 @@ public class DQAHeightDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id, mid(max(concat(date(t.visit_date), t.height)), 11) as height\n"
-		        + "from kenyaemr_etl.etl_patient_triage t\n" + "where date(t.visit_date) <= date(:endDate)\n"
-		        + "GROUP BY t.patient_id;";
+		String qry = "select distinct r.person_a,\n"
+		        + "  timestampdiff(MONTH, coalesce(date(en.lmp),date(en.lmp_estimated)),\n"
+		        + "                coalesce(date(en.first_anc_visit_date),date(visit_date)))as gestation_age\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
+		        + "  inner join kenyaemr_etl.etl_mch_enrollment en on en.patient_id = d.patient_id\n"
+		        + " where en.service_type = 1622;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);

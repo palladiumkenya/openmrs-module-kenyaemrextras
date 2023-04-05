@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAHeightDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.DateOfDeathDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiDateOfDeathDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -20,14 +21,13 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates DQA height Data Definition
+ * Evaluates Hei Date of Death Data Definition
  */
-@Handler(supports = DQAHeightDataDefinition.class, order = 50)
-public class DQAHeightDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = HeiDateOfDeathDataDefinition.class, order = 50)
+public class HeiDeathDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -35,16 +35,10 @@ public class DQAHeightDataEvaluator implements PersonDataEvaluator {
 	public EvaluatedPersonData evaluate(PersonDataDefinition definition, EvaluationContext context)
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
-		
-		String qry = "select t.patient_id, mid(max(concat(date(t.visit_date), t.height)), 11) as height\n"
-		        + "from kenyaemr_etl.etl_patient_triage t\n" + "where date(t.visit_date) <= date(:endDate)\n"
-		        + "GROUP BY t.patient_id;";
-		
+		String qry = "select disc.patient_id, coalesce(date(disc.date_died),date(disc.effective_discontinuation_date),date(disc.visit_date)) as date_of_death\n"
+		        + "  from kenyaemr_etl.etl_patient_program_discontinuation disc\n"
+		        + "  where  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);

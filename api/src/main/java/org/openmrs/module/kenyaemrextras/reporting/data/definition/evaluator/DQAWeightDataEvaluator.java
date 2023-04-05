@@ -36,7 +36,7 @@ public class DQAWeightDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id,mid(max(concat(t.visit_date, t.weight)), 11) as weight\n"
+		String qry = "select t.patient_id,mid(max(concat(date(t.visit_date), t.weight)), 11) as weight\n"
 		        + "         from kenyaemr_etl.etl_patient_triage t where date(t.visit_date) <= date(:endDate)\n"
 		        + "        GROUP BY t.patient_id;";
 		
