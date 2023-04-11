@@ -10,8 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherRecentViralLoadDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherWeightDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiSecondPCRTestDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiThirdPCRTestDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 
 /**
- * Evaluates Viral Load Results
+ * Evaluates Third PCR Test Date DataDefinition
  */
-@Handler(supports = HeiMotherRecentViralLoadDataDefinition.class, order = 50)
-public class HeiMotherRecentViralLoadDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = HeiThirdPCRTestDateDataDefinition.class, order = 50)
+public class HeiThirdPCRTestDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,16 +36,12 @@ public class HeiMotherRecentViralLoadDataEvaluator implements PersonDataEvaluato
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select distinct r.person_a,\n"
-		        + "   mid(max(concat(le.visit_date, if(le.lab_test = 856, le.test_result, if(le.lab_test=1305 and le.test_result = 1302, 'LDL','')), '' )),11) as vl_result\n"
-		        + " from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "   inner join openmrs.relationship r on d.patient_id = r.person_b\n"
-		        + "   inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid in ('8d91a210-c2cc-11de-8d13-0010c6dffd0f')\n"
-		        + "   inner join kenyaemr_etl.etl_mch_enrollment mch on mch.patient_id = d.patient_id\n"
-		        + "   inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = r.person_a\n"
-		        + "                                                                       and  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432\n"
-		        + "   inner join kenyaemr_etl.etl_laboratory_extract le on le.patient_id = d.patient_id and coalesce(date(le.date_test_requested),date(le.visit_date)) <= coalesce(date(disc.date_died),date(disc.visit_date),date(disc.effective_discontinuation_date))\n"
-		        + " group by d.patient_id;";
+		String qry = "select x.patient_id,\n" + "  date(x.date_test_requested) as first_pcr_test_date\n"
+		        + "from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "  inner join kenyaemr_etl.etl_hei_enrollment en on en.patient_id = x.patient_id\n"
+		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = x.patient_id\n"
+		        + "where  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432\n"
+		        + "       and  x.lab_test = 1030 and x.order_reason = 164860\n" + "group by x.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
