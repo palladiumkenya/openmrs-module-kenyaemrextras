@@ -10,8 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherRecentViralLoadDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherWeightDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherVLAtMCHEnrollmentDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherVLDateAtMCHEnrollmentDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 
 /**
- * Evaluates Viral Load Results
+ * Evaluates Viral Load Date at PMTCT Enrollment
  */
-@Handler(supports = HeiMotherRecentViralLoadDataDefinition.class, order = 50)
-public class HeiMotherRecentViralLoadDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = HeiMotherVLDateAtMCHEnrollmentDataDefinition.class, order = 50)
+public class HeiMotherVLDateAtMCHEnrollmentDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,15 +37,15 @@ public class HeiMotherRecentViralLoadDataEvaluator implements PersonDataEvaluato
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select distinct r.person_a,\n"
-		        + "   mid(max(concat(le.visit_date, if(le.lab_test = 856, le.test_result, if(le.lab_test=1305 and le.test_result = 1302, 'LDL','')), '' )),11) as vl_result\n"
-		        + " from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "   inner join openmrs.relationship r on d.patient_id = r.person_b\n"
-		        + "   inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid in ('8d91a210-c2cc-11de-8d13-0010c6dffd0f')\n"
-		        + "   inner join kenyaemr_etl.etl_mch_enrollment mch on mch.patient_id = d.patient_id\n"
-		        + "   inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = r.person_a\n"
-		        + "                                                                       and  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432\n"
-		        + "   inner join kenyaemr_etl.etl_laboratory_extract le on le.patient_id = d.patient_id and coalesce(date(le.date_test_requested),date(le.visit_date)) <= coalesce(date(disc.date_died),date(disc.visit_date),date(disc.effective_discontinuation_date))\n"
-		        + " group by d.patient_id;";
+		        + "  date(max(le.visit_date)) as last_vl_date\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid in ('8d91a210-c2cc-11de-8d13-0010c6dffd0f')\n"
+		        + "  inner join kenyaemr_etl.etl_mch_enrollment mch on mch.patient_id = d.patient_id and mch.hiv_status = 703\n"
+		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = r.person_a\n"
+		        + "                                                                      and  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432\n"
+		        + "  inner join kenyaemr_etl.etl_laboratory_extract le on le.patient_id = d.patient_id and coalesce(date(le.date_test_requested),date(le.visit_date)) <= date(mch.visit_date)\n"
+		        + "group by d.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
