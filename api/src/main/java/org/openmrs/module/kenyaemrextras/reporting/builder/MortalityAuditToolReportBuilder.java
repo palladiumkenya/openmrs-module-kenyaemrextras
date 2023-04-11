@@ -3,57 +3,47 @@
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
  * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
  * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
- *
+ * <p>
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
 package org.openmrs.module.kenyaemrextras.reporting.builder;
 
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PersonAttributeType;
 import org.openmrs.module.kenyacore.report.ReportDescriptor;
 import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.kenyacore.report.builder.AbstractReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
+import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
+import org.openmrs.module.kenyaemr.Dictionary;
+import org.openmrs.module.kenyaemr.calculation.library.hiv.art.DateOfEnrollmentArtCalculation;
 import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
-import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIEnrollmentDateDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.DateOfDeathDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.KenyaEMRMaritalStatusDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLCurrentRegimenDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLFirstRegimenDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.WHOStageArtDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
-import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEISerialNumberDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.pama.PamaCareGiverStatusDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHEICohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivAndTBPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedTBPatientCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.AgeAtDeathDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiCareGiverEducationDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiCareGiverOccupationDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiDateOfDeathDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMaritalStatusDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherArtRegimenDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherDateArtInitiatedDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherEntryPointDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherGestationAgeDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherHaartStatusDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherHeightDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherHivDiagnosisDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherLatestTriageDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherMuacDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherWeightDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiMotherWhoStageAtPmtctStartDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.HeiPrimaryCareGiverDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.EverOnIPTDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
+import org.openmrs.module.reporting.common.TimeQualifier;
 import org.openmrs.module.reporting.data.DataDefinition;
-import org.openmrs.module.reporting.data.converter.BirthdateConverter;
-import org.openmrs.module.reporting.data.converter.DataConverter;
-import org.openmrs.module.reporting.data.converter.DateConverter;
-import org.openmrs.module.reporting.data.converter.ObjectFormatter;
+import org.openmrs.module.reporting.data.converter.*;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.*;
 import org.openmrs.module.reporting.data.person.definition.BirthdateDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.ConvertedPersonDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.GenderDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.PersonIdDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.PreferredNameDataDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -83,9 +73,9 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
-		return Arrays.asList(ReportUtils.map(heiDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}")
-		//	ReportUtils.map(hivDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		// ReportUtils.map(hivAndTBDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		return Arrays.asList(ReportUtils.map(hivDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(heiDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(hivAndTBDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}")
 		// ReportUtils.map(tbDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
 		        );
 	}
@@ -98,7 +88,110 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		
-		//Add columns here
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		PatientIdentifierType nupi = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.NATIONAL_UNIQUE_PATIENT_IDENTIFIER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		DataDefinition nupiDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        nupi.getName(), nupi), identifierFormatter);
+		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
+		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
+		
+		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("NUPI", nupiDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("DOB", new DOBDataDefinition(), "");
+		dsd.addColumn("Death date", new DateOfDeathDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathHIVPatientDataDefinition(), "", null);
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		
+		dsd.addColumn("Marital Status", new KenyaEMRMaritalStatusDataDefinition(), "");
+		dsd.addColumn("Pregnant or Breastfeeding", new PregnantOrBreastfeedingDataDefinition(), "");
+		dsd.addColumn("Occupation",
+		    new ObsForPersonDataDefinition("Occupation", TimeQualifier.LAST, Dictionary.getConcept(Dictionary.OCCUPATION),
+		            null, null), "", new ObsValueConverter());
+		dsd.addColumn("Primary caregiver", new HeiPrimaryCareGiverDataDefinition(), "");
+		dsd.addColumn("HIV Status of caregiver", new PamaCareGiverStatusDataDefinition(), "");
+		dsd.addColumn("Caregiver's Education level", new HeiCareGiverEducationDataDefinition(), "");
+		dsd.addColumn("Caregiver's occupation", new HeiCareGiverOccupationDataDefinition(), "");
+		dsd.addColumn("Date of HIV diagnosis", new DateOfHIVDiagnosisDataDefinition(), "");
+		dsd.addColumn("Date of enrollment into care", new CalculationDataDefinition("Enrollment Date",
+		        new DateOfEnrollmentArtCalculation()), "", new DateArtStartDateConverter());
+		dsd.addColumn("WHO clinical stage at enrollment", new BaselineWHOStageDataDefinition(), "");
+		dsd.addColumn("Baseline WHO staging date", new BaselineWHOStageDateDataDefinition(), "");
+		dsd.addColumn("WHO Clinical stage at time of death", new WHOStageArtDataDefinition(), "");
+		dsd.addColumn("Date of ART initiation", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Duration on ART", new DurationOnARTDataDefinition(), "");
+		dsd.addColumn("Initial regimen", new ETLFirstRegimenDataDefinition(), "");
+		dsd.addColumn("Date of start regimen", new DateOfFirstARTRegimenDataDefinition(), "");
+		dsd.addColumn("Reasons for change of first regimen", new FirstRegimenChangeReasonDataDefinition(), "");
+		dsd.addColumn("2nd Regimen", new SecondRegimenDataDefinition(), "");
+		dsd.addColumn("Date of 2nd regimen switch", new SecondARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 2nd regimen", new SecondRegimenChangeReasonDataDefinition(), "");//2,1
+		dsd.addColumn("3rd Regimen", new ThirdRegimenDataDefinition(), "");
+		dsd.addColumn("Date of switch of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("4th Regimen", new FourthRegimenDataDefinition(), "");
+		dsd.addColumn("Date of switch of 4th Regimen", new FourthARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 4th Regimen", new FourthRegimenChangeReasonDataDefinition(), "");
+		dsd.addColumn("Regimen at the time of death", new ETLCurrentRegimenDataDefinition(), "");
+		dsd.addColumn("Baseline CD4 count done", new BaselineCD4DoneDataDefinition(), "");
+		dsd.addColumn("Baseline CD4", new BaselineCD4CountDataDefinition(), "");
+		dsd.addColumn("Date of Baseline CD4 test", new BaselineCD4DateDataDefinition(), "");
+		dsd.addColumn("CTX/Dapsone given", new CTXDapsoneDispensedDataDefinition(), "");
+		dsd.addColumn("CRAG test done for adolescents and adults with < 200 cd4", new CrAgTestDoneDataDefinition(), "");
+		dsd.addColumn("CRAG test results", new CrAgTestResultDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture done", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture results", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture treated", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Antifungal regimen given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Treatment completed until CD4 recovery", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Pre-emptive treatment with fluconazole given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB LAM done for those with CD4 <200", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB screening done", new TBScreeningDoneDataDefinition(), "");
+		//dsd.addColumn("Type of TB", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB Treatment given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		dsd.addColumn("Is there a more recent CD4 count", new CD4RecencyDataDefinition(), "");
+		dsd.addColumn("Date of most recent CD4 count", new RecentCD4DateDataDefinition(), "");
+		ValidVLDataDefinition validVLDataDefinition = new ValidVLDataDefinition();
+		validVLDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL test done", validVLDataDefinition, paramMapping, null);
+		
+		ValidVLDateDataDefinition validVLDateDataDefinition = new ValidVLDateDataDefinition();
+		validVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL result date", validVLDateDataDefinition, paramMapping, null);
+		
+		ValidVLResultDataDefinition validVLResultDataDefinition = new ValidVLResultDataDefinition();
+		validVLResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL result", validVLResultDataDefinition, paramMapping, null);
+		
+		RecentInvalidVLDataDefinition recentInvalidVLDataDefinition = new RecentInvalidVLDataDefinition();
+		recentInvalidVLDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentInvalidVLDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Date of most recent VL test if no VL done in the last 1 year", recentInvalidVLDataDefinition,
+		    paramMapping, null);
+		
+		RecentInvalidVLResultDataDefinition recentInvalidVLResultDataDefinition = new RecentInvalidVLResultDataDefinition();
+		recentInvalidVLResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentInvalidVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Result of most recent VL test if no VL done in the last 1 year", recentInvalidVLResultDataDefinition,
+		    paramMapping, null);
+		//dsd.addColumn("VL result for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		//dsd.addColumn("VL result date for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		dsd.addColumn("Ever Initiated on TPT", new EverOnIPTDataDefinition(), "");
+		dsd.addColumn("TPT Initiation date", new IPTInitiationDateDataDefinition(), "");
+		dsd.addColumn("TPT Outcome", new IPTOutcomeHIVPatientsDataDefinition(), "");
+		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
+		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
+		    new PresumtiveTBDataDefinition(), "");
 		
 		DeceasedHivPatientCohortDefinition cd = new DeceasedHivPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -110,13 +203,116 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 	
 	protected DataSetDefinition hivAndTBDataSetDefinitionColumns() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
-		dsd.setName("DeceasedHIVTBPatients");
-		dsd.setDescription("Deceased HIV Patients with TB");
+		dsd.setName("DeceasedHIVAndTBPatients");
+		dsd.setDescription("Deceased HIV Patients");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		
-		//Add columns here
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		PatientIdentifierType nupi = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.NATIONAL_UNIQUE_PATIENT_IDENTIFIER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		DataDefinition nupiDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        nupi.getName(), nupi), identifierFormatter);
+		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
+		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
+		
+		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("NUPI", nupiDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("DOB", new DOBDataDefinition(), "");
+		dsd.addColumn("Death date", new DateOfDeathDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathDataDefinition(), "", null);
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		
+		dsd.addColumn("Marital Status", new KenyaEMRMaritalStatusDataDefinition(), "");
+		dsd.addColumn("Pregnant or Breastfeeding", new PregnantOrBreastfeedingDataDefinition(), "");
+		dsd.addColumn("Occupation",
+		    new ObsForPersonDataDefinition("Occupation", TimeQualifier.LAST, Dictionary.getConcept(Dictionary.OCCUPATION),
+		            null, null), "", new ObsValueConverter());
+		dsd.addColumn("Primary caregiver", new HeiPrimaryCareGiverDataDefinition(), "");
+		dsd.addColumn("HIV Status of caregiver", new PamaCareGiverStatusDataDefinition(), "");
+		dsd.addColumn("Caregiver's Education level", new HeiCareGiverEducationDataDefinition(), "");
+		dsd.addColumn("Caregiver's occupation", new HeiCareGiverOccupationDataDefinition(), "");
+		dsd.addColumn("Date of HIV diagnosis", new DateOfHIVDiagnosisDataDefinition(), "");
+		dsd.addColumn("Date of enrollment into care", new CalculationDataDefinition("Enrollment Date",
+		        new DateOfEnrollmentArtCalculation()), "", new DateArtStartDateConverter());
+		dsd.addColumn("WHO clinical stage at enrollment", new BaselineWHOStageDataDefinition(), "");
+		dsd.addColumn("Baseline WHO staging date", new BaselineWHOStageDateDataDefinition(), "");
+		dsd.addColumn("WHO Clinical stage at time of death", new WHOStageArtDataDefinition(), "");
+		dsd.addColumn("Date of ART initiation", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Duration on ART", new DurationOnARTDataDefinition(), "");
+		dsd.addColumn("Initial regimen", new ETLFirstRegimenDataDefinition(), "");
+		dsd.addColumn("Date of start regimen", new DateOfFirstARTRegimenDataDefinition(), "");
+		dsd.addColumn("Reasons for change of first regimen", new FirstRegimenChangeReasonDataDefinition(), "");
+		dsd.addColumn("2nd Regimen", new SecondRegimenDataDefinition(), "");
+		dsd.addColumn("Date of 2nd regimen switch", new SecondARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 2nd regimen", new SecondRegimenChangeReasonDataDefinition(), "");//2,1
+		dsd.addColumn("3rd Regimen", new ThirdRegimenDataDefinition(), "");
+		dsd.addColumn("Date of switch of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("4th Regimen", new FourthRegimenDataDefinition(), "");
+		dsd.addColumn("Date of switch of 4th Regimen", new FourthARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 4th Regimen", new FourthRegimenChangeReasonDataDefinition(), "");
+		dsd.addColumn("Regimen at the time of death", new ETLCurrentRegimenDataDefinition(), "");
+		dsd.addColumn("Baseline CD4 count done", new BaselineCD4DoneDataDefinition(), "");
+		dsd.addColumn("Baseline CD4", new BaselineCD4CountDataDefinition(), "");
+		dsd.addColumn("Date of Baseline CD4 test", new BaselineCD4DateDataDefinition(), "");
+		dsd.addColumn("CTX/Dapsone given", new CTXDapsoneDispensedDataDefinition(), "");
+		dsd.addColumn("CRAG test done for adolescents and adults with < 200 cd4", new CrAgTestDoneDataDefinition(), "");
+		dsd.addColumn("CRAG test results", new CrAgTestResultDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture done", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture results", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Lumbar puncture treated", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Antifungal regimen given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Treatment completed until CD4 recovery", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("Pre-emptive treatment with fluconazole given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB LAM done for those with CD4 <200", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB screening done", new TBScreeningDoneDataDefinition(), "");
+		//dsd.addColumn("Type of TB", new KenyaEMRMaritalStatusDataDefinition(), "");
+		//dsd.addColumn("TB Treatment given", new KenyaEMRMaritalStatusDataDefinition(), "");
+		dsd.addColumn("Is there a more recent CD4 count", new CD4RecencyDataDefinition(), "");
+		dsd.addColumn("Date of most recent CD4 count", new RecentCD4DateDataDefinition(), "");
+		ValidVLDataDefinition validVLDataDefinition = new ValidVLDataDefinition();
+		validVLDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL test done", validVLDataDefinition, paramMapping, null);
+		
+		ValidVLDateDataDefinition validVLDateDataDefinition = new ValidVLDateDataDefinition();
+		validVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL result date", validVLDateDataDefinition, paramMapping, null);
+		
+		ValidVLResultDataDefinition validVLResultDataDefinition = new ValidVLResultDataDefinition();
+		validVLResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		validVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Valid VL result", validVLResultDataDefinition, paramMapping, null);
+		
+		RecentInvalidVLDataDefinition recentInvalidVLDataDefinition = new RecentInvalidVLDataDefinition();
+		recentInvalidVLDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentInvalidVLDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Date of most recent VL test if no VL done in the last 1 year", recentInvalidVLDataDefinition,
+		    paramMapping, null);
+		
+		RecentInvalidVLResultDataDefinition recentInvalidVLResultDataDefinition = new RecentInvalidVLResultDataDefinition();
+		recentInvalidVLResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		recentInvalidVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Result of most recent VL test if no VL done in the last 1 year", recentInvalidVLResultDataDefinition,
+		    paramMapping, null);
+		//dsd.addColumn("VL result for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		//dsd.addColumn("VL result date for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		dsd.addColumn("Ever Initiated on TPT", new EverOnIPTDataDefinition(), "");
+		dsd.addColumn("TPT Initiation date", new IPTInitiationDateDataDefinition(), "");
+		dsd.addColumn("TPT Outcome", new IPTOutcomeHIVPatientsDataDefinition(), "");
+		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
+		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
+		    new PresumtiveTBDataDefinition(), "");
 		
 		DeceasedHivAndTBPatientCohortDefinition cd = new DeceasedHivAndTBPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
