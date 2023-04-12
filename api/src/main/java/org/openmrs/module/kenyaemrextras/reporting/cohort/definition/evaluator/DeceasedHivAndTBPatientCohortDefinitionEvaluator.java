@@ -51,7 +51,8 @@ public class DeceasedHivAndTBPatientCohortDefinitionEvaluator implements CohortD
 		String qry = "select d.patient_id\n"
 		        + "from kenyaemr_etl.etl_patient_program_discontinuation d\n"
 		        + "         inner join kenyaemr_etl.etl_patient_demographics m on d.patient_id = m.patient_id\n"
-		        + "         inner join kenyaemr_etl.etl_hiv_enrollment e on d.patient_id = e.patient_id\n"
+		        + "         left join kenyaemr_etl.etl_hiv_enrollment e on d.patient_id = e.patient_id\n"
+		        + "         left join kenyaemr_etl.etl_hts_test t on d.patient_id = t.patient_id and t.final_test_result = 'Positive'\n"
 		        + "         left join (select t.patient_id      as tb_patient,\n"
 		        + "                           max(t.visit_date) as tb_enrollment_date,\n"
 		        + "                           d.patient_id      as disc_tb,\n"
@@ -82,7 +83,8 @@ public class DeceasedHivAndTBPatientCohortDefinitionEvaluator implements CohortD
 		        + "                                                                                            date(d.effective_discontinuation_date),\n"
 		        + "                                                                                            date(d.visit_date)) <=\n"
 		        + "                                                                                   10) or tb_disc_date is null)\n"
-		        + "    ) or s.patient_id is not null\n" + "    )\n" + "group by d.patient_id;";
+		        + "    ) or s.patient_id is not null\n"
+		        + "    ) and (e.patient_id is not null or t.patient_id is not null)\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
