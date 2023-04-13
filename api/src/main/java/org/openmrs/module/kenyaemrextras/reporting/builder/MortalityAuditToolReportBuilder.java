@@ -98,9 +98,10 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		
-		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
-		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("DOB", new DOBDataDefinition(), "");
@@ -238,9 +239,10 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		
-		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
-		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("DOB", new DOBDataDefinition(), "");
