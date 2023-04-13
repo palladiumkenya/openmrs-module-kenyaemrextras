@@ -184,14 +184,32 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		recentInvalidVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Result of most recent VL test if no VL done in the last 1 year", recentInvalidVLResultDataDefinition,
 		    paramMapping, null);
-		//dsd.addColumn("VL result for care giver", new RecentInvalidVLResultDataDefinition(), "");
-		//dsd.addColumn("VL result date for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		dsd.addColumn("VL result for care giver", new VLResultForCaregiverDataDefinition(), "");
+		dsd.addColumn("VL result date for care giver", new VLDateForCaregiverDataDefinition(), "");
 		dsd.addColumn("Ever Initiated on TPT", new EverOnIPTDataDefinition(), "");
 		dsd.addColumn("TPT Initiation date", new IPTInitiationDateDataDefinition(), "");
 		dsd.addColumn("TPT Outcome", new IPTOutcomeHIVPatientsDataDefinition(), "");
 		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
 		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
 		    new PresumtiveTBDataDefinition(), "");
+		dsd.addColumn("Adhered to clinic appointments for HIV medication", new AdheredToClinicAppointmentsDataDefinition(),
+		    "");
+		dsd.addColumn("Clinic appointments synchronized with caregiver's",
+		    new ClinicAppointmentsSyncWithCareGiversDataDefinition(), "");
+		dsd.addColumn("Honoured last clinic appointment", new HonouredLastAppointmentDataDefinition(), "");
+		dsd.addColumn("Morisky Medication Adherence (MMAS-4)", new MoriskyMedicationAdherenceDataDefinition(), "");
+		TBScreeningDoneDataDefinition tbScreeningDoneDataDefinition = new TBScreeningDoneDataDefinition();
+		tbScreeningDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Screened for TB in the last visit", tbScreeningDoneDataDefinition, paramMapping, null);
+		TBScreeningResultsDataDefinition tbScreeningResultsDataDefinition = new TBScreeningResultsDataDefinition();
+		tbScreeningResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB screening results", tbScreeningResultsDataDefinition, paramMapping, null);
+		TBInvestigationsDoneDataDefinition tbInvestigationsDoneDataDefinition = new TBInvestigationsDoneDataDefinition();
+		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB investigations done", tbInvestigationsDoneDataDefinition, paramMapping, null);
 		
 		DeceasedHivPatientCohortDefinition cd = new DeceasedHivPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -305,14 +323,32 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		recentInvalidVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Result of most recent VL test if no VL done in the last 1 year", recentInvalidVLResultDataDefinition,
 		    paramMapping, null);
-		//dsd.addColumn("VL result for care giver", new RecentInvalidVLResultDataDefinition(), "");
-		//dsd.addColumn("VL result date for care giver", new RecentInvalidVLResultDataDefinition(), "");
+		dsd.addColumn("VL result for care giver", new VLResultForCaregiverDataDefinition(), "");
+		dsd.addColumn("VL result date for care giver", new VLDateForCaregiverDataDefinition(), "");
 		dsd.addColumn("Ever Initiated on TPT", new EverOnIPTDataDefinition(), "");
 		dsd.addColumn("TPT Initiation date", new IPTInitiationDateDataDefinition(), "");
 		dsd.addColumn("TPT Outcome", new IPTOutcomeHIVPatientsDataDefinition(), "");
 		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
 		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
 		    new PresumtiveTBDataDefinition(), "");
+		dsd.addColumn("Adhered to clinic appointments for HIV medication", new AdheredToClinicAppointmentsDataDefinition(),
+		    "");
+		dsd.addColumn("Clinic appointments synchronized with caregiver's",
+		    new ClinicAppointmentsSyncWithCareGiversDataDefinition(), "");
+		dsd.addColumn("Honoured last clinic appointment", new HonouredLastAppointmentDataDefinition(), "");
+		dsd.addColumn("Morisky Medication Adherence (MMAS-4)", new MoriskyMedicationAdherenceDataDefinition(), "");
+		TBScreeningDoneDataDefinition tbScreeningDoneDataDefinition = new TBScreeningDoneDataDefinition();
+		tbScreeningDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Screened for TB in the last visit", tbScreeningDoneDataDefinition, paramMapping, null);
+		TBScreeningResultsDataDefinition tbScreeningResultsDataDefinition = new TBScreeningResultsDataDefinition();
+		tbScreeningResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbScreeningResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB screening results", tbScreeningResultsDataDefinition, paramMapping, null);
+		TBInvestigationsDoneDataDefinition tbInvestigationsDoneDataDefinition = new TBInvestigationsDoneDataDefinition();
+		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB investigations done", tbInvestigationsDoneDataDefinition, paramMapping, null);
 		
 		DeceasedHivAndTBPatientCohortDefinition cd = new DeceasedHivAndTBPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));

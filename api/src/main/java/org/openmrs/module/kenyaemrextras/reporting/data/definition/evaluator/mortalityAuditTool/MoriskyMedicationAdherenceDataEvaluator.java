@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.mortalityAuditTool;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.TBScreeningDoneDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.MoriskyMedicationAdherenceDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -20,14 +20,13 @@ import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates TB Screening Data Definition
+ * Evaluates MoriskyMedicationAdherenceDataDefinition
  */
-@Handler(supports = TBScreeningDoneDataDefinition.class, order = 50)
-public class TBScreeningDoneDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = MoriskyMedicationAdherenceDataDefinition.class, order = 50)
+public class MoriskyMedicationAdherenceDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,18 +35,22 @@ public class TBScreeningDoneDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, if(a.tb_screened in (1660, 1662, 142177), 'Yes', if(a.tb_screened = 160737,'No','Unknown')) as screened_for_tb\n"
-		        + "       from (select max(tb.visit_date)                                                           as max_visit,\n"
-		        + "                    tb.patient_id,\n"
-		        + "                    mid(max(concat(date(tb.visit_date), ifnull(tb.resulting_tb_status, 0))), 11) as tb_screened,\n"
-		        + "                    mid(max(concat(date(tb.visit_date), ifnull(tb.person_present, 0))), 11)      as person_present\n"
-		        + "             from kenyaemr_etl.etl_tb_screening tb   group by tb.patient_id) a\n"
-		        + "       where a.person_present = 978 and a.max_visit >= date(:startDate);";
+		String qry = "select d.patient_id,coalesce(f.last_fup_visit_mmas,a.last_adherence_mmas) as mmas4\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "         left join (select f.patient_id,\n"
+		        + "                           left(max(concat(f.visit_date, f.arv_adherence)), 10) as last_fup_visit_mmas_date,\n"
+		        + "                           (case mid(max(concat(f.visit_date, f.arv_adherence)), 11)\n"
+		        + "                                when 159405 then 'Good'\n"
+		        + "                                when 163794 then 'Inadequate'\n"
+		        + "                                when 159407 then 'Poor' end)                    as last_fup_visit_mmas\n"
+		        + "                    from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "                    group by f.patient_id) f on d.patient_id = f.patient_id\n"
+		        + "         left join (select a.patient_id,\n"
+		        + "                           left(max(concat(a.visit_date, a.arv_adherence)), 10) as last_adherence_mmas_date,\n"
+		        + "                           mid(max(concat(a.visit_date, a.arv_adherence)), 11)  as last_adherence_mmas\n"
+		        + "                    from kenyaemr_etl.etl_enhanced_adherence a) a on d.patient_id = a.patient_id;\n";
+		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
-		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
-		queryBuilder.addParameter("endDate", endDate);
-		queryBuilder.addParameter("startDate", startDate);
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
 		c.setData(data);
