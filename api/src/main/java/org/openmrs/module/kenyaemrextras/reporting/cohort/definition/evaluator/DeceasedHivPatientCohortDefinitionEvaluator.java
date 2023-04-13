@@ -77,7 +77,7 @@ public class DeceasedHivPatientCohortDefinitionEvaluator implements CohortDefini
 		        + "          where coalesce(date(d.date_died),date(d.effective_discontinuation_date), date(d.visit_date)) between\n"
 		        + "          date(:startDate)\n"
 		        + "          and date(:endDate)\n"
-		        + "          and d.discontinuation_reason = 160034\n"
+		        + "          and d.discontinuation_reason = 160034 and d.program_name = 'HIV'\n"
 		        + "          and ((tb.tb_patient is null or tb.tb_enrollment_date < tb.tb_disc_date or\n"
 		        + "          timestampdiff(MONTH, tb.tb_enrollment_date,coalesce(date(d.date_died),date(d.effective_discontinuation_date),date(d.visit_date))) > 10) and s.patient_id is null\n"
 		        + "          ) group by d.patient_id;";
