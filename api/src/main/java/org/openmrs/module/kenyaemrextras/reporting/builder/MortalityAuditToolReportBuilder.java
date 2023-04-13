@@ -21,19 +21,18 @@ import org.openmrs.module.kenyaemr.calculation.library.hiv.art.DateOfEnrollmentA
 import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
-import org.openmrs.module.kenyaemr.reporting.data.converter.definition.DateOfDeathDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.KenyaEMRMaritalStatusDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLCurrentRegimenDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLFirstRegimenDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.WHOStageArtDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIEnrollmentDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.pama.PamaCareGiverStatusDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHEICohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivAndTBPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedTBPatientCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -75,9 +74,8 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
 		return Arrays.asList(ReportUtils.map(hivDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(heiDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(hivAndTBDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}")
-		// ReportUtils.map(tbDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		        );
+		    ReportUtils.map(hivAndTBDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(tbDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	protected DataSetDefinition hivDataSetDefinitionColumns() {
@@ -100,14 +98,16 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		
-		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
-		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("DOB", new DOBDataDefinition(), "");
-		dsd.addColumn("Death date", new DateOfDeathDataDefinition(), "");
-		dsd.addColumn("Age at Death", new AgeAtDeathHIVPatientDataDefinition(), "", null);
+		dsd.addColumn("Death date",
+		    new org.openmrs.module.kenyaemr.reporting.data.converter.definition.DateOfDeathDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathPatientDataDefinition(), "", null);
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		
 		dsd.addColumn("Marital Status", new KenyaEMRMaritalStatusDataDefinition(), "");
@@ -239,14 +239,16 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		
-		//DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
-		//DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
+		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), formatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("DOB", new DOBDataDefinition(), "");
-		dsd.addColumn("Death date", new DateOfDeathDataDefinition(), "");
-		dsd.addColumn("Age at Death", new AgeAtDeathDataDefinition(), "", null);
+		dsd.addColumn("Death date",
+		    new org.openmrs.module.kenyaemr.reporting.data.converter.definition.DateOfDeathDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathPatientDataDefinition(), "", null);
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		
 		dsd.addColumn("Marital Status", new KenyaEMRMaritalStatusDataDefinition(), "");
@@ -367,6 +369,51 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		
 		//Add columns here
+		PatientIdentifierType nupi = MetadataUtils.existing(PatientIdentifierType.class,
+		    CommonMetadata._PatientIdentifierType.NATIONAL_UNIQUE_PATIENT_IDENTIFIER);
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		DataDefinition nupiDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        nupi.getName(), nupi), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("NUPI", nupiDef, "");
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		dsd.addColumn("Date of Death", new MortalityDateDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathPatientDataDefinition(), "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "");
+		dsd.addColumn("Marital Status", new KenyaEMRMaritalStatusDataDefinition(), "");
+		dsd.addColumn("Pregnant or Breastfeeding", new PregnantOrBreastfeedingDataDefinition(), "");
+		dsd.addColumn("Occupation",
+		    new ObsForPersonDataDefinition("Occupation", TimeQualifier.LAST, Dictionary.getConcept(Dictionary.OCCUPATION),
+		            null, null), "", new ObsValueConverter());
+		dsd.addColumn("Primary Caregiver", new HeiPrimaryCareGiverDataDefinition(), "");
+		dsd.addColumn("HIV status of care giver", new PamaCareGiverStatusDataDefinition(), "");
+		dsd.addColumn("Education level of care giver", new HeiCareGiverEducationDataDefinition(), "");
+		dsd.addColumn("Occupation of care giver", new HeiCareGiverOccupationDataDefinition(), "");
+		
+		dsd.addColumn("Source of patient", new TbPatientSourceDataDefinition(), "");
+		dsd.addColumn("Primary method of TB diagnosis", new TbMethodOfDiagnosisDataDefinition(), "");
+		dsd.addColumn("Date of TB diagnosis", new TbDateOfDiagnosisDataDefinition(), "");
+		dsd.addColumn("Type of TB", new TbTypeDataDefinition(), "");
+		dsd.addColumn("Confirmed Drug Resistance", new TbTypeDataDefinition(), "");
+		dsd.addColumn("Initiated on anti-TB", new TbInitiatedOnDrugsDataDefinition(), "");
+		dsd.addColumn("Date Initiated on anti-TB", new TbDateInitiatedOnDrugsDataDefinition(), "");
+		dsd.addColumn("Diagnosis to anti-TB drug initiation duration", new TbDiagnosisToInitiationDurationDataDefinition(),
+		    "");
+		dsd.addColumn("Patient anti-TB Initiation regimen", new TbPatientInitiationRegimenDataDefinition(), "");
+		dsd.addColumn("Patient anti-TB Final regimen", new TbPatientFinalRegimenDataDefinition(), "");
+		dsd.addColumn("TB treatment outcome-status at death", new TbTreatmentOutcomeAtDeathDataDefinition(), "");
+		dsd.addColumn("HIV test done", new TbPatientHivTestDoneDataDefinition(), "");
+		dsd.addColumn("HIV test date", new TbPatientHivTestDateDataDefinition(), "");
+		dsd.addColumn("HIV test results", new TbPatientHivTestResultsDataDefinition(), "");
+		dsd.addColumn("Client enrolled in HIV care", new TbPatientEnrolledInHivCareDataDefinition(), "");
 		
 		DeceasedTBPatientCohortDefinition cd = new DeceasedTBPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -384,9 +431,6 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		
-		AgeAtDeathDataDefinition ageAtDeathDataDefinition = new AgeAtDeathDataDefinition();
-		ageAtDeathDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
 		//Add columns here
 		PatientIdentifierType nupi = MetadataUtils.existing(PatientIdentifierType.class,
 		    CommonMetadata._PatientIdentifierType.NATIONAL_UNIQUE_PATIENT_IDENTIFIER);
@@ -402,11 +446,12 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("NUPI", nupiDef, "");
 		dsd.addColumn("HEI Number", new HEIIdDataDefinition(), "");
 		dsd.addColumn("DOB", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-		dsd.addColumn("Date of Death", new HeiDateOfDeathDataDefinition(), "");
-		dsd.addColumn("Age at Death", ageAtDeathDataDefinition, "endDate=${endDate}");
+		dsd.addColumn("Date of Death", new MortalityDateDataDefinition(), "");
+		dsd.addColumn("Age at Death", new AgeAtDeathPatientDataDefinition(), "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "");
 		dsd.addColumn("Marital Status", new HeiMaritalStatusDataDefinition(), "");
 		dsd.addColumn("Primary Caregiver", new HeiPrimaryCareGiverDataDefinition(), "");
@@ -423,9 +468,33 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Nutritional Assessment Date", new HeiMotherLatestTriageDateDataDefinition(), "");
 		dsd.addColumn("Weight", new HeiMotherWeightDataDefinition(), "");
 		dsd.addColumn("Height", new HeiMotherHeightDataDefinition(), "");
-		
 		dsd.addColumn("Muac", new HeiMotherMuacDataDefinition(), "");
-		//dsd.addColumn("Recent VL Results", new HeiMotherMuacDataDefinition(), "");
+		
+		dsd.addColumn("Recent VL Results", new HeiMotherRecentViralLoadDataDefinition(), "");
+		dsd.addColumn("Recent VL Date", new HeiMotherRecentViralLoadDateDataDefinition(), "");
+		dsd.addColumn("VL Results at PMTCT enrollment", new HeiMotherVLAtMCHEnrollmentDataDefinition(), "");
+		dsd.addColumn("VL Results date at PMTCT enrollment", new HeiMotherVLDateAtMCHEnrollmentDataDefinition(), "");
+		dsd.addColumn("HIV Disclosure Status", new HeiMotherPwpDisclosureDataDefinition(), "");
+		dsd.addColumn("Adherence History", new HeiMotherAdherenceDataDefinition(), "");
+		
+		dsd.addColumn("HEI Enrollment Date", new HEIEnrollmentDateDataDefinition(), "");
+		dsd.addColumn("DOB", new MortalityDateDataDefinition(), "");
+		dsd.addColumn("Age at HEI enrollment", new MortalityDateDataDefinition(), "");
+		dsd.addColumn("Place of delivery", new HeiPlaceOfDeliveryDataDefinition(), "");
+		dsd.addColumn("Mode of Delivery", new HeiModeOfDeliveryDataDefinition(), "");
+		dsd.addColumn("Infant Feeding", new HeiInfantFeedingDataDefinition(), "");
+		dsd.addColumn("1st PCR Date", new HeiFirstPCRTestDateDataDefinition(), "");
+		dsd.addColumn("1st PCR Result", new HeiFirstPCRTestResultDataDefinition(), "");
+		dsd.addColumn("2nd PCR Date", new HeiSecondPCRTestDateDataDefinition(), "");
+		dsd.addColumn("2nd PCR Result", new HeiSecondPCRTestResultDataDefinition(), "");
+		dsd.addColumn("3rd PCR Date", new HeiThirdPCRTestDateDataDefinition(), "");
+		dsd.addColumn("3rd PCR Result", new HeiThirdPCRTestResultDataDefinition(), "");
+		dsd.addColumn("Final AB Test Date", new HeiFinalAntibodyTestDateDataDefinition(), "");
+		dsd.addColumn("Final AB Test Result", new HeiFinalAntibodyTestResultDataDefinition(), "");
+		dsd.addColumn("Infant Prophylaxis", new HeiInfantProphylaxisDataDefinition(), "");
+		dsd.addColumn("Immunization Status", new HeiImmunizationStatusDataDefinition(), "");
+		dsd.addColumn("Growth and Nutritional Assessment", new HeiNutritionalAssessmentDataDefinition(), "");
+		dsd.addColumn("Developmental Assessment", new HeiDevelopmentalAssessmentDataDefinition(), "");
 		
 		DeceasedHEICohortDefinition cd = new DeceasedHEICohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
