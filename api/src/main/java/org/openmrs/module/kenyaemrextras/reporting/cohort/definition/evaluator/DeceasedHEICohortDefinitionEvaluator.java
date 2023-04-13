@@ -73,10 +73,10 @@ public class DeceasedHEICohortDefinitionEvaluator implements CohortDefinitionEva
 		        + "             having tb_screening_status = 1662\n"
 		        + "                    or started_tb_treatment != 1065\n"
 		        + "                       and tb_status_date between date(:startDate) and date(:endDate)) s on d.patient_id = s.patient_id\n"
-		        + "where coalesce(date(d.effective_discontinuation_date), date(d.visit_date)) between date(:startDate) and date(:endDate)\n"
+		        + "where coalesce(date(d.date_died),date(d.effective_discontinuation_date), date(d.visit_date)) between date(:startDate) and date(:endDate)\n"
 		        + "      and d.program_name in ('MCH Child HEI','MCH Child') and d.discontinuation_reason = 160432\n"
 		        + "      and ((tb.tb_patient is null or date(tb.tb_enrollment_date) < date(tb.tb_disc_date) or\n"
-		        + "            timestampdiff(MONTH, date(tb.tb_enrollment_date),coalesce(date(d.effective_discontinuation_date),date(d.visit_date))) > 10) and s.patient_id is null\n"
+		        + "            timestampdiff(MONTH, date(tb.tb_enrollment_date),coalesce(date(d.date_died),date(d.effective_discontinuation_date),date(d.visit_date))) > 10) and s.patient_id is null\n"
 		        + "      )\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
