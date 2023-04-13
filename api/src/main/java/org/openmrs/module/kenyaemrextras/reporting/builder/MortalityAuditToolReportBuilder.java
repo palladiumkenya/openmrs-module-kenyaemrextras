@@ -33,7 +33,6 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHEI
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivAndTBPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedTBPatientCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.common.TimeQualifier;
@@ -72,8 +71,8 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
-		return Arrays.asList(ReportUtils.map(hivDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(heiDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		return Arrays.asList(ReportUtils.map(heiDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(hivDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(hivAndTBDataSetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(tbDatasetDefinitionColumns(), "startDate=${startDate},endDate=${endDate}"));
 	}
@@ -146,16 +145,6 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("CTX/Dapsone given", new CTXDapsoneDispensedDataDefinition(), "");
 		dsd.addColumn("CRAG test done for adolescents and adults with < 200 cd4", new CrAgTestDoneDataDefinition(), "");
 		dsd.addColumn("CRAG test results", new CrAgTestResultDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture done", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture results", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture treated", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Antifungal regimen given", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Treatment completed until CD4 recovery", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Pre-emptive treatment with fluconazole given", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB LAM done for those with CD4 <200", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB screening done", new TBScreeningDoneDataDefinition(), "");
-		//dsd.addColumn("Type of TB", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB Treatment given", new KenyaEMRMaritalStatusDataDefinition(), "");
 		dsd.addColumn("Is there a more recent CD4 count", new CD4RecencyDataDefinition(), "");
 		dsd.addColumn("Date of most recent CD4 count", new RecentCD4DateDataDefinition(), "");
 		ValidVLDataDefinition validVLDataDefinition = new ValidVLDataDefinition();
@@ -287,16 +276,6 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("CTX/Dapsone given", new CTXDapsoneDispensedDataDefinition(), "");
 		dsd.addColumn("CRAG test done for adolescents and adults with < 200 cd4", new CrAgTestDoneDataDefinition(), "");
 		dsd.addColumn("CRAG test results", new CrAgTestResultDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture done", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture results", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Lumbar puncture treated", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Antifungal regimen given", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Treatment completed until CD4 recovery", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("Pre-emptive treatment with fluconazole given", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB LAM done for those with CD4 <200", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB screening done", new TBScreeningDoneDataDefinition(), "");
-		//dsd.addColumn("Type of TB", new KenyaEMRMaritalStatusDataDefinition(), "");
-		//dsd.addColumn("TB Treatment given", new KenyaEMRMaritalStatusDataDefinition(), "");
 		dsd.addColumn("Is there a more recent CD4 count", new CD4RecencyDataDefinition(), "");
 		dsd.addColumn("Date of most recent CD4 count", new RecentCD4DateDataDefinition(), "");
 		ValidVLDataDefinition validVLDataDefinition = new ValidVLDataDefinition();
@@ -333,6 +312,12 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
 		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
 		    new PresumtiveTBDataDefinition(), "");
+		DiagnosedTBWithin12MonthsToDeathDataDefinition diagnosedTBWithin12MonthsToDeathDataDefinition = new DiagnosedTBWithin12MonthsToDeathDataDefinition();
+		diagnosedTBWithin12MonthsToDeathDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		diagnosedTBWithin12MonthsToDeathDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Diagnosed with TB in the last 12 months prior to death",
+		    diagnosedTBWithin12MonthsToDeathDataDefinition, paramMapping, null);
+		dsd.addColumn("Type of TB Diagnosed in the last 12 months prior to death", new TbTypeDataDefinition(), "");
 		dsd.addColumn("Adhered to clinic appointments for HIV medication", new AdheredToClinicAppointmentsDataDefinition(),
 		    "");
 		dsd.addColumn("Clinic appointments synchronized with caregiver's",
@@ -351,6 +336,25 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("TB investigations done", tbInvestigationsDoneDataDefinition, paramMapping, null);
+		dsd.addColumn("Source of patient", new TbPatientSourceDataDefinition(), "");
+		dsd.addColumn("Primary method of TB diagnosis", new TbMethodOfDiagnosisDataDefinition(), "");
+		dsd.addColumn("Date of TB diagnosis", new TbDateOfDiagnosisDataDefinition(), "");
+		dsd.addColumn("Type of TB", new TbTypeDataDefinition(), "");
+		TBPatientTypeDataDefinition tbPatientTypeDataDefinition = new TBPatientTypeDataDefinition();
+		tbPatientTypeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		tbPatientTypeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB patient Type", tbPatientTypeDataDefinition, paramMapping, null);
+		dsd.addColumn("Initiated on anti-TB", new TbInitiatedOnDrugsDataDefinition(), "");
+		dsd.addColumn("Date Initiated on anti-TB", new TbDateInitiatedOnDrugsDataDefinition(), "");
+		dsd.addColumn("Diagnosis to anti-TB drug initiation duration", new TbDiagnosisToInitiationDurationDataDefinition(),
+		    "");
+		dsd.addColumn("Patient anti-TB Initiation regimen", new TbPatientInitiationRegimenDataDefinition(), "");
+		dsd.addColumn("Patient anti-TB Final regimen", new TbPatientFinalRegimenDataDefinition(), "");
+		dsd.addColumn("TB treatment outcome-status at death", new TbTreatmentOutcomeAtDeathDataDefinition(), "");
+		dsd.addColumn("HIV test done", new TbPatientHivTestDoneDataDefinition(), "");
+		dsd.addColumn("HIV test date", new TbPatientHivTestDateDataDefinition(), "");
+		dsd.addColumn("HIV test results", new TbPatientHivTestResultsDataDefinition(), "");
+		dsd.addColumn("Client enrolled in HIV care", new TbPatientEnrolledInHivCareDataDefinition(), "");
 		
 		DeceasedHivAndTBPatientCohortDefinition cd = new DeceasedHivAndTBPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -402,7 +406,7 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Primary method of TB diagnosis", new TbMethodOfDiagnosisDataDefinition(), "");
 		dsd.addColumn("Date of TB diagnosis", new TbDateOfDiagnosisDataDefinition(), "");
 		dsd.addColumn("Type of TB", new TbTypeDataDefinition(), "");
-		dsd.addColumn("Confirmed Drug Resistance", new TbTypeDataDefinition(), "");
+		//dsd.addColumn("Confirmed Drug Resistance", new TbTypeDataDefinition(), "");
 		dsd.addColumn("Initiated on anti-TB", new TbInitiatedOnDrugsDataDefinition(), "");
 		dsd.addColumn("Date Initiated on anti-TB", new TbDateInitiatedOnDrugsDataDefinition(), "");
 		dsd.addColumn("Diagnosis to anti-TB drug initiation duration", new TbDiagnosisToInitiationDurationDataDefinition(),
