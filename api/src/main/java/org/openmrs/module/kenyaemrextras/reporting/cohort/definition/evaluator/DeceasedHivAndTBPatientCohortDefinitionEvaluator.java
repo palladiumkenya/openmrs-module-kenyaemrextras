@@ -74,6 +74,13 @@ public class DeceasedHivAndTBPatientCohortDefinitionEvaluator implements CohortD
 		        + "                    having (tb_screening_status = 1662\n"
 		        + "                        or started_tb_treatment = 1065)\n"
 		        + "                       and tb_status_date between date(:startDate) and date(:endDate)) s on d.patient_id = s.patient_id\n"
+		        + "         left join (select l.patient_id,\n"
+		        + "                           coalesce(max(l.date_test_requested), max(l.visit_date)) as tb_test_date,\n"
+		        + "                           mid(max(concat(coalesce(l.date_test_requested, l.visit_date), l.test_result)),\n"
+		        + "                               11)                                                 as latest_tb_lab_results\n"
+		        + "                    from kenyaemr_etl.etl_laboratory_extract l\n"
+		        + "                    where l.lab_test in (162202, 307, 1465)\n"
+		        + "                    group by l.patient_id) l on d.patient_id = l.patient_id\n"
 		        + "where coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date)) between\n"
 		        + "    date(:startDate) and date(:endDate)\n"
 		        + "  and d.discontinuation_reason = 160034\n"
@@ -83,7 +90,13 @@ public class DeceasedHivAndTBPatientCohortDefinitionEvaluator implements CohortD
 		        + "                                                                                            date(d.effective_discontinuation_date),\n"
 		        + "                                                                                            date(d.visit_date)) <=\n"
 		        + "                                                                                   10) or tb_disc_date is null)\n"
-		        + "    ) or s.patient_id is not null\n" + "    )\n" + "group by d.patient_id;";
+		        + "    ) or s.patient_id is not null\n"
+		        + "    or ((l.latest_tb_lab_results in (703, 162203, 162204, 164104) and timestampdiff(MONTH, l.tb_test_date,\n"
+		        + "                                                                                    coalesce(date(d.date_died),\n"
+		        + "                                                                                             date(d.effective_discontinuation_date),\n"
+		        + "                                                                                             date(d.visit_date))) <=\n"
+		        + "                                                                      10)\n" + "           ))\n"
+		        + "group by d.patient_id;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
