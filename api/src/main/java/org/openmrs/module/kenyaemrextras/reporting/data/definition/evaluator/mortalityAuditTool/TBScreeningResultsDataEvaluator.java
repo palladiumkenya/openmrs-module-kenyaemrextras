@@ -46,7 +46,7 @@ public class TBScreeningResultsDataEvaluator implements PersonDataEvaluator {
 		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.resulting_tb_status, 0))), 11) as tb_results,\n"
 		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.person_present, 0))), 11)      as person_present\n"
 		        + "      from kenyaemr_etl.etl_tb_screening tb\n" + "      group by tb.patient_id) a\n"
-		        + "where a.person_present = 978 and a.max_visit >= date(:startDate);";
+		        + "where a.person_present != 161642;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
 		Date endDate = (Date) context.getParameterValue("endDate");

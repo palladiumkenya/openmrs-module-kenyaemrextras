@@ -35,16 +35,22 @@ public class PresumptiveTBDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, if(timestampdiff(MONTH, date(a.tb_status_date), date(a.death_date)) <= 12, 'Yes', 'No') as had_presumptive_TB\n"
+		String qry = "select a.patient_id,\n"
+		        + "       if(a.tb_scr_patient is not null and timestampdiff(MONTH, date(a.tb_status_date), date(a.death_date)) <= 12,\n"
+		        + "          'Yes', 'No') as had_presumptive_TB\n"
 		        + "from (select d.patient_id,\n"
+		        + "             s.patient_id as              tb_scr_patient,\n"
 		        + "             date(coalesce(d.date_died, d.effective_discontinuation_date,\n"
 		        + "                           d.visit_date)) death_date,\n"
 		        + "             s.tb_status_date\n"
 		        + "      from kenyaemr_etl.etl_patient_program_discontinuation d\n"
 		        + "               left join\n"
-		        + "           (select s.patient_id, s.resulting_tb_status, s.visit_date as tb_status_date\n"
+		        + "           (select s.patient_id,\n"
+		        + "                   mid(max(concat(date(s.visit_date), ifnull(s.resulting_tb_status, 0))), 11) as resulting_tb_status,\n"
+		        + "                   max(s.visit_date)                                                          as tb_status_date\n"
 		        + "            from kenyaemr_etl.etl_tb_screening s\n"
-		        + "            where s.resulting_tb_status = 142177) s on d.patient_id = s.patient_id\n"
+		        + "            where s.resulting_tb_status = 142177\n" + "              and s.person_present != 161642\n"
+		        + "            group by s.patient_id) s on d.patient_id = s.patient_id\n"
 		        + "      where d.discontinuation_reason = 160034) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();

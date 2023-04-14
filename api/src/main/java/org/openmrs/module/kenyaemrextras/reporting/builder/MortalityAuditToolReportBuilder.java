@@ -181,6 +181,8 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
 		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
 		    new PresumtiveTBDataDefinition(), "");
+		dsd.addColumn("TB investigations done following Presumptive TB",
+		    new TBInvestigationsDoneAfterPresumedTBDataDefinition(), "");
 		dsd.addColumn("Adhered to clinic appointments for HIV medication", new AdheredToClinicAppointmentsDataDefinition(),
 		    "");
 		dsd.addColumn("Clinic appointments synchronized with caregiver's",
@@ -191,14 +193,8 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		tbScreeningDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tbScreeningDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Screened for TB in the last visit", tbScreeningDoneDataDefinition, paramMapping, null);
-		TBScreeningResultsDataDefinition tbScreeningResultsDataDefinition = new TBScreeningResultsDataDefinition();
-		tbScreeningResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbScreeningResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("TB screening results", tbScreeningResultsDataDefinition, paramMapping, null);
-		TBInvestigationsDoneDataDefinition tbInvestigationsDoneDataDefinition = new TBInvestigationsDoneDataDefinition();
-		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("TB investigations done", tbInvestigationsDoneDataDefinition, paramMapping, null);
+		dsd.addColumn("TB screening results", new TBScreeningResultsDataDefinition(), "");
+		dsd.addColumn("TB investigations done", new TBInvestigationsDoneDataDefinition(), "");
 		
 		DeceasedHivPatientCohortDefinition cd = new DeceasedHivPatientCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -312,11 +308,10 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("TPT Completion date", new IPTCompletionDateDataDefinition(), "");
 		dsd.addColumn("Ever diagnosed with presumptive TB in the last 12 months prior to death",
 		    new PresumtiveTBDataDefinition(), "");
-		DiagnosedTBWithin12MonthsToDeathDataDefinition diagnosedTBWithin12MonthsToDeathDataDefinition = new DiagnosedTBWithin12MonthsToDeathDataDefinition();
-		diagnosedTBWithin12MonthsToDeathDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		diagnosedTBWithin12MonthsToDeathDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("TB investigations done following Presumptive TB",
+		    new TBInvestigationsDoneAfterPresumedTBDataDefinition(), "");
 		dsd.addColumn("Diagnosed with TB in the last 12 months prior to death",
-		    diagnosedTBWithin12MonthsToDeathDataDefinition, paramMapping, null);
+		    new DiagnosedTBWithin12MonthsToDeathDataDefinition(), "");
 		dsd.addColumn("Type of TB Diagnosed in the last 12 months prior to death", new TbTypeDataDefinition(), "");
 		dsd.addColumn("Adhered to clinic appointments for HIV medication", new AdheredToClinicAppointmentsDataDefinition(),
 		    "");
@@ -324,18 +319,9 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		    new ClinicAppointmentsSyncWithCareGiversDataDefinition(), "");
 		dsd.addColumn("Honoured last clinic appointment", new HonouredLastAppointmentDataDefinition(), "");
 		dsd.addColumn("Morisky Medication Adherence (MMAS-4)", new MoriskyMedicationAdherenceDataDefinition(), "");
-		TBScreeningDoneDataDefinition tbScreeningDoneDataDefinition = new TBScreeningDoneDataDefinition();
-		tbScreeningDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbScreeningDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Screened for TB in the last visit", tbScreeningDoneDataDefinition, paramMapping, null);
-		TBScreeningResultsDataDefinition tbScreeningResultsDataDefinition = new TBScreeningResultsDataDefinition();
-		tbScreeningResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbScreeningResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("TB screening results", tbScreeningResultsDataDefinition, paramMapping, null);
-		TBInvestigationsDoneDataDefinition tbInvestigationsDoneDataDefinition = new TBInvestigationsDoneDataDefinition();
-		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbInvestigationsDoneDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("TB investigations done", tbInvestigationsDoneDataDefinition, paramMapping, null);
+		dsd.addColumn("Screened for TB in the last visit", new TBScreeningDoneDataDefinition(), "");
+		dsd.addColumn("TB screening results", new TBScreeningResultsDataDefinition(), "");
+		dsd.addColumn("TB investigations done", new TBInvestigationsDoneDataDefinition(), "");
 		dsd.addColumn("Source of patient", new TbPatientSourceDataDefinition(), "");
 		dsd.addColumn("Primary method of TB diagnosis", new TbMethodOfDiagnosisDataDefinition(), "");
 		dsd.addColumn("Date of TB diagnosis", new TbDateOfDiagnosisDataDefinition(), "");
