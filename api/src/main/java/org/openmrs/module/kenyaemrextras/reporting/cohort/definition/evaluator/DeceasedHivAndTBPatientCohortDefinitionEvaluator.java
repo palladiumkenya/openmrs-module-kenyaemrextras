@@ -91,7 +91,7 @@ public class DeceasedHivAndTBPatientCohortDefinitionEvaluator implements CohortD
 		        + "                                                                                            date(d.visit_date)) <=\n"
 		        + "                                                                                   10) or tb_disc_date is null)\n"
 		        + "    ) or s.patient_id is not null\n"
-		        + "    or ((l.latest_tb_lab_results in (703, 162203, 162204, 164104) and timestampdiff(MONTH, l.tb_test_date,\n"
+		        + "    or ((l.latest_tb_lab_results in (703, 162203, 162204, 164104, 1362, 1363, 1364,159985) and timestampdiff(MONTH, l.tb_test_date,\n"
 		        + "                                                                                    coalesce(date(d.date_died),\n"
 		        + "                                                                                             date(d.effective_discontinuation_date),\n"
 		        + "                                                                                             date(d.visit_date))) <=\n"

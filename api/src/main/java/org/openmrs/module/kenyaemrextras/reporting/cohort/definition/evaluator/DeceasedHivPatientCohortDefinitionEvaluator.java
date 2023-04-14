@@ -91,7 +91,7 @@ public class DeceasedHivPatientCohortDefinitionEvaluator implements CohortDefini
 		        + "                      coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date))) > 10) and\n"
 		        + "       s.patient_id is null\n"
 		        + "    )\n"
-		        + "  and ((l.latest_tb_lab_results not in (703, 162203, 162204, 164104) and timestampdiff(MONTH, l.tb_test_date,\n"
+		        + "  and ((l.latest_tb_lab_results not in (703, 162203, 162204, 164104, 1362, 1363, 1364,159985) and timestampdiff(MONTH, l.tb_test_date,\n"
 		        + "                                                                                       coalesce(date(d.date_died),\n"
 		        + "                                                                                                date(d.effective_discontinuation_date),\n"
 		        + "                                                                                                date(d.visit_date))) <=\n"
