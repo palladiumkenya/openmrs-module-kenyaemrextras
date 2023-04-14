@@ -36,7 +36,7 @@ public class BaselineCD4DoneDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select e.patient_id, if(l.patient_id is not null,'Yes','No') from kenyaemr_etl.etl_hiv_enrollment e left join\n"
+		String qry = "select e.patient_id, if(l.patient_id is not null,'Done','Not done') from kenyaemr_etl.etl_hiv_enrollment e left join\n"
 		        + "(select patient_id,\n"
 		        + "       mid(min(concat(coalesce(date(date_test_requested),date(visit_date)),\n"
 		        + "                      if(lab_test = 5497, test_result, if(lab_test = 167718 and test_result = 1254, '>200', if(lab_test = 167718 and test_result = 167717,'<=200',if(lab_test = 730,concat(test_result,'%'),'')))), '')),\n"

@@ -36,14 +36,15 @@ public class TbTypeDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select en.patient_id,\n"
-		        + "  (case disease_classification when 42 then \"Pulmonary TB\"\n"
-		        + "                               when 5042 then \"Extra-Pulmonary TB\" else \"\" end) as tb_type\n"
-		        + "from  kenyaemr_etl.etl_tb_enrollment en\n"
-		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = en.patient_id\n"
-		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = en.patient_id\n"
-		        + "                                                                      and  disc.discontinuation_reason in (160432,160034)\n"
-		        + "group by en.patient_id;";
+		String qry = "select en.patient_id,\n" +
+				"       (case mid(max(concat(date(en.visit_date),en.disease_classification)),11)\n" +
+				"            when 42 then \"Pulmonary TB\"\n" +
+				"            when 5042 then \"Extra-Pulmonary TB\" else \"\" end) as tb_type\n" +
+				"           from kenyaemr_etl.etl_tb_enrollment en\n" +
+				"           inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = en.patient_id\n" +
+				"           inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = en.patient_id\n" +
+				"           and disc.discontinuation_reason in (160432,160034)\n" +
+				"           group by en.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
