@@ -52,7 +52,6 @@ public class DeceasedTBPatientCohortDefinitionEvaluator implements CohortDefinit
 		        + "from kenyaemr_etl.etl_patient_program_discontinuation d\n"
 		        + "  inner join kenyaemr_etl.etl_patient_demographics m on d.patient_id = m.patient_id\n"
 		        + "  left join kenyaemr_etl.etl_hiv_enrollment e on d.patient_id = e.patient_id\n"
-		        + "  left join kenyaemr_etl.etl_hts_test t on d.patient_id = t.patient_id and t.final_test_result = 'Negative'\n"
 		        + "  left join (select t.patient_id      as tb_patient,\n"
 		        + "                    max(t.visit_date) as tb_enrollment_date,\n"
 		        + "                    d.patient_id      as disc_tb,\n"
@@ -76,12 +75,12 @@ public class DeceasedTBPatientCohortDefinitionEvaluator implements CohortDefinit
 		        + "                    or started_tb_treatment != 1065\n"
 		        + "                       and tb_status_date between date(:startDate) and date(:endDate)) s on d.patient_id = s.patient_id\n"
 		        + "where coalesce(date(d.effective_discontinuation_date), date(d.visit_date), date(d.date_died)) between date(:startDate) and date(:endDate)\n"
-		        + "      and d.discontinuation_reason = 160034\n"
+		        + "      and d.discontinuation_reason = 160034 and d.program_name = 'TB'\n"
 		        + "      and e.patient_id is null\n"
 		        + "      and (\n"
 		        + "        (tb.tb_patient is not null\n"
 		        + "         and timestampdiff(MONTH, tb.tb_enrollment_date,coalesce(date(d.effective_discontinuation_date),date(d.visit_date))) < 10)\n"
-		        + "        or (s.patient_id is not null or t.patient_id is not null))\n" + "group by d.patient_id;";
+		        + "        or (s.patient_id is not null))\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
