@@ -62,7 +62,6 @@ public class DiagnosedTBWithin12MonthsToDeathDataEvaluator implements PersonData
 		        + "                                    left(max(concat(l.visit_date, l.lab_test)), 10)) as tb_test_date\n"
 		        + "                    from kenyaemr_etl.etl_laboratory_extract l\n"
 		        + "                    where l.lab_test in (162202, 307, 1465)\n"
-		        + "                      and l.visit_date >= date(:startDate)\n"
 		        + "                    group by l.patient_id) l\n" + "                   on d.patient_id = l.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

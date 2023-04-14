@@ -46,9 +46,9 @@ public class VLDateForCaregiverDataEvaluator implements PersonDataEvaluator {
 		        + "             fr1.child_last_visit,\n"
 		        + "             fr1.child_next_appointment_date\n"
 		        + "      from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "               left join (select r.person_a              as care_giver,\n"
+		        + "               left join (select r.person_a              as child,\n"
 		        + "                                 f.patient_id,\n"
-		        + "                                 r.person_b              as child,\n"
+		        + "                                 r.person_b              as care_giver,\n"
 		        + "                                 f.latest_visit          as caregiver_last_visit,\n"
 		        + "                                 f.next_appointment_date as caregiver_next_appointment_date\n"
 		        + "                          from openmrs.relationship r\n"
@@ -93,7 +93,7 @@ public class VLDateForCaregiverDataEvaluator implements PersonDataEvaluator {
 		        + "                                    '')                        as vl_result_date\n"
 		        + "                          from kenyaemr_etl.etl_laboratory_extract x\n"
 		        + "                          where x.lab_test in (1305, 856)             group by x.patient_id) lab on fr.care_giver = lab.patient_id\n"
-		        + "      where fr.care_giver is not null\n" + "         or fr1.child is not null) a;";
+		        + "      where fr.care_giver is not null          or fr1.child is not null) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
