@@ -36,18 +36,18 @@ public class TbTreatmentOutcomeAtDeathDataEvaluator implements PersonDataEvaluat
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id,\n" +
-				"  if(date(tf.tb_last_visit_date) < date(tf.tb_last_tca),'Defaulted', if(en.patient_id is null,'Uknown','Active on treatment'))\n" +
-				"from kenyaemr_etl.etl_patient_program_discontinuation disc\n" +
-				"  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = disc.patient_id\n" +
-				"  left join kenyaemr_etl.etl_tb_enrollment en on d.patient_id = en.patient_id\n" +
-				"  left join (select t.patient_id      as tb_patient,\n" +
-				"                    max(t.visit_date)  as tb_last_visit_date,\n" +
-				"                    mid(max(concat(t.visit_date, t.next_appointment_date)), 11) as tb_last_tca\n" +
-				"             from kenyaemr_etl.etl_tb_follow_up_visit t\n" +
-				"             group by t.patient_id) tf on d.patient_id = tf.tb_patient\n" +
-				"  where date(tf.tb_last_tca) < coalesce(date(disc.date_died),date(disc.effective_discontinuation_date),date(disc.visit_date))\n" +
-				" group by disc.patient_id;";
+		String qry = "select d.patient_id,\n"
+		        + "  if(date(tf.tb_last_visit_date) < date(tf.tb_last_tca),'Defaulted', if(en.patient_id is null,'Unknown','Active on treatment'))\n"
+		        + "from kenyaemr_etl.etl_patient_program_discontinuation disc\n"
+		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = disc.patient_id\n"
+		        + "  left join kenyaemr_etl.etl_tb_enrollment en on d.patient_id = en.patient_id\n"
+		        + "  left join (select t.patient_id      as tb_patient,\n"
+		        + "                    max(t.visit_date)  as tb_last_visit_date,\n"
+		        + "                    mid(max(concat(t.visit_date, t.next_appointment_date)), 11) as tb_last_tca\n"
+		        + "             from kenyaemr_etl.etl_tb_follow_up_visit t\n"
+		        + "             group by t.patient_id) tf on d.patient_id = tf.tb_patient\n"
+		        + "  where date(tf.tb_last_tca) < coalesce(date(disc.date_died),date(disc.effective_discontinuation_date),date(disc.visit_date))\n"
+		        + " group by disc.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);
