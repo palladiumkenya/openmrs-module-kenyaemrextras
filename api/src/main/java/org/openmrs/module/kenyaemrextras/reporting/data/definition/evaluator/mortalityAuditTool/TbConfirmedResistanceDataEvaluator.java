@@ -36,15 +36,18 @@ public class TbConfirmedResistanceDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select tb.patient_id,\n"
-		        + "  (case genexpert_result when 162203 then \"Yes\"\n"
-		        + "                         when 162204 then \"No\"\n"
-		        + "                         when 164104 then \"No\"  else \"\" end) as confirmed_resistance\n"
-		        + "from  kenyaemr_etl.etl_tb_screening tb\n"
-		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = tb.patient_id\n"
-		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = tb.patient_id\n"
+		String qry = "select d.patient_id,\n"
+		        + "  if(tf.resistant_s = 84360,'Yes',\n"
+		        + "    if(tf.resistant_r = 767,'Yes',\n"
+		        + "      if(tf.resistant_inh = 78280, 'Yes',\n"
+		        + "        if(tf.resistant_e = 75948, 'Yes',\n"
+		        + "          if(ts.genexpert_result = 162203, 'Yes','NO')))))   as confirmed_resistance\n"
+		        + "from  kenyaemr_etl.etl_patient_demographics  d\n"
+		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = d.patient_id\n"
 		        + "                                                                      and  disc.discontinuation_reason in (160432,160034)\n"
-		        + "where tb.genexpert_result in (162203,162204,164104)\n" + "group by tb.patient_id;";
+		        + "  left join kenyaemr_etl.etl_tb_screening ts on d.patient_id = ts.patient_id\n"
+		        + "  left join kenyaemr_etl.etl_tb_follow_up_visit tf on d.patient_id = tf.patient_id\n"
+		        + "group by d.patient_id;\n";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);

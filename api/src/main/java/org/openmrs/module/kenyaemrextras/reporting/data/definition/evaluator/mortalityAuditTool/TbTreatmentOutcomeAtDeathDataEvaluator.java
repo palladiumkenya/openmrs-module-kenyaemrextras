@@ -36,17 +36,18 @@ public class TbTreatmentOutcomeAtDeathDataEvaluator implements PersonDataEvaluat
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id,\n" + "  (case discontinuation_reason when 160031 then 'Defaulted'\n"
-		        + "                                 when 160737 then 'Active on treatment'\n"
-		        + "                                 when 160035 then 'Treatment Completed(no smear result)'\n"
-		        + "                                 when 159791 then 'Cured(Smear- Negative)'\n"
-		        + "                                 when 159874 then 'Failure(Smear- Positive)'\n"
-		        + "                                 when 160034 then 'Dead'\n"
-		        + "                                 when 5240 then 'Lost to followup'\n"
-		        + "                                 when 159492 then 'Transferred Out' else '' end) as treatment_outcome\n"
+		String qry = "select d.patient_id,\n"
+		        + "  if(date(tf.tb_last_visit_date) < date(tf.tb_last_tca),'Defaulted', if(en.patient_id is null,'Unknown','Active on treatment'))\n"
 		        + "from kenyaemr_etl.etl_patient_program_discontinuation disc\n"
 		        + "  inner join kenyaemr_etl.etl_patient_demographics d on d.patient_id = disc.patient_id\n"
-		        + "group by disc.patient_id;";
+		        + "  left join kenyaemr_etl.etl_tb_enrollment en on d.patient_id = en.patient_id\n"
+		        + "  left join (select t.patient_id      as tb_patient,\n"
+		        + "                    max(t.visit_date)  as tb_last_visit_date,\n"
+		        + "                    mid(max(concat(t.visit_date, t.next_appointment_date)), 11) as tb_last_tca\n"
+		        + "             from kenyaemr_etl.etl_tb_follow_up_visit t\n"
+		        + "             group by t.patient_id) tf on d.patient_id = tf.tb_patient\n"
+		        + "  where date(tf.tb_last_tca) < coalesce(date(disc.date_died),date(disc.effective_discontinuation_date),date(disc.visit_date))\n"
+		        + " group by disc.patient_id;";
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		queryBuilder.append(qry);
 		Map<Integer, Object> data = evaluationService.evaluateToMap(queryBuilder, Integer.class, Object.class, context);

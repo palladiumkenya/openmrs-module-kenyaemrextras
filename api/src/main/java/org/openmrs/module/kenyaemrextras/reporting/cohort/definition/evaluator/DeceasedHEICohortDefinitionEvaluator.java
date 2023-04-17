@@ -48,59 +48,58 @@ public class DeceasedHEICohortDefinitionEvaluator implements CohortDefinitionEva
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = "select d.patient_id\n" +
-				"from kenyaemr_etl.etl_patient_program_discontinuation d\n" +
-				"         inner join kenyaemr_etl.etl_patient_demographics m on d.patient_id = m.patient_id\n" +
-				"         inner join kenyaemr_etl.etl_hei_enrollment e on d.patient_id = e.patient_id\n" +
-				"    left join kenyaemr_etl.etl_hiv_enrollment hv on d.patient_id = hv.patient_id\n" +
-				"         left join (select t.patient_id            as tb_patient,\n" +
-				"                           max(date(t.visit_date)) as tb_enrollment_date,\n" +
-				"                           d.patient_id            as disc_tb,\n" +
-				"                           date(d.disc_date)       as tb_disc_date\n" +
-				"                    from kenyaemr_etl.etl_tb_enrollment t\n" +
-				"                             left join (select d.patient_id,\n" +
-				"                                               coalesce(max(date(d.effective_discontinuation_date)),\n" +
-				"                                                        max(date(d.visit_date))) as disc_date\n" +
-				"                                        from kenyaemr_etl.etl_patient_program_discontinuation d\n" +
-				"                                        where d.program_name = 'TB'\n" +
-				"                                        group by d.patient_id) d on t.patient_id = d.patient_id\n" +
-				"                    group by t.patient_id) tb on d.patient_id = tb.tb_patient\n" +
-				"         left join (select s.patient_id,\n" +
-				"                           left(max(concat(date(s.visit_date), s.resulting_tb_status)), 10) as tb_status_date,\n" +
-				"                           mid(max(concat(date(s.visit_date), s.resulting_tb_status)), 11)  as tb_screening_status,\n" +
-				"                           mid(max(concat(date(s.visit_date), s.started_anti_TB)), 11)      as started_tb_treatment\n" +
-				"                    from kenyaemr_etl.etl_tb_screening s\n" +
-				"                    group by s.patient_id\n" +
-				"                    having tb_screening_status = 1662\n" +
-				"                        or started_tb_treatment != 1065\n" +
-				"                        and tb_status_date between date(:startDate) and date(:endDate)) s on d.patient_id = s.patient_id\n" +
-				"         left join (select l.patient_id,\n" +
-				"                           coalesce(max(l.date_test_requested), max(l.visit_date)) as tb_test_date,\n" +
-				"                           mid(max(concat(coalesce(l.date_test_requested, l.visit_date), l.test_result)),\n" +
-				"                               11)                                                 as latest_tb_lab_results\n" +
-				"                    from kenyaemr_etl.etl_laboratory_extract l\n" +
-				"                    where l.lab_test in (162202, 307, 1465)\n" +
-				"                    group by l.patient_id) l on d.patient_id = l.patient_id\n" +
-				"where coalesce(date(d.date_died), date(d.effective_discontinuation_date),\n" +
-				"               date(d.visit_date)) between date(:startDate) and date(:endDate)\n" +
-				"  and d.program_name in ('MCH Child HEI', 'MCH Child')\n" +
-				"  and d.discontinuation_reason = 160432\n" +
-				"  and ((tb.tb_patient is null or date(tb.tb_enrollment_date) < date(tb.tb_disc_date) or\n" +
-				"        timestampdiff(MONTH, date(tb.tb_enrollment_date),\n" +
-				"                      coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date))) > 10) and\n" +
-				"       s.patient_id is null\n" +
-				"    )\n" +
-				"  and hv.patient_id is null\n" +
-				"  and ((l.latest_tb_lab_results not in (703, 162203, 162204, 164104, 1362, 1363, 1364, 159985) and\n" +
-				"        timestampdiff(MONTH, l.tb_test_date,\n" +
-				"                      coalesce(date(d.date_died),\n" +
-				"                               date(d.effective_discontinuation_date),\n" +
-				"                               date(d.visit_date))) <=\n" +
-				"        10)\n" +
-				"    or timestampdiff(MONTH, l.tb_test_date,\n" +
-				"                     coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date))) > 10\n" +
-				"    or l.patient_id is null)\n" +
-				"group by d.patient_id;";
+		String qry = "select d.patient_id\n"
+		        + "from kenyaemr_etl.etl_patient_program_discontinuation d\n"
+		        + "         inner join kenyaemr_etl.etl_patient_demographics m on d.patient_id = m.patient_id\n"
+		        + "         inner join kenyaemr_etl.etl_hei_enrollment e on d.patient_id = e.patient_id\n"
+		        + "    left join kenyaemr_etl.etl_hiv_enrollment hv on d.patient_id = hv.patient_id\n"
+		        + "         left join (select t.patient_id            as tb_patient,\n"
+		        + "                           max(date(t.visit_date)) as tb_enrollment_date,\n"
+		        + "                           d.patient_id            as disc_tb,\n"
+		        + "                           date(d.disc_date)       as tb_disc_date\n"
+		        + "                    from kenyaemr_etl.etl_tb_enrollment t\n"
+		        + "                             left join (select d.patient_id,\n"
+		        + "                                               coalesce(max(date(d.effective_discontinuation_date)),\n"
+		        + "                                                        max(date(d.visit_date))) as disc_date\n"
+		        + "                                        from kenyaemr_etl.etl_patient_program_discontinuation d\n"
+		        + "                                        where d.program_name = 'TB'\n"
+		        + "                                        group by d.patient_id) d on t.patient_id = d.patient_id\n"
+		        + "                    group by t.patient_id) tb on d.patient_id = tb.tb_patient\n"
+		        + "         left join (select s.patient_id,\n"
+		        + "                           left(max(concat(date(s.visit_date), s.resulting_tb_status)), 10) as tb_status_date,\n"
+		        + "                           mid(max(concat(date(s.visit_date), s.resulting_tb_status)), 11)  as tb_screening_status,\n"
+		        + "                           mid(max(concat(date(s.visit_date), s.started_anti_TB)), 11)      as started_tb_treatment\n"
+		        + "                    from kenyaemr_etl.etl_tb_screening s\n"
+		        + "                    group by s.patient_id\n"
+		        + "                    having tb_screening_status = 1662\n"
+		        + "                        or started_tb_treatment != 1065\n"
+		        + "                        and tb_status_date between date(:startDate) and date(:endDate)) s on d.patient_id = s.patient_id\n"
+		        + "         left join (select l.patient_id,\n"
+		        + "                           coalesce(max(l.date_test_requested), max(l.visit_date)) as tb_test_date,\n"
+		        + "                           mid(max(concat(coalesce(l.date_test_requested, l.visit_date), l.test_result)),\n"
+		        + "                               11)                                                 as latest_tb_lab_results\n"
+		        + "                    from kenyaemr_etl.etl_laboratory_extract l\n"
+		        + "                    where l.lab_test in (162202, 307, 1465)\n"
+		        + "                    group by l.patient_id) l on d.patient_id = l.patient_id\n"
+		        + "where coalesce(date(d.date_died), date(d.effective_discontinuation_date),\n"
+		        + "               date(d.visit_date)) between date(:startDate) and date(:endDate)\n"
+		        + "  and d.program_name in ('MCH Child HEI', 'MCH Child')\n"
+		        + "  and d.discontinuation_reason = 160432\n"
+		        + "  and ((tb.tb_patient is null or date(tb.tb_enrollment_date) < date(tb.tb_disc_date) or\n"
+		        + "        timestampdiff(MONTH, date(tb.tb_enrollment_date),\n"
+		        + "                      coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date))) > 10) and\n"
+		        + "       s.patient_id is null\n"
+		        + "    )\n"
+		        + "  and hv.patient_id is null\n"
+		        + "  and ((l.latest_tb_lab_results not in (703, 162203, 162204, 164104, 1362, 1363, 1364, 159985) and\n"
+		        + "        timestampdiff(MONTH, l.tb_test_date,\n"
+		        + "                      coalesce(date(d.date_died),\n"
+		        + "                               date(d.effective_discontinuation_date),\n"
+		        + "                               date(d.visit_date))) <=\n"
+		        + "        10)\n"
+		        + "    or timestampdiff(MONTH, l.tb_test_date,\n"
+		        + "                     coalesce(date(d.date_died), date(d.effective_discontinuation_date), date(d.visit_date))) > 10\n"
+		        + "    or l.patient_id is null)\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);

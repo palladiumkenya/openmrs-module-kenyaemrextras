@@ -392,7 +392,7 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Primary method of TB diagnosis", new TbMethodOfDiagnosisDataDefinition(), "");
 		dsd.addColumn("Date of TB diagnosis", new TbDateOfDiagnosisDataDefinition(), "");
 		dsd.addColumn("Type of TB", new TbTypeDataDefinition(), "");
-		//dsd.addColumn("Confirmed Drug Resistance", new TbTypeDataDefinition(), "");
+		dsd.addColumn("Confirmed Drug Resistance", new TbConfirmedResistanceDataDefinition(), "");
 		dsd.addColumn("Initiated on anti-TB", new TbInitiatedOnDrugsDataDefinition(), "");
 		dsd.addColumn("Date Initiated on anti-TB", new TbDateInitiatedOnDrugsDataDefinition(), "");
 		dsd.addColumn("Diagnosis to anti-TB drug initiation duration", new TbDiagnosisToInitiationDurationDataDefinition(),
