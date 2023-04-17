@@ -11,7 +11,6 @@ package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.mo
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.ThirdARTRegimenSwitchDateDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.mortalityAuditTool.ThirdRegimenChangeReasonDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
