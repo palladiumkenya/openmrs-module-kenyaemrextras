@@ -38,8 +38,8 @@ public class HeiMotherHivDiagnosisDateDataEvaluator implements PersonDataEvaluat
 		String qry = "select distinct r.person_a,\n"
 		        + "  coalesce(date(en.date_confirmed_hiv_positive),date(ht.visit_date),date(mch.hiv_test_date)) as hiv_diagnosis_date\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
-		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
+		        + "  inner join relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
 		        + "  inner join kenyaemr_etl.etl_hiv_enrollment en on en.patient_id = d.patient_id\n"
 		        + "  left join kenyaemr_etl.etl_mch_enrollment mch on mch.patient_id = d.patient_id and mch.hiv_status = 703\n"
 		        + "  left join kenyaemr_etl.etl_hts_test ht on ht.patient_id = d.patient_id and ht.final_test_result = 'Positive';";

@@ -39,8 +39,8 @@ public class HeiMotherGestationAgeDataEvaluator implements PersonDataEvaluator {
 		        + "  timestampdiff(MONTH, coalesce(date(en.lmp),date(en.lmp_estimated)),\n"
 		        + "                coalesce(date(en.first_anc_visit_date),date(visit_date)))as gestation_age\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
-		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
+		        + "  inner join relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
 		        + "  inner join kenyaemr_etl.etl_mch_enrollment en on en.patient_id = d.patient_id\n"
 		        + " where en.service_type = 1622;";
 		
