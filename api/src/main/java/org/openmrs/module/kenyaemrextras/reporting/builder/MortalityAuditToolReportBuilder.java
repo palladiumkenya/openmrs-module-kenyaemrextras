@@ -134,7 +134,7 @@ public class MortalityAuditToolReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Reasons for change of 2nd regimen", new SecondRegimenChangeReasonDataDefinition(), "");//2,1
 		dsd.addColumn("3rd Regimen", new ThirdRegimenDataDefinition(), "");
 		dsd.addColumn("Date of switch of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
-		dsd.addColumn("Reasons for change of 3rd Regimen", new ThirdARTRegimenSwitchDateDataDefinition(), "");
+		dsd.addColumn("Reasons for change of 3rd Regimen", new ThirdRegimenChangeReasonDataDefinition(), "");
 		dsd.addColumn("4th Regimen", new FourthRegimenDataDefinition(), "");
 		dsd.addColumn("Date of switch of 4th Regimen", new FourthARTRegimenSwitchDateDataDefinition(), "");
 		dsd.addColumn("Reasons for change of 4th Regimen", new FourthRegimenChangeReasonDataDefinition(), "");

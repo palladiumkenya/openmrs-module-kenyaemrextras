@@ -38,8 +38,8 @@ public class HeiMotherEntryPointDataEvaluator implements PersonDataEvaluator {
 		String qry = "select distinct r.person_a,\n"
 		        + "  (case en.service_type when 1622 then 'ANC' when 164835 then 'Labor and Delivery' when 1623 then 'Post Natal Clinic' else 'Not Documented' end)as entry_point\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "  inner join openmrs.relationship r on d.patient_id = r.person_b\n"
-		        + "  inner join openmrs.relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
+		        + "  inner join relationship r on d.patient_id = r.person_b\n"
+		        + "  inner join relationship_type t on r.relationship = t.relationship_type_id and t.uuid = '8d91a210-c2cc-11de-8d13-0010c6dffd0f'\n"
 		        + "  inner join kenyaemr_etl.etl_mch_enrollment en on en.patient_id = d.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
