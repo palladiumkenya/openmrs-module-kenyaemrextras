@@ -73,6 +73,14 @@
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
+                <ref bean="kenyaemrextras.others.report.missedHAART" />
+            </set>
+        </property>
+    </bean>
+    <bean id="kenyaemrextras.config.other.report" class="org.openmrs.module.kenyacore.report.ReportConfiguration">
+        <property name="otherReports">
+            <set>
+                <ref bean="kenyaemrextras.others.report.missedHAART" />
             </set>
         </property>
     </bean>
@@ -153,7 +161,14 @@
 
         <property name="template" value="kenyaemrextras:mortality_audit_template.xls" />
         <property name="repeatingSection" value="sheet:1,row:11,dataset:DeceasedHEIs | sheet:2,row:11,dataset:DeceasedHIVPatients | sheet:3,row:11,dataset:DeceasedHIVAndTBPatients | sheet:4,row:11,dataset:DeceasedTBPatients" />
+    </bean>
 
-
+    <bean id="kenyaemrextras.others.report.missedHAART" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="c22ebbd7-ea55-4197-8742-3b9da7af985e" />
+        <property name="name" value="HIV+ Pregnant or Breastfeeding mothers missed HAART" />
+        <property name="description" value="New and Known Positive Pregnant or breastfeeding mothers who missed HAART" />
+        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
+        <property name="template" value="kenyaemrextras:pmtct/rri/missed_maternal_HAART_template.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHAARTCohort" />
     </bean>
 </beans>
