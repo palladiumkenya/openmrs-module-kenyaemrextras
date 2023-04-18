@@ -111,7 +111,7 @@ public class DQAActiveCohortDefinitionEvaluator implements CohortDefinitionEvalu
 			int i = 0;
 			for (Double rand : generalPopMap.keySet()) {
 				if (i < adultAbove15) {
-					if(!buildingCohort.containsKey(generalPopMap.get(rand))) {
+					if (!buildingCohort.containsKey(generalPopMap.get(rand))) {
 						newCohort.addMember(generalPopMap.get(rand));
 						buildingCohort.put(generalPopMap.get(rand), "Adult 15+");
 						i++;

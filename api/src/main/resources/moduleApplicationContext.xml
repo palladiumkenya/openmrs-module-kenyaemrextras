@@ -150,10 +150,10 @@
             <set>
                 <ref bean="kenyaemr.app.reports" />
             </set></property>
-<!--
-        <property name="template" value="mortality_audit_tool.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:DeceasedHIVPatients | sheet:2,row:6,dataset:DeceasedHIVTBPatients | sheet:3,row:6,dataset:DeceasedTBPatients  | sheet:4,row:6,dataset:DeceasedHEIs" />
--->
+
+        <property name="template" value="kenyaemrextras:mortality_audit_template.xls" />
+        <property name="repeatingSection" value="sheet:1,row:11,dataset:DeceasedHEIs | sheet:2,row:11,dataset:DeceasedHIVPatients | sheet:3,row:11,dataset:DeceasedHIVAndTBPatients | sheet:4,row:11,dataset:DeceasedTBPatients" />
+
 
     </bean>
 </beans>
