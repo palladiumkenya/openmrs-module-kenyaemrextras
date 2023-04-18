@@ -18,19 +18,19 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 import java.util.Date;
 
 /**
- * Missed HAART cohort definition
+ * Missed DTG optimization cohort definition
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-@Localized("reporting.MissedHAARTCohortDefinition")
-public class MissedHAARTCohortDefinition extends BaseCohortDefinition {
-	
+@Localized("reporting.MissedDTGOptimizationCohortDefinition")
+public class MissedDTGOptimizationCohortDefinition extends BaseCohortDefinition {
+
 	@ConfigurationProperty
 	private Date startDate;
-	
+
 	@ConfigurationProperty
 	private Date endDate;
-	
-	public MissedHAARTCohortDefinition() {
+
+	public MissedDTGOptimizationCohortDefinition() {
 	}
 	
 	public Date getStartDate() {

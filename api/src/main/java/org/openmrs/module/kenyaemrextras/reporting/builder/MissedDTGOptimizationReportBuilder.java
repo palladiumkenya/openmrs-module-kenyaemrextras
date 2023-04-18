@@ -45,13 +45,13 @@ import java.util.List;
 
 @Component
 @Builds({ "kenyaemrextras.mchms.report.missedHAART" })
-public class MissedHAARTReportBuilder extends AbstractHybridReportBuilder {
+public class MissedDTGOptimizationReportBuilder extends AbstractHybridReportBuilder {
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	
 	@Override
 	protected Mapped<CohortDefinition> buildCohort(HybridReportDescriptor descriptor, PatientDataSetDefinition dsd) {
-		dsd.setName("missedHAARTCohort");
+		dsd.setName("missedDTGOptimizationCohort");
 		return allPatientsCohort();
 	}
 	
@@ -79,7 +79,7 @@ public class MissedHAARTReportBuilder extends AbstractHybridReportBuilder {
 	}
 	
 	protected PatientDataSetDefinition missedHAARTDataSetDefinition() {
-		PatientDataSetDefinition dsd = new PatientDataSetDefinition("missedHAARTCohort");
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition("missedDTGOptimizationCohort");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
