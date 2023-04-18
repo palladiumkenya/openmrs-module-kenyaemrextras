@@ -23,13 +23,13 @@ import java.util.Date;
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
 @Localized("reporting.MissedDTGOptimizationCohortDefinition")
 public class MissedDTGOptimizationCohortDefinition extends BaseCohortDefinition {
-
+	
 	@ConfigurationProperty
 	private Date startDate;
-
+	
 	@ConfigurationProperty
 	private Date endDate;
-
+	
 	public MissedDTGOptimizationCohortDefinition() {
 	}
 	
