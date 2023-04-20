@@ -75,6 +75,7 @@
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
                 <ref bean="kenyaemrextras.mchms.report.missedHAART"/>
                 <ref bean="kenyaemrextras.mchms.report.missedDTG"/>
+                <ref bean="kenyaemrextras.mchms.report.missedHIVandsyphilistest"/>
 
             </set>
         </property>
@@ -174,6 +175,14 @@
         <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
         <property name="template" value="kenyaemrextras:pmtct/rri/missed_DTG_optimization_template.xls" />
         <property name="repeatingSection" value="sheet:1,row:6,dataset:missedDTGOptimizationCohort" />
+    </bean>
+    <bean id="kenyaemrextras.mchms.report.missedHIVandsyphilistest" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="04d468a4-bb69-447d-82fa-0aad40c55421" />
+        <property name="name" value="Missed HIV and Syphilis Test" />
+        <property name="description" value="MCH mothers who missed HIV and Syphilis testing" />
+        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
+        <property name="template" value="kenyaemrextras:pmtct/rri/missed_hiv_syphilis_test_template.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedSyphilisTestCohort" />
     </bean>
 
 </beans>
