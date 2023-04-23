@@ -21,8 +21,7 @@ import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.RDQACalculationResultConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.maternity.*;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.MissedHIVTestCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.MissedSyphilisTestCohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.MissedInfantProphylaxisCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.data.DataDefinition;
@@ -37,14 +36,16 @@ import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.stereotype.Component;
+import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 @Component
-@Builds({ "kenyaemrextras.mchms.report.missedHIVandsyphilistest" })
-public class MissedHIVAndSyphilisTestReportBuilder extends AbstractReportBuilder {
+@Builds({ "kenyaemrextras.mchms.report.missedinfantprophylaxis" })
+public class MissedInfantProphylaxisReportBuilder extends AbstractReportBuilder {
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	
@@ -56,13 +57,13 @@ public class MissedHIVAndSyphilisTestReportBuilder extends AbstractReportBuilder
 	
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
-		return Arrays.asList(ReportUtils.map(missedHIVTestDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(missedSyphilisTestDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"));
+		return Arrays.asList(ReportUtils.map(missedInfantProphylaxisDataSetDefinition(),
+		    "startDate=${startDate},endDate=${endDate}"));
 	}
 	
-	protected DataSetDefinition missedHIVTestDataSetDefinition() {
+	protected DataSetDefinition missedInfantProphylaxisDataSetDefinition() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
-		dsd.setName("missedHIVTestCohort");
+		dsd.setName("missedInfantProphylaxisCohort");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
@@ -92,55 +93,8 @@ public class MissedHIVAndSyphilisTestReportBuilder extends AbstractReportBuilder
 		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Date of MCH clinic visit", dateOfLastMCHClinicVisitDataDefinition, paramMapping, null);
 		
-		NextMCHVisitAppointmentDateDataDefinition nextMCHVisitAppointmentDateDataDefinition = new NextMCHVisitAppointmentDateDataDefinition();
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Next appointment date", nextMCHVisitAppointmentDateDataDefinition, paramMapping, null);
-		
-		ServiceDeliveryPointDataDefinition serviceDeliveryPointDataDefinition = new ServiceDeliveryPointDataDefinition();
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Service delivery point", serviceDeliveryPointDataDefinition, paramMapping, null);
-		
-		MissedHIVTestCohortDefinition cd = new MissedHIVTestCohortDefinition();
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addRowFilter(cd, paramMapping);
-		
-		return dsd;
-	}
-	
-	protected DataSetDefinition missedSyphilisTestDataSetDefinition() {
-		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
-		dsd.setName("missedSyphilisTestCohort");
-		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
-		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
-		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
-		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
-		        upn.getName(), upn), identifierFormatter);
-		
-		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
-		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
-		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
-		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
-		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-		
-		String paramMapping = "startDate=${startDate},endDate=${endDate}";
-		
-		dsd.addColumn("Name", nameDef, "");
-		dsd.addColumn("Telephone No", new PersonAttributeDataDefinition(phoneNumber), "");
-		dsd.addColumn("Village_Estate_Landmark", new CalculationDataDefinition("Village/Estate/Landmark",
-		        new PersonAddressCalculation()), "", new RDQACalculationResultConverter());
-		
-		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
-		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-		dsd.addColumn("Age", new AgeDataDefinition(), "");
-		DateOfLastMCHClinicVisitDataDefinition dateOfLastMCHClinicVisitDataDefinition = new DateOfLastMCHClinicVisitDataDefinition();
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Date of MCH clinic visit", dateOfLastMCHClinicVisitDataDefinition, paramMapping, null);
+		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
+		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
 		
 		NextMCHVisitAppointmentDateDataDefinition nextMCHVisitAppointmentDateDataDefinition = new NextMCHVisitAppointmentDateDataDefinition();
 		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -152,12 +106,11 @@ public class MissedHIVAndSyphilisTestReportBuilder extends AbstractReportBuilder
 		serviceDeliveryPointDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Service delivery point", serviceDeliveryPointDataDefinition, paramMapping, null);
 		
-		MissedSyphilisTestCohortDefinition cd = new MissedSyphilisTestCohortDefinition();
+		MissedInfantProphylaxisCohortDefinition cd = new MissedInfantProphylaxisCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
 		
 		return dsd;
 	}
-	
 }
