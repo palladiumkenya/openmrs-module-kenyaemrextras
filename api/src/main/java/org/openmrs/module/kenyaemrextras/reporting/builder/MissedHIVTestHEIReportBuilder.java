@@ -22,9 +22,14 @@ import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.RDQACalculationResultConverter;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIMissedTestDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEINextAppointmentDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.maternity.*;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.MissedHIVTestHEICohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.*;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.DateOfLastHEIFollowupDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.NextOfKinDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.NextOfKinPhoneDataDefinition;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.DataConverter;
@@ -86,25 +91,18 @@ public class MissedHIVTestHEIReportBuilder extends AbstractReportBuilder {
 		        new PersonAddressCalculation()), "", new RDQACalculationResultConverter());
 		
 		dsd.addColumn("Age", new AgeDataDefinition(), "");
+		dsd.addColumn("HEI Id", new HEIIdDataDefinition(), "");
 		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
 		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-		DateOfLastMCHClinicVisitDataDefinition dateOfLastMCHClinicVisitDataDefinition = new DateOfLastMCHClinicVisitDataDefinition();
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Date of MCH clinic visit", dateOfLastMCHClinicVisitDataDefinition, paramMapping, null);
-		
+		DateOfLastHEIFollowupDataDefinition dateOfLastVisit = new DateOfLastHEIFollowupDataDefinition();
+		dateOfLastVisit.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dateOfLastVisit.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Date of last visit", dateOfLastVisit, paramMapping, null);
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
 		
-		NextMCHVisitAppointmentDateDataDefinition nextMCHVisitAppointmentDateDataDefinition = new NextMCHVisitAppointmentDateDataDefinition();
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Next appointment date", nextMCHVisitAppointmentDateDataDefinition, paramMapping, null);
-		
-		ServiceDeliveryPointDataDefinition serviceDeliveryPointDataDefinition = new ServiceDeliveryPointDataDefinition();
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Service delivery point", serviceDeliveryPointDataDefinition, paramMapping, null);
+		dsd.addColumn("Missing HIV Test", new HEIMissedTestDataDefinition(), "");
+		dsd.addColumn("Next Appointment Date", new HEINextAppointmentDateDataDefinition(), "");
 		
 		MissedHIVTestHEICohortDefinition cd = new MissedHIVTestHEICohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));

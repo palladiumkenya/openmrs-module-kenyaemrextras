@@ -23,6 +23,7 @@ import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.RDQACalculationResultConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.maternity.*;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.*;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.MissedVLTestCAHLHIVCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -38,6 +39,8 @@ import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.stereotype.Component;
+import org.openmrs.module.reporting.data.converter.DateConverter;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLCurrentRegimenDataDefinition;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -88,23 +91,26 @@ public class MissedVLTestCALHIVReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Age", new AgeDataDefinition(), "");
 		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
 		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-		DateOfLastMCHClinicVisitDataDefinition dateOfLastMCHClinicVisitDataDefinition = new DateOfLastMCHClinicVisitDataDefinition();
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dateOfLastMCHClinicVisitDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Date of MCH clinic visit", dateOfLastMCHClinicVisitDataDefinition, paramMapping, null);
+		
+		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
+		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
 		
-		NextMCHVisitAppointmentDateDataDefinition nextMCHVisitAppointmentDateDataDefinition = new NextMCHVisitAppointmentDateDataDefinition();
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		nextMCHVisitAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Next appointment date", nextMCHVisitAppointmentDateDataDefinition, paramMapping, null);
+		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
 		
-		ServiceDeliveryPointDataDefinition serviceDeliveryPointDataDefinition = new ServiceDeliveryPointDataDefinition();
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		serviceDeliveryPointDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Service delivery point", serviceDeliveryPointDataDefinition, paramMapping, null);
+		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
+		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
+		
+		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
 		
 		MissedVLTestCAHLHIVCohortDefinition cd = new MissedVLTestCAHLHIVCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));

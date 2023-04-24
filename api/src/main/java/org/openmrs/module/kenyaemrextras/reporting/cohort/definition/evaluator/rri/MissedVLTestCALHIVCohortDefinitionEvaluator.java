@@ -48,7 +48,7 @@ public class MissedVLTestCALHIVCohortDefinitionEvaluator implements CohortDefini
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = "select t.patient_id\n"
+		String qry = "select a.patient_id from (select t.patient_id,vl.vl_date,vl.patient_id as vl_patient\n"
 		        + "from (select fup.visit_date,\n"
 		        + "             fup.patient_id,\n"
 		        + "             max(e.visit_date)                                                                as enroll_date,\n"
@@ -93,8 +93,8 @@ public class MissedVLTestCALHIVCohortDefinitionEvaluator implements CohortDefini
 		        + "                  and\n"
 		        + "                  (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or\n"
 		        + "                   disc_patient is null)))) t\n"
-		        + "         inner join (select b.patient_id,\n"
-		        + "                            max(b.visit_date)                              as vl_date,\n"
+		        + "         left join (select b.patient_id,\n"
+		        + "                            coalesce(max(b.test_date),max(b.visit_date))                            as vl_date,\n"
 		        + "                            date_sub(date(:endDate), interval 12 MONTH),\n"
 		        + "                            mid(max(concat(b.visit_date, b.lab_test)), 11) as lab_test,\n"
 		        + "                            if(mid(max(concat(b.visit_date, b.lab_test)), 11) = 856,\n"
@@ -105,15 +105,17 @@ public class MissedVLTestCALHIVCohortDefinitionEvaluator implements CohortDefini
 		        + "                            mid(max(concat(b.visit_date, b.urgency)), 11)  as urgency\n"
 		        + "                     from (select x.patient_id  as patient_id,\n"
 		        + "                                  x.visit_date  as visit_date,\n"
+		        + "                                  x.date_test_requested  as test_date,\n"
 		        + "                                  x.lab_test    as lab_test,\n"
 		        + "                                  x.test_result as test_result,\n"
 		        + "                                  urgency       as urgency\n"
 		        + "                           from kenyaemr_etl.etl_laboratory_extract x\n"
 		        + "                           where x.lab_test in (1305, 856)\n"
 		        + "                           group by x.patient_id, x.visit_date\n"
-		        + "                           order by visit_date desc) b\n" + "                     group by patient_id\n"
-		        + "                     having timestampdiff(MONTH, max(visit_date), date(:endDate)) > 6) vl\n"
-		        + "                    on t.patient_id = vl.patient_id;";
+		        + "                           order by visit_date desc) b\n"
+		        + "                     group by patient_id) vl\n"
+		        + "                    on t.patient_id = vl.patient_id)a\n"
+		        + "where timestampdiff(MONTH, date(a.vl_date), date(:endDate)) > 6 or a.vl_patient is null;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
