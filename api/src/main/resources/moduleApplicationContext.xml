@@ -73,8 +73,11 @@
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
+                <ref bean="kenyaemrextras.mchms.report.missedopportunitypmtctrri"/>
+
             </set>
         </property>
+
     </bean>
 
     <bean id="kenyaemrextras.common.report.weeklysurge" class="org.openmrs.module.kenyacore.report.IndicatorReportDescriptor">
@@ -153,7 +156,16 @@
 
         <property name="template" value="kenyaemrextras:mortality_audit_template.xls" />
         <property name="repeatingSection" value="sheet:1,row:11,dataset:DeceasedHEIs | sheet:2,row:11,dataset:DeceasedHIVPatients | sheet:3,row:11,dataset:DeceasedHIVAndTBPatients | sheet:4,row:11,dataset:DeceasedTBPatients" />
-
-
     </bean>
+
+    <bean id="kenyaemrextras.mchms.report.missedopportunitypmtctrri" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+        <property name="targetUuid" value="04d468a4-bb69-447d-82fa-0aad40c55421" />
+        <property name="name" value="PMTCT RRI" />
+        <property name="description" value="PMTCT RRI For Missed Opportunities" />
+        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
+        <property name="template" value="kenyaemrextras:pmtct/rri/pmtct_rri_template.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedSyphilisTestCohort  | sheet:3,row:6,dataset:missedHAARTCohort  | sheet:4,row:6,dataset:missedDTGOptimizationCohort
+ | sheet:5,row:6,dataset:missedHIVTestHEICohort  | sheet:6,row:6,dataset:missedInfantProphylaxisCohort  | sheet:7,row:6,dataset:missedVLTestCALHIVCohort" />
+    </bean>
+
 </beans>
