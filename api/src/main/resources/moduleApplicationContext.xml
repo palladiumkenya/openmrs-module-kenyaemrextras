@@ -73,12 +73,7 @@
                 <ref bean="kenyaemrextras.common.report.appointmentAndAttrition"/>
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
-                <ref bean="kenyaemrextras.mchms.report.missedHAART"/>
-                <ref bean="kenyaemrextras.mchms.report.missedDTG"/>
-                <ref bean="kenyaemrextras.mchms.report.missedHIVandsyphilistest"/>
-                <ref bean="kenyaemrextras.mchms.report.missedvltestcalhiv"/>
-                <ref bean="kenyaemrextras.mchms.report.missedHIVtestHEI"/>
-                <ref bean="kenyaemrextras.mchms.report.missedinfantprophylaxis"/>
+                <ref bean="kenyaemrextras.mchms.report.missedopportunitypmtctrri"/>
 
             </set>
         </property>
@@ -163,53 +158,14 @@
         <property name="repeatingSection" value="sheet:1,row:11,dataset:DeceasedHEIs | sheet:2,row:11,dataset:DeceasedHIVPatients | sheet:3,row:11,dataset:DeceasedHIVAndTBPatients | sheet:4,row:11,dataset:DeceasedTBPatients" />
     </bean>
 
-    <bean id="kenyaemrextras.mchms.report.missedHAART" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
-        <property name="targetUuid" value="c22ebbd7-ea55-4197-8742-3b9da7af985e" />
-        <property name="name" value="HIV+ Pregnant or Breastfeeding mothers missed HAART" />
-        <property name="description" value="New and Known Positive Pregnant or breastfeeding mothers who missed HAART" />
-        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_maternal_HAART_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHAARTCohort" />
-    </bean>
-    <bean id="kenyaemrextras.mchms.report.missedDTG" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
-        <property name="targetUuid" value="e23e1622-7d5f-4d7a-b559-a631d0d1b431" />
-        <property name="name" value="CALHIV Missed DTG optimization" />
-        <property name="description" value="0-19 years CALHIV who missed DTG optimization" />
-        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_DTG_optimization_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedDTGOptimizationCohort" />
-    </bean>
-    <bean id="kenyaemrextras.mchms.report.missedHIVandsyphilistest" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
+    <bean id="kenyaemrextras.mchms.report.missedopportunitypmtctrri" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="04d468a4-bb69-447d-82fa-0aad40c55421" />
-        <property name="name" value="Missed HIV and Syphilis Test" />
-        <property name="description" value="MCH mothers who missed HIV and Syphilis testing" />
+        <property name="name" value="PMTCT RRI" />
+        <property name="description" value="PMTCT RRI For Missed Opportunities" />
         <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_hiv_syphilis_test_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedSyphilisTestCohort" />
+        <property name="template" value="kenyaemrextras:pmtct/rri/pmtct_rri_template.xls" />
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedSyphilisTestCohort  | sheet:3,row:6,dataset:missedHAARTCohort  | sheet:4,row:6,dataset:missedDTGOptimizationCohort
+ | sheet:5,row:6,dataset:missedHIVTestHEICohort  | sheet:6,row:6,dataset:missedInfantProphylaxisCohort  | sheet:7,row:6,dataset:missedVLTestCALHIVCohort" />
     </bean>
 
-    <bean id="kenyaemrextras.mchms.report.missedinfantprophylaxis" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
-        <property name="targetUuid" value="808bb508-da55-4550-8d51-4841e791232b" />
-        <property name="name" value="Missed Infant Prophylaxis" />
-        <property name="description" value="MCH mothers who missed infant prophylaxis for baby" />
-        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_Infant_prophylaxis_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedInfantProphylaxisCohort" />
-    </bean>
-    <bean id="kenyaemrextras.mchms.report.missedvltestcalhiv" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
-        <property name="targetUuid" value="09af1aa3-773d-45b2-a9de-ed8345fc4397" />
-        <property name="name" value="Missed Viral Load test"/>
-        <property name="description" value="CALHIV who missed VL test within the last 6 months" />
-        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_viral_load_test_CALHIV_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedVLTestCALHIVCohort" />
-    </bean>
-    <bean id="kenyaemrextras.mchms.report.missedHIVtestHEI" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
-        <property name="targetUuid" value="a4c68adc-b23a-4995-b862-814be02dd446" />
-        <property name="name" value="Missed EID Test"/>
-        <property name="description" value="HEIs who missed EID test" />
-        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
-        <property name="template" value="kenyaemrextras:pmtct/rri/missed_eid_test_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestHEICohort" />
-    </bean>
 </beans>
