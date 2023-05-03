@@ -95,7 +95,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 	}
 	
 	/**
-	 * Suppressed VL within reporting period < 1000 cps/ml or LDL
+	 * Suppressed VL within reporting period < 200 cps/ml or LDL
 	 * 
 	 * @return
 	 */
@@ -112,7 +112,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		        + "            from kenyaemr_etl.etl_laboratory_extract x\n"
 		        + "            where x.lab_test in (1305, 856) and visit_date between date(:startDate) and date(:endDate)       --    group by x.patient_id, x.visit_date\n"
 		        + "            order by visit_date desc) b\n" + "      group by patient_id\n"
-		        + "         having (vl_result < 1000 or vl_result = 'LDL'))a;";
+		        + "         having (vl_result < 200 or vl_result = 'LDL'))a;";
 		SqlCohortDefinition cd = new SqlCohortDefinition();
 		cd.setName("suppressedVLWithinReportingPeriod");
 		cd.setQuery(sqlQuery);
@@ -676,7 +676,7 @@ public class FacilityClinicalAssessmentCohortLibrary {
 		        + "            where x.lab_test in (1305, 856)             group by x.patient_id, x.visit_date\n"
 		        + "            order by visit_date desc) b       group by patient_id\n" + "      having vl_date between\n"
 		        + "          date_sub(date(:endDate), interval 12 MONTH) and date(:endDate)\n"
-		        + "         and vl_result >= 1000          and order_reason = 843)a;";
+		        + "         and vl_result >= 200 and order_reason = 843)a;";
 		cd.setName("unsuppressedRepeatVL");
 		cd.setQuery(sqlQuery);
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));

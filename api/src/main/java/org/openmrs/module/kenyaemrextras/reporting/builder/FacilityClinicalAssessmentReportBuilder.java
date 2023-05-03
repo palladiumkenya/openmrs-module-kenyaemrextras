@@ -83,7 +83,7 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		                assessmentIndicatorLibrary.eligibleForVlTest(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("VL Testing numerator", " (Clients with a valid VL result)",
 		    ReportUtils.map(assessmentIndicatorLibrary.vlUptake(), "startDate=${startDate},endDate=${endDate}"), "");
-		cohortDsd.addColumn("VL Test Results < 1000 copies/ml ", "",
+		cohortDsd.addColumn("VL Test Results < 200 copies/ml ", "",
 		    ReportUtils.map(assessmentIndicatorLibrary.suppressedVL(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("Unsuppressed VL-Peds", " (under 18 years with Unsuppressed repeat VLs and EAC)",
 		    ReportUtils.map(assessmentIndicatorLibrary.unsuppressedVLPeds(), "startDate=${startDate},endDate=${endDate}"),
