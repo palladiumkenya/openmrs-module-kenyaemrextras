@@ -74,6 +74,7 @@
                 <ref bean="kenyaemrextras.common.report.facilityClinicalAssessment"/>
                 <ref bean="kenyaemrextras.common.report.automatedNupiClients"/>
                 <ref bean="kenyaemrextras.mchms.report.missedopportunitypmtctrri"/>
+                <ref bean="kenyaemrextras.common.report.clientsWithRecencyIdentifier"/>
 
             </set>
         </property>
@@ -166,6 +167,14 @@
         <property name="template" value="kenyaemrextras:pmtct/rri/pmtct_rri_template.xls" />
         <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedSyphilisTestCohort  | sheet:3,row:6,dataset:missedHAARTCohort  | sheet:4,row:6,dataset:missedDTGOptimizationCohort
  | sheet:5,row:6,dataset:missedHIVTestHEICohort  | sheet:6,row:6,dataset:missedInfantProphylaxisCohort  | sheet:7,row:6,dataset:missedVLTestCALHIVCohort" />
+    </bean>
+
+    <bean id="kenyaemrextras.common.report.clientsWithRecencyIdentifier" class="org.openmrs.module.kenyacore.report.CalculationReportDescriptor">
+        <property name="targetUuid" value="a489767c-0703-4a21-b937-cecff74f00c6" />
+        <property name="name" value="Clients with Recency ID" />
+        <property name="description" value="List of clients with Recency ID documented" />
+        <property name="calculation" value="org.openmrs.module.kenyaemrextras.calculation.ClientsWithRecencyIDCalculation" />
+        <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
     </bean>
 
 </beans>
