@@ -18,11 +18,12 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 import java.util.Date;
 
 /**
- * Mothers who Missed Syphilis test cohort definition
+ * CALHIV without valid VLcohort definition Baseline VL at 3 months after ART initiation Routine VL
+ * after 6 months Exclude CALHIV who have been on ART for less than 3 months
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-@Localized("reporting.MissedSyphilisTestCohortDefinition")
-public class MissedSyphilisTestCohortDefinition extends BaseCohortDefinition {
+@Localized("reporting.CALHIVWithoutValidVlCohortDefinition")
+public class CALHIVWithoutValidVlCohortDefinition extends BaseCohortDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -30,7 +31,7 @@ public class MissedSyphilisTestCohortDefinition extends BaseCohortDefinition {
 	@ConfigurationProperty
 	private Date endDate;
 	
-	public MissedSyphilisTestCohortDefinition() {
+	public CALHIVWithoutValidVlCohortDefinition() {
 	}
 	
 	public Date getStartDate() {
