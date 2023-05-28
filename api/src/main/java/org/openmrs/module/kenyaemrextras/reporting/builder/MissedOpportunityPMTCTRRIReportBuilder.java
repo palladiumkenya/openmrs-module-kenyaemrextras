@@ -33,7 +33,6 @@ import org.openmrs.module.kenyaemrextras.reporting.data.definition.pmtctRRI.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.DataConverter;
-import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
@@ -46,7 +45,6 @@ import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.stereotype.Component;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.AgeAtReportingDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
-import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLCurrentRegimenDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVLDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVLResultDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVisitDateDataDefinition;
@@ -79,7 +77,9 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		    ReportUtils.map(missedInfantProphylaxisDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(cALHIVWithNoValidVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(cALHIVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(txCurrPregnantAndBreastFeedingDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(txCurrPregnantAndBreastFeedingDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(txcurrWRA(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(txcurrWRANoChildrenContacts(), "startDate=${startDate},endDate=${endDate}"));
 	}
 	
 	protected DataSetDefinition missedHIVTestDataSetDefinition() {
@@ -388,10 +388,10 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
+	
 	protected DataSetDefinition cALHIVWithNoValidVLDataSetDefinition() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
 		dsd.setName("cALHIVWithNoValidVLCohort");
@@ -402,52 +402,52 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-
+		
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("Telephone No", new PersonAttributeDataDefinition(phoneNumber), "");
 		dsd.addColumn("Village_Estate_Landmark", new CalculationDataDefinition("Village/Estate/Landmark",
 		        new PersonAddressCalculation()), "", new RDQACalculationResultConverter());
-
+		
 		dsd.addColumn("Age", new AgeDataDefinition(), "");
 		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
 		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-
+		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
-
+		
 		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
-
+		
 		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
-
+		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
-
+		
 		CALHIVWithoutValidVlCohortDefinition cd = new CALHIVWithoutValidVlCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
+	
 	protected DataSetDefinition cALHIVLDataSetDefinition() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
 		dsd.setName("cALHIVCohort");
@@ -458,52 +458,52 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-
+		
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("Telephone No", new PersonAttributeDataDefinition(phoneNumber), "");
 		dsd.addColumn("Village_Estate_Landmark", new CalculationDataDefinition("Village/Estate/Landmark",
 		        new PersonAddressCalculation()), "", new RDQACalculationResultConverter());
-
+		
 		dsd.addColumn("Age", new AgeDataDefinition(), "");
 		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
 		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-
+		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
-
+		
 		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
-
+		
 		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
-
+		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
-
+		
 		CALHIVCohortDefinition cd = new CALHIVCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
+	
 	protected DataSetDefinition txCurrPregnantAndBreastFeedingDataSetDefinition() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
 		dsd.setName("txCurrPregnantAndBFCohort");
@@ -514,55 +514,55 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-
+		
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
-
+		
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("Telephone No", new PersonAttributeDataDefinition(phoneNumber), "");
 		dsd.addColumn("Village_Estate_Landmark", new CalculationDataDefinition("Village/Estate/Landmark",
 		        new PersonAddressCalculation()), "", new RDQACalculationResultConverter());
-
+		
 		dsd.addColumn("Age", new AgeDataDefinition(), "");
 		dsd.addColumn("Next of kin", new NextOfKinDataDefinition(), "");
 		dsd.addColumn("Next of kin phone", new NextOfKinPhoneDataDefinition(), "");
-
+		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
-
+		
 		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
-
+		
 		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
-
+		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
-
+		
 		TxCurrPregnantAndBfCohortDefinition cd = new TxCurrPregnantAndBfCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
-	protected DataSetDefinition txcurrReproductiveWomen() {
+	
+	protected DataSetDefinition txcurrWRA() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
-		dsd.setName("txcurrReproductiveWomen");
+		dsd.setName("txcurrWRA");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
@@ -570,13 +570,13 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-
+		
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Name", nameDef, "");
@@ -593,26 +593,26 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
-
+		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
-
+		
 		TxcurrReproductiveWomenCohortDefinition cd = new TxcurrReproductiveWomenCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
-	protected DataSetDefinition txcurrReproductiveWomenNoChildrenContacts() {
+	
+	protected DataSetDefinition txcurrWRANoChildrenContacts() {
 		PatientDataSetDefinition dsd = new PatientDataSetDefinition();
-		dsd.setName("txcurrReproductiveWomenNoChildrenContacts");
+		dsd.setName("txcurrWRANoChildrenContacts");
 		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
@@ -620,13 +620,13 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
 		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
 		        upn.getName(), upn), identifierFormatter);
-
+		
 		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
 		PersonAttributeType phoneNumber = MetadataUtils.existing(PersonAttributeType.class,
 		    CommonMetadata._PersonAttributeType.TELEPHONE_CONTACT);
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-
+		
 		String paramMapping = "startDate=${startDate},endDate=${endDate}";
 		dsd.addColumn("CCC No", identifierDef, "");
 		dsd.addColumn("Name", nameDef, "");
@@ -639,34 +639,34 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
 		dsd.addColumn("Enrollment Date", new CalculationDataDefinition("Enrollment Date",
 		        new DateOfEnrollmentArtCalculation()), "", new DateArtStartDateConverter());
-
+		
 		dsd.addColumn("Art Start Date", new ETLArtStartDateDataDefinition(), "", new DateConverter(DATE_FORMAT));
 		ETLCurrentRegimenDataDefinition currentRegimenDataDefinition = new ETLCurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Current regimen", currentRegimenDataDefinition, paramMapping, null);
-
+		
 		ETLLastVLDateDataDefinition lastVLDateDataDefinition = new ETLLastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last VL Date", lastVLDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		ETLLastVLResultDataDefinition lastVlResultDataDefinition = new ETLLastVLResultDataDefinition();
 		lastVlResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last VL Result", lastVlResultDataDefinition, "endDate=${endDate}");
-
+		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
-
+		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
-
+		
 		TxcurrWomenNoChildrenContactsCohortDefinition cd = new TxcurrWomenNoChildrenContactsCohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addRowFilter(cd, paramMapping);
-
+		
 		return dsd;
 	}
-
+	
 }
