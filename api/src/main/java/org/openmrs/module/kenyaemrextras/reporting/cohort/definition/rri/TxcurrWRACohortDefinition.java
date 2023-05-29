@@ -18,35 +18,10 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 import java.util.Date;
 
 /**
- * Reproductive mothers without children contacts cohort definition
+ * Reproductive mothers cohort definition
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-@Localized("reporting.TxcurrMothersNoChildrenContactsCohortDefinition")
-public class TxcurrWomenNoChildrenContactsCohortDefinition extends BaseCohortDefinition {
-	
-	@ConfigurationProperty
-	private Date startDate;
-	
-	@ConfigurationProperty
-	private Date endDate;
-	
-	public TxcurrWomenNoChildrenContactsCohortDefinition() {
-	}
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-	
-	public Date getEndDate() {
-		return endDate;
-	}
-	
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+@Localized("reporting.TxcurrWRACohortDefinition")
+public class TxcurrWRACohortDefinition extends BaseCohortDefinition {
 	
 }

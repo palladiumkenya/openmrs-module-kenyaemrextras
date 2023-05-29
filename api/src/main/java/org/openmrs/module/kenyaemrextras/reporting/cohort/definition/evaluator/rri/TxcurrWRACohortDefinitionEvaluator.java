@@ -13,8 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.TxcurrReproductiveWomenCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.TxcurrWomenNoChildrenContactsCohortDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.rri.TxcurrWRACohortDefinition;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.evaluator.CohortDefinitionEvaluator;
@@ -31,8 +30,8 @@ import java.util.List;
 /**
  * Evaluator reproductive women definition
  */
-@Handler(supports = { TxcurrReproductiveWomenCohortDefinition.class })
-public class TxcurrReproductiveWomenCohortDefinitionEvaluator implements CohortDefinitionEvaluator {
+@Handler(supports = { TxcurrWRACohortDefinition.class })
+public class TxcurrWRACohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -42,7 +41,7 @@ public class TxcurrReproductiveWomenCohortDefinitionEvaluator implements CohortD
 	@Override
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) throws EvaluationException {
 		
-		TxcurrReproductiveWomenCohortDefinition definition = (TxcurrReproductiveWomenCohortDefinition) cohortDefinition;
+		TxcurrWRACohortDefinition definition = (TxcurrWRACohortDefinition) cohortDefinition;
 		
 		if (definition == null)
 			return null;
@@ -79,11 +78,10 @@ public class TxcurrReproductiveWomenCohortDefinitionEvaluator implements CohortD
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
 		Date startDate = (Date) context.getParameterValue("startDate");
-		Date endDate = (Date) context.getParameterValue("endDate");
 		builder.addParameter("startDate", startDate);
+		Date endDate = (Date) context.getParameterValue("endDate");
 		builder.addParameter("endDate", endDate);
 		List<Integer> ptIds = evaluationService.evaluateToList(builder, Integer.class, context);
-		
 		newCohort.setMemberIds(new HashSet<Integer>(ptIds));
 		
 		return new EvaluatedCohort(newCohort, definition, context);
