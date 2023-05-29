@@ -167,7 +167,7 @@
         <property name="template" value="kenyaemrextras:pmtct/rri/pmtct_rri_template.xls" />
         <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedHAARTCohort  | sheet:3,row:6,dataset:missedDTGOptimizationCohort
  | sheet:4,row:6,dataset:missedHIVTestHEICohort  | sheet:5,row:6,dataset:missedInfantProphylaxisCohort
- | sheet:6,row:6,dataset:cALHIVCohort  | sheet:7,row:6,dataset:cALHIVWithNoValidVLCohort | sheet:8,row:6,dataset:txCurrPregnantAndBFCohort"/>
+ | sheet:6,row:6,dataset:cALHIVCohort  | sheet:7,row:6,dataset:cALHIVWithNoValidVLCohort | sheet:8,row:6,dataset:txCurrPregnantAndBFCohort | sheet:9,row:6,dataset:txcurrWRA | sheet:10,row:6,dataset:txcurrWRANoChildrenContacts "/>
     </bean>
 
     <bean id="kenyaemrextras.common.report.clientsWithRecencyIdentifier" class="org.openmrs.module.kenyacore.report.CalculationReportDescriptor">
