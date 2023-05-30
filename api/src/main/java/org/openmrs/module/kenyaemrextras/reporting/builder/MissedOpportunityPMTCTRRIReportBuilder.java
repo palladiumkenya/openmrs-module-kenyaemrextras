@@ -83,7 +83,7 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		    ReportUtils.map(txcurrWRA(), "endDate=${endDate}"),
 		    ReportUtils.map(txcurrWRANoChildrenContacts(), "endDate=${endDate}"),
 		    ReportUtils.map(txCurrPgAndBFUnsuppressedDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"));
-
+		
 	}
 	
 	protected DataSetDefinition missedHIVTestDataSetDefinition() {
