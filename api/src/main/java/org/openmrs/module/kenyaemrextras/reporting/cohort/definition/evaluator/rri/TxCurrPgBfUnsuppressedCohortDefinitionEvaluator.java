@@ -66,6 +66,16 @@ public class TxCurrPgBfUnsuppressedCohortDefinitionEvaluator implements CohortDe
 		        + "               from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "                 join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
 		        + "                 join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+		        + "                 join (select\n"
+		        + "                                b.patient_id,\n"
+		        + "                                max(b.visit_date) as vl_date,\n"
+		        + "                                mid(max(concat(b.visit_date,b.lab_test)),11) as lab_test,\n"
+		        + "                                if(mid(max(concat(b.visit_date,b.lab_test)),11) = 856, mid(max(concat(b.visit_date,b.test_result)),11), if(mid(max(concat(b.visit_date,b.lab_test)),11)=1305 and mid(max(concat(visit_date,test_result)),11) = 1302, \"LDL\",\"\")) as vl_result\n"
+		        + "                              from (select x.patient_id as patient_id,x.visit_date as visit_date,x.lab_test as lab_test, x.test_result as test_result\n"
+		        + "                                    from kenyaemr_etl.etl_laboratory_extract x where x.lab_test in (1305,856)\n"
+		        + "                                    group by x.patient_id,x.visit_date order by visit_date desc) b\n"
+		        + "                                 group by patient_id ) vl\n"
+		        + "                   on fup.patient_id = vl.patient_id and vl.vl_result >= 200\n"
 		        + "                 left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV' and date(date_started) <= date(:endDate)\n"
 		        + "                 left join (select c.patient_id,\n"
 		        + "                              max(c.visit_date)     as latest_mch_enrollment,\n"
@@ -121,7 +131,7 @@ public class TxCurrPgBfUnsuppressedCohortDefinitionEvaluator implements CohortDe
 		        + "                               date(latest_tca) >= date(date_discontinued) or disc_patient is null)\n"
 		        + "                        ))\n"
 		        + "                      and (baby_feeding_method in (5526, 6046) or pregnant = 1065 or breastfeeding = 1065 or\n"
-		        + "                           anc_client is not null)) t";
+		        + "                           anc_client is not null)) t;\n";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
