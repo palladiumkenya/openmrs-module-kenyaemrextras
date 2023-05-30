@@ -238,6 +238,11 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, paramMapping, null);
 		
+		MissedDTGOptimizationCohortDefinition cd = new MissedDTGOptimizationCohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addRowFilter(cd, paramMapping);
+		
 		return dsd;
 	}
 	
