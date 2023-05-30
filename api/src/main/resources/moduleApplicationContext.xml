@@ -161,13 +161,16 @@
 
     <bean id="kenyaemrextras.mchms.report.missedopportunitypmtctrri" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="04d468a4-bb69-447d-82fa-0aad40c55421" />
-        <property name="name" value="PMTCT RRI" />
+        <property name="name" value="PMTCT/CALHIV RRI Report" />
         <property name="description" value="PMTCT RRI For Missed Opportunities" />
         <property name="apps"><set><ref bean="kenyaemr.app.reports" /></set></property>
         <property name="template" value="kenyaemrextras:pmtct/rri/pmtct_rri_template.xls" />
-        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedHAARTCohort  | sheet:3,row:6,dataset:missedDTGOptimizationCohort
- | sheet:4,row:6,dataset:missedHIVTestHEICohort  | sheet:5,row:6,dataset:missedInfantProphylaxisCohort
- | sheet:6,row:6,dataset:cALHIVCohort  | sheet:7,row:6,dataset:cALHIVWithNoValidVLCohort | sheet:8,row:6,dataset:txCurrPregnantAndBFCohort | sheet:9,row:6,dataset:txcurrWRA | sheet:10,row:6,dataset:txcurrWRANoChildrenContacts "/>
+        <property name="repeatingSection" value="sheet:1,row:6,dataset:missedHIVTestCohort | sheet:2,row:6,dataset:missedHAARTCohort
+         | sheet:3,row:6,dataset:missedDTGOptimizationCohort
+         | sheet:4,row:6,dataset:missedHIVTestHEICohort  | sheet:5,row:6,dataset:missedInfantProphylaxisCohort
+         | sheet:6,row:6,dataset:cALHIVCohort  | sheet:7,row:6,dataset:cALHIVWithNoValidVLCohort | sheet:8,row:6,dataset:cALHIVWithNonSuppressedVLCohort
+         | sheet:9,row:6,dataset:txCurrPregnantAndBFCohort | sheet:10,row:6,dataset:txCurrPgBFUnsuppressedCohort
+         | sheet:11,row:6,dataset:txcurrWRA | sheet:12,row:6,dataset:txcurrWRANoChildrenContacts"/>
     </bean>
 
     <bean id="kenyaemrextras.common.report.clientsWithRecencyIdentifier" class="org.openmrs.module.kenyacore.report.CalculationReportDescriptor">

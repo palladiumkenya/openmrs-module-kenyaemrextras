@@ -18,11 +18,11 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 import java.util.Date;
 
 /**
- * PLHIV definition Pregnant Breastfeeding Sources: Hiv Greencard, MCH program
+ * PLHIV definition Pregnant Breastfeeding and Unsuppressed Sources: Hiv Greencard, MCH program
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-@Localized("reporting.TxCurrPregnantAndBfCohortDefinition")
-public class TxCurrPregnantAndBfCohortDefinition extends BaseCohortDefinition {
+@Localized("reporting.TxCurrPgAndBfUnsuppressedCohortDefinition")
+public class TxCurrPgAndBfUnsuppressedCohortDefinition extends BaseCohortDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -30,7 +30,7 @@ public class TxCurrPregnantAndBfCohortDefinition extends BaseCohortDefinition {
 	@ConfigurationProperty
 	private Date endDate;
 	
-	public TxCurrPregnantAndBfCohortDefinition() {
+	public TxCurrPgAndBfUnsuppressedCohortDefinition() {
 	}
 	
 	public Date getStartDate() {
