@@ -160,6 +160,9 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		AppointmentOutcomeDataDefinition appointmentOutcomeDataDefinition = new AppointmentOutcomeDataDefinition();
 		appointmentOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		appointmentOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		ReturnToCareDateBasedDateDataDefinition returnToCareDateDataDefinition = new ReturnToCareDateBasedDateDataDefinition();
+		returnToCareDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		returnToCareDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		DataConverter formatter = new ObjectFormatter("{familyName}, {givenName}");
 		DataDefinition nameDef = new ConvertedPersonDataDefinition("name",
 		        new org.openmrs.module.reporting.data.person.definition.PreferredNameDataDefinition(), formatter);
@@ -185,6 +188,7 @@ public class AppointmentAttritionReportBuilder extends AbstractReportBuilder {
 		dsd.addColumn("Last VL Date", lastVlDateDataDefinition, "endDate=${endDate}", new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Last Visit Date", lastVisitDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Appointment Date", lastAppointmentDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
+		dsd.addColumn("Return to Care Date", returnToCareDateDataDefinition, paramMapping, new DateConverter(DATE_FORMAT));
 		dsd.addColumn("Appointment Status", appointmentOutcomeDataDefinition, paramMapping);
 		dsd.addColumn("Program", new CalculationDataDefinition("Program", new PatientProgramEnrollmentCalculation()), "",
 		    new PatientProgramEnrollmentConverter());
