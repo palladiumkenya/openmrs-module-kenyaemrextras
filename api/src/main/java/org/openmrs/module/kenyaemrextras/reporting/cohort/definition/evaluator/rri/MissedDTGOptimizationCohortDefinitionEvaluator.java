@@ -80,7 +80,7 @@ public class MissedDTGOptimizationCohortDefinitionEvaluator implements CohortDef
 		        + "                    group by patient_id) d on d.patient_id = fup.patient_id\n"
 		        + "              where fup.visit_date <= date(:endDate)\n"
 		        + "              and timestampdiff(MONTH, p.DOB, date(:endDate)) >= 1 and\n"
-		        + "                      timestampdiff(YEAR, p.DOB, date(:endDate)) <= 19\n"
+		        + "                      timestampdiff(YEAR, p.DOB, date(:endDate)) <= 14\n"
 		        + "                and (t.patient_id is null or t.weight >= 3)\n"
 		        + "              group by patient_id\n"
 		        + "              having (started_on_drugs is not null and started_on_drugs <> '' and regimen not like ('%DTG%'))\n"
