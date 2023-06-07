@@ -48,30 +48,62 @@ public class MissedHAARTCohortDefinitionEvaluator implements CohortDefinitionEva
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = "select e.patient_id\n"
-		        + "from kenyaemr_etl.etl_mch_enrollment e\n"
-		        + "         left join (select d.patient_id, d.date_started, d.regimen\n"
-		        + "                    from kenyaemr_etl.etl_drug_event d\n"
-		        + "                    where d.program = 'HIV') d on e.patient_id = d.patient_id\n"
-		        + "         left join (select t.patient_id, t.final_test_result\n"
-		        + "                    from kenyaemr_etl.etl_hts_test t\n"
-		        + "                    where t.final_test_result = 'Positive') t\n"
-		        + "                   on e.patient_id = t.patient_id\n"
-		        + "         left join (select h.patient_id from kenyaemr_etl.etl_hiv_enrollment h) h\n"
-		        + "                   on h.patient_id = e.patient_id\n"
-		        + "         left join(select a.patient_id, a.visit_date as anc_visit_date\n"
-		        + "                   from kenyaemr_etl.etl_mch_antenatal_visit a\n"
-		        + "                   where a.final_test_result = 'Positive') a on e.patient_id = a.patient_id\n"
-		        + "         left join(select m.patient_id, m.visit_date as mat_visit_date\n"
-		        + "                   from kenyaemr_etl.etl_mchs_delivery m\n"
-		        + "                   where m.final_test_result = 'Positive') m on e.patient_id = m.patient_id\n"
-		        + "         left join(select p.patient_id, p.visit_date as pnc_visit_date\n"
-		        + "                   from kenyaemr_etl.etl_mch_postnatal_visit p\n"
-		        + "                   where p.final_test_result = 'Positive') p on e.patient_id = p.patient_id\n"
-		        + "where date(e.visit_date) between date(:startDate) and date(:endDate)\n"
-		        + "  and d.patient_id is null\n"
-		        + "  and (e.hiv_status = 703 or t.patient_id is not null or h.patient_id is not null or a.patient_id is not null or\n"
-		        + "       m.patient_id is not null or p.patient_id is not null);";
+		String qry = "select a.mch_client from (select e.patient_id as mch_client,\n" +
+				"       max(date(e.visit_date)) as latest_enrollment_date,\n" +
+				"       date(x.disc_date) as disc_mch_date,\n" +
+				"       d.patient_id as on_drugs_client,\n" +
+				"       x.patient_id as disc_mch_client,\n" +
+				"       e.hiv_status as hiv_at_mch,\n" +
+				"       t.patient_id as hts_client,\n" +
+				"       h.patient_id as in_hiv_program,\n" +
+				"       h.disc_patient as disc_from_hiv,\n" +
+				"       h.enrollment_date as hiv_enrollment_date,\n" +
+				"       h.disc_date as hiv_disc_date,\n" +
+				"       n.patient_id as anc_client,\n" +
+				"       m.patient_id as maternity_client,\n" +
+				"       p.patient_id as postnatal_client\n" +
+				"from kenyaemr_etl.etl_mch_enrollment e\n" +
+				"         left join (select d.patient_id, d.date_started, d.regimen\n" +
+				"                    from kenyaemr_etl.etl_drug_event d\n" +
+				"                    where d.program = 'HIV') d on e.patient_id = d.patient_id\n" +
+				"         left join (select t.patient_id, t.final_test_result\n" +
+				"                    from kenyaemr_etl.etl_hts_test t\n" +
+				"                    where t.final_test_result = 'Positive') t\n" +
+				"                   on e.patient_id = t.patient_id\n" +
+				"         left join (select h.patient_id,\n" +
+				"                           max(h.visit_date) as enrollment_date,\n" +
+				"                           d.patient_id      as disc_patient,\n" +
+				"                           d.visit_date      as disc_date\n" +
+				"                    from kenyaemr_etl.etl_hiv_enrollment h\n" +
+				"                             left join (select patient_id,\n" +
+				"                                               coalesce(date(effective_discontinuation_date), visit_date) visit_date,\n" +
+				"                                               max(date(effective_discontinuation_date)) as               effective_disc_date\n" +
+				"                                        from kenyaemr_etl.etl_patient_program_discontinuation\n" +
+				"                                        where date(visit_date) <= date(:endDate)\n" +
+				"                                          and program_name = 'HIV'\n" +
+				"                                        group by patient_id) d on h.patient_id = d.patient_id\n" +
+				"                    group by h.patient_id) h\n" +
+				"                   on h.patient_id = e.patient_id\n" +
+				"         left join(select n.patient_id, n.visit_date as anc_visit_date\n" +
+				"                   from kenyaemr_etl.etl_mch_antenatal_visit n\n" +
+				"                   where n.final_test_result = 'Positive') n on e.patient_id = n.patient_id\n" +
+				"         left join(select m.patient_id, m.visit_date as mat_visit_date\n" +
+				"                   from kenyaemr_etl.etl_mchs_delivery m\n" +
+				"                   where m.final_test_result = 'Positive') m on e.patient_id = m.patient_id\n" +
+				"         left join(select p.patient_id, p.visit_date as pnc_visit_date\n" +
+				"                   from kenyaemr_etl.etl_mch_postnatal_visit p\n" +
+				"                   where p.final_test_result = 'Positive') p on e.patient_id = p.patient_id\n" +
+				"         left join (select x.patient_id, max(date(x.visit_date)) as disc_date\n" +
+				"                    from kenyaemr_etl.etl_patient_program_discontinuation x\n" +
+				"                    where x.program_name = 'MCH Mother'\n" +
+				"                    group by x.patient_id) x on e.patient_id = x.patient_id\n" +
+				"where date(e.visit_date) <= date(:endDate) group by e.patient_id)a\n" +
+				"  where (a.disc_mch_client is null or (a.latest_enrollment_date > date(a.disc_mch_date)))\n" +
+				"  and a.on_drugs_client is null\n" +
+				"  and (a.hiv_at_mch = 703 or a.hts_client is not null or\n" +
+				"       (a.in_hiv_program is not null and (a.disc_from_hiv is null or date(a.hiv_enrollment_date) > date(a.hiv_disc_date))) or\n" +
+				"       a.anc_client is not null or\n" +
+				"       a.maternity_client is not null or a.postnatal_client is not null);";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
 		builder.append(qry);
