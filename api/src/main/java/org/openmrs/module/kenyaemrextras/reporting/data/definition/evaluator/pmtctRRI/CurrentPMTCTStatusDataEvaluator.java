@@ -74,7 +74,8 @@ public class CurrentPMTCTStatusDataEvaluator implements PersonDataEvaluator {
 		        + "                 where c.visit_date <= date(:endDate)\n" + "                 group by c.patient_id\n"
 		        + "                 having (disc_client is null or\n"
 		        + "                         (latest_mch_enrollment > coalesce(effective_disc_date, disc_visit)))) c\n"
-		        + "        on f.patient_id = c.patient_id\n" + "    group by f.patient_id;\n";
+		        + "        on f.patient_id = c.patient_id\n" + "        where date(f.visit_date) <= date(:endDate)\n"
+		        + "    group by f.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
