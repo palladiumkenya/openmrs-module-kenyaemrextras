@@ -71,15 +71,15 @@ public class MissedOpportunityPMTCTRRIReportBuilder extends AbstractReportBuilde
 	@Override
 	protected List<Mapped<DataSetDefinition>> buildDataSets(ReportDescriptor descriptor, ReportDefinition report) {
 		return Arrays.asList(
-		    ReportUtils.map(missedDTGOptimizationDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(missedHIVTestHEIDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(cALHIVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(missedDTGOptimizationDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(cALHIVWithNoValidVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(cALHIVUnSuppressedVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(cALHIVLDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txCurrPregnantAndBreastFeedingDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
+		    ReportUtils.map(txCurrPgAndBFUnsuppressedDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"),
 		    ReportUtils.map(txcurrWRA(), "endDate=${endDate}"),
-		    ReportUtils.map(txcurrWRANoChildrenContacts(), "endDate=${endDate}"),
-		    ReportUtils.map(txCurrPgAndBFUnsuppressedDataSetDefinition(), "startDate=${startDate},endDate=${endDate}"));
+		    ReportUtils.map(txcurrWRANoChildrenContacts(), "endDate=${endDate}"));
 		
 	}
 	
