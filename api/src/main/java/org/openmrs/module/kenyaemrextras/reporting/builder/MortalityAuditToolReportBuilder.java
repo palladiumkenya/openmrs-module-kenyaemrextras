@@ -29,6 +29,9 @@ import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.WHOSt
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIEnrollmentDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.pama.PamaCareGiverStatusDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.BaselineCD4CountDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.BaselineCD4DateDataDefinition;
+import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.BaselineCD4DoneDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHEICohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivAndTBPatientCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DeceasedHivPatientCohortDefinition;
