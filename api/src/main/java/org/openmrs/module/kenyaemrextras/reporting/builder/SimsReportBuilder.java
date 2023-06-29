@@ -213,13 +213,13 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
-		LastHtsInitialResultDataDefinition test1DataDefinition = new LastHtsInitialResultDataDefinition();
+		LastHtsRetestTestOneResultDataDefinition test1DataDefinition = new LastHtsRetestTestOneResultDataDefinition();
 		test1DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test1DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("test 1 result", test1DataDefinition, indParams, null);
 		
-		LastHtsRetestResultDataDefinition test2DataDefinition = new LastHtsRetestResultDataDefinition();
+		LastHtsRetestTestTwoResultDataDefinition test2DataDefinition = new LastHtsRetestTestTwoResultDataDefinition();
 		test2DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test2DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -742,12 +742,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
-		LastHtsInitialResultDataDefinition test1DataDefinition = new LastHtsInitialResultDataDefinition();
+		LastHtsRetestTestOneResultDataDefinition test1DataDefinition = new LastHtsRetestTestOneResultDataDefinition();
 		test1DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test1DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("test 1 result", test1DataDefinition, indParams, null);
 		
-		LastHtsRetestResultDataDefinition test2DataDefinition = new LastHtsRetestResultDataDefinition();
+		LastHtsRetestTestTwoResultDataDefinition test2DataDefinition = new LastHtsRetestTestTwoResultDataDefinition();
 		test2DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		test2DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("test 2 result", test2DataDefinition, indParams, null);

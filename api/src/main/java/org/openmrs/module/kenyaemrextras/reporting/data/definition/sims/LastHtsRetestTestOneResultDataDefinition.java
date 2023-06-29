@@ -18,21 +18,21 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
  * Last HTS initial final outcome
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-public class LastHtsInitialResultDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+public class LastHtsRetestTestOneResultDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
 	
 	public static final long serialVersionUID = 1L;
 	
 	/**
 	 * Default Constructor
 	 */
-	public LastHtsInitialResultDataDefinition() {
+	public LastHtsRetestTestOneResultDataDefinition() {
 		super();
 	}
 	
 	/**
 	 * Constructor to populate name only
 	 */
-	public LastHtsInitialResultDataDefinition(String name) {
+	public LastHtsRetestTestOneResultDataDefinition(String name) {
 		super(name);
 	}
 	

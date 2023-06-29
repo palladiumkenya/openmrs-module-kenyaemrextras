@@ -10,8 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsInitialResultDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsRetestTestOneResultDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -27,8 +26,8 @@ import java.util.Map;
 /**
  * Evaluates last documented hts initial final result
  */
-@Handler(supports = LastHtsInitialResultDataDefinition.class, order = 50)
-public class LastHtsInitialResultDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = LastHtsRetestTestOneResultDataDefinition.class, order = 50)
+public class LastHtsRetestTestOneResultDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
