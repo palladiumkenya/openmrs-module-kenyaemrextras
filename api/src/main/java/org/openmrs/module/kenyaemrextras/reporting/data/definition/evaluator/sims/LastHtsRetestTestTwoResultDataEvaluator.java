@@ -10,8 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.LastNutritionAssessmentDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsInitialResultDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsRetestTestTwoResultDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -27,8 +26,8 @@ import java.util.Map;
 /**
  * Evaluates last documented hts initial final result
  */
-@Handler(supports = LastHtsInitialResultDataDefinition.class, order = 50)
-public class LastHtsInitialResultDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = LastHtsRetestTestTwoResultDataDefinition.class, order = 50)
+public class LastHtsRetestTestTwoResultDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -38,9 +37,8 @@ public class LastHtsInitialResultDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select test.patient_id,\n"
-		        + "mid(max(concat(test.visit_date, test.final_test_result)), 11)\n"
-		        + "             as test1result from kenyaemr_etl.etl_hts_test test where test.test_type = 1 and date(test.visit_date) <= date(:endDate)\n"
-		        + "\tGROUP BY test.patient_id;";
+		        + "mid(max(concat(test.visit_date, test.test_2_result)), 11) as test1result from kenyaemr_etl.etl_hts_test test\n"
+		        + "  where test.test_type = 2 and date(test.visit_date) <= date(:endDate)\n" + "GROUP BY test.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

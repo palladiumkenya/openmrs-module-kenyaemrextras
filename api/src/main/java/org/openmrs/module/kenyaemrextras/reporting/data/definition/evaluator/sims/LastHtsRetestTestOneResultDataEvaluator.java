@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsRetestResultDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.LastHtsRetestTestOneResultDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -26,8 +26,8 @@ import java.util.Map;
 /**
  * Evaluates last documented hts initial final result
  */
-@Handler(supports = LastHtsRetestResultDataDefinition.class, order = 50)
-public class LastHtsRetestResultDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = LastHtsRetestTestOneResultDataDefinition.class, order = 50)
+public class LastHtsRetestTestOneResultDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,9 +37,8 @@ public class LastHtsRetestResultDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select test.patient_id,\n"
-		        + "mid(max(concat(test.visit_date, test.final_test_result)), 11)\n"
-		        + "             as test1result from kenyaemr_etl.etl_hts_test test where test.test_type = 2 and date(test.visit_date) <= date(:endDate)\n"
-		        + "\tGROUP BY test.patient_id;";
+		        + "mid(max(concat(test.visit_date, test.test_1_result)), 11) as test1result from kenyaemr_etl.etl_hts_test test\n"
+		        + "    where test.test_type = 2 and date(test.visit_date) <= date(:endDate)\n" + "GROUP BY test.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
