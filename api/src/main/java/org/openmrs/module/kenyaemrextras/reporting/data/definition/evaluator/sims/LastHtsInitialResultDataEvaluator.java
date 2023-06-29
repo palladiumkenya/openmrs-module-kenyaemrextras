@@ -38,9 +38,8 @@ public class LastHtsInitialResultDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select test.patient_id,\n"
-		        + "mid(max(concat(test.visit_date, test.final_test_result)), 11)\n"
-		        + "             as test1result from kenyaemr_etl.etl_hts_test test where test.test_type = 1 and date(test.visit_date) <= date(:endDate)\n"
-		        + "\tGROUP BY test.patient_id;";
+		        + "mid(max(concat(test.visit_date, test.test_1_result)), 11) as test1result from kenyaemr_etl.etl_hts_test test\n"
+		        + "    where test.test_type = 2 and date(test.visit_date) <= date(:endDate)\n" + "GROUP BY test.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
