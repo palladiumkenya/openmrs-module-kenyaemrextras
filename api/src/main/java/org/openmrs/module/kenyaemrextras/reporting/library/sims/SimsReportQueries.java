@@ -362,7 +362,7 @@ public class SimsReportQueries {
 		        + "where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
 		        + "group by patient_id\n"
 		        + ") d on d.patient_id = fup.patient_id\n"
-		        + "where fup.visit_date <= date(:endDate)\n"
+		        + "where fup.visit_date <= date(:endDate) and fup.population_type = 164929\n"
 		        + "group by patient_id\n"
 		        + "having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
 		        + "(\n"
