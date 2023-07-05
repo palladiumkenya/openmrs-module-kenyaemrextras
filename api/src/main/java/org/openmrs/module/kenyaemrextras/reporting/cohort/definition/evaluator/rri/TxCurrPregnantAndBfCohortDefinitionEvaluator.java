@@ -98,7 +98,7 @@ public class TxCurrPregnantAndBfCohortDefinitionEvaluator implements CohortDefin
 		        + "                                       11)     as effective_disc_date\n"
 		        + "                                 from kenyaemr_etl.etl_patient_program_discontinuation\n"
 		        + "                                 where date(visit_date) <= date(:endDate)\n"
-		        + "                                       and program_name = 'MCH-Mother Services'\n"
+		        + "                                       and program_name = 'MCH Mother'\n"
 		        + "                                 group by patient_id) m on c.patient_id = m.patient_id\n"
 		        + "                    where c.visit_date <= date(:endDate)\n"
 		        + "                          and c.service_type in (1622, 1623)\n"
