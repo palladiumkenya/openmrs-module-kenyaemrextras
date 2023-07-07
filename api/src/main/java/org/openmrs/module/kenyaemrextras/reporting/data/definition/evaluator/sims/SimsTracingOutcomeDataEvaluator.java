@@ -37,9 +37,9 @@ public class SimsTracingOutcomeDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select t.patient_id,\n"
-				+ "(case mid(max(concat(t.visit_date, t.true_status)), 11) when 160432 then 'Dead' when 1693 then 'Receiving ART from another clinic/Transferred' when 160037 then 'Still in care at CCC' when 5240 then 'Lost to follow up' when 164435 then 'Stopped treatment' when 142917 then 'Other' else '' end)\n"
-				+ " as outcome from kenyaemr_etl.etl_ccc_defaulter_tracing t where date(t.visit_date) between date(:startDate) and date(:endDate)\n"
-				+ "GROUP BY t.patient_id;";
+		        + "(case mid(max(concat(t.visit_date, t.true_status)), 11) when 160432 then 'Dead' when 1693 then 'Receiving ART from another clinic/Transferred' when 160037 then 'Still in care at CCC' when 5240 then 'Lost to follow up' when 164435 then 'Stopped treatment' when 142917 then 'Other' else '' end)\n"
+		        + " as outcome from kenyaemr_etl.etl_ccc_defaulter_tracing t where date(t.visit_date) between date(:startDate) and date(:endDate)\n"
+		        + "GROUP BY t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
