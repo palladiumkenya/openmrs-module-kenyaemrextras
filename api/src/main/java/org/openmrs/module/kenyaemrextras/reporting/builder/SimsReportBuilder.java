@@ -362,13 +362,13 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Date", enhancedAdherenceDateDataDefinition, indParams, null);
-		
-		SimsEnhancedAdherenceDocumentedDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEnhancedAdherenceDocumentedDataDefinition();
+
+		SimsEACAfterUnsuppressedVLStatusDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEACAfterUnsuppressedVLStatusDataDefinition();
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Documented", enhancedAdherenceDocumentedDataDefinition, indParams, null);
-		
-		SimsFollowUpVLTakenDataDefinition followUpVLTakenDataDefinition = new SimsFollowUpVLTakenDataDefinition();
+
+		SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition followUpVLTakenDataDefinition = new SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition();
 		followUpVLTakenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		followUpVLTakenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Follow Up VL", followUpVLTakenDataDefinition, indParams, null);
@@ -1925,12 +1925,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
-		SimsPregBFEACAfterUnsuppressedVLStatusDataDefinition eacAfterUnsupressedvl = new SimsPregBFEACAfterUnsuppressedVLStatusDataDefinition();
+		SimsEACAfterUnsuppressedVLStatusDataDefinition eacAfterUnsupressedvl = new SimsEACAfterUnsuppressedVLStatusDataDefinition();
 		eacAfterUnsupressedvl.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		eacAfterUnsupressedvl.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("S_04_04 Q2", eacAfterUnsupressedvl, indParams, null);
 		
-		SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition simsRepeatVLAfterUnsuppressedResults = new SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition();
+		SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition simsRepeatVLAfterUnsuppressedResults = new SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition();
 		simsRepeatVLAfterUnsuppressedResults.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsRepeatVLAfterUnsuppressedResults.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("S_04_04 Q3", simsRepeatVLAfterUnsuppressedResults, indParams, null);

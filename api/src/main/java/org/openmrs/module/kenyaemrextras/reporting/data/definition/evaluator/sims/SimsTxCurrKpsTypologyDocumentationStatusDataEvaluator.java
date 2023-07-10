@@ -37,24 +37,24 @@ public class SimsTxCurrKpsTypologyDocumentationStatusDataEvaluator implements Pe
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id, if(f.patient_id is null and c.client_id is null, 'NA', coalesce(f.kp_typology_documented, c.kp_typology_documented))\n" +
-				"from kenyaemr_etl.etl_patient_demographics d\n" +
-				"         left join (select f.patient_id,\n" +
-				"                           if(mid(max(concat(date(f.visit_date), f.population_type)), 11) != 164929, 'NA', if(\n" +
-				"                                           mid(max(concat(date(f.visit_date), f.population_type)), 11) = 164929 and\n" +
-				"                                           mid(max(concat(date(f.visit_date), f.key_population_type)), 11) in\n" +
-				"                                           (105, 165100, 160578, 160579, 162277), 'Y', 'N')) as kp_typology_documented\n" +
-				"                    from kenyaemr_etl.etl_patient_hiv_followup f\n" +
-				"                    where date(f.visit_date) <= date(:endDate)\n" +
-				"                      and f.person_present = 978\n" +
-				"                    group by f.patient_id) f on d.patient_id = f.patient_id\n" +
-				"         left join (select c.client_id,\n" +
-				"                           if(mid(max(concat(date(c.visit_date), c.key_population_type)), 11) in\n" +
-				"                              ('People in prison and other closed settings', 'Transgender', 'PWID', 'PWUD', 'MSW',\n" +
-				"                               'MSM', 'FSW'), 'Y', 'N') as kp_typology_documented\n" +
-				"                    from kenyaemr_etl.etl_contact c\n" +
-				"                    where date(c.visit_date) <= date(:endDate)\n" +
-				"                    group by c.client_id) c on d.patient_id = c.client_id;";
+		String qry = "select d.patient_id, if(f.patient_id is null and c.client_id is null, 'NA', coalesce(f.kp_typology_documented, c.kp_typology_documented))\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n"
+		        + "         left join (select f.patient_id,\n"
+		        + "                           if(mid(max(concat(date(f.visit_date), f.population_type)), 11) != 164929, 'NA', if(\n"
+		        + "                                           mid(max(concat(date(f.visit_date), f.population_type)), 11) = 164929 and\n"
+		        + "                                           mid(max(concat(date(f.visit_date), f.key_population_type)), 11) in\n"
+		        + "                                           (105, 165100, 160578, 160579, 162277), 'Y', 'N')) as kp_typology_documented\n"
+		        + "                    from kenyaemr_etl.etl_patient_hiv_followup f\n"
+		        + "                    where date(f.visit_date) <= date(:endDate)\n"
+		        + "                      and f.person_present = 978\n"
+		        + "                    group by f.patient_id) f on d.patient_id = f.patient_id\n"
+		        + "         left join (select c.client_id,\n"
+		        + "                           if(mid(max(concat(date(c.visit_date), c.key_population_type)), 11) in\n"
+		        + "                              ('People in prison and other closed settings', 'Transgender', 'PWID', 'PWUD', 'MSW',\n"
+		        + "                               'MSM', 'FSW'), 'Y', 'N') as kp_typology_documented\n"
+		        + "                    from kenyaemr_etl.etl_contact c\n"
+		        + "                    where date(c.visit_date) <= date(:endDate)\n"
+		        + "                    group by c.client_id) c on d.patient_id = c.client_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
