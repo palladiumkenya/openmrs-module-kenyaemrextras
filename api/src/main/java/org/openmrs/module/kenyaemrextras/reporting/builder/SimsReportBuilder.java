@@ -362,12 +362,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Date", enhancedAdherenceDateDataDefinition, indParams, null);
-
+		
 		SimsEACAfterUnsuppressedVLStatusDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEACAfterUnsuppressedVLStatusDataDefinition();
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Documented", enhancedAdherenceDocumentedDataDefinition, indParams, null);
-
+		
 		SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition followUpVLTakenDataDefinition = new SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition();
 		followUpVLTakenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		followUpVLTakenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
