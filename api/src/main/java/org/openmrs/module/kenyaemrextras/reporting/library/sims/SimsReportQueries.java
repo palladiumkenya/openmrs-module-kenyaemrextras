@@ -2314,7 +2314,7 @@ public class SimsReportQueries {
 		        + "        ) l on fup.patient_id = l.patient_id\n"
 		        + "                             left join (select pp.patient_id from patient_program pp\n"
 		        + "                                                                      inner join program p on p.program_id = pp.program_id\n"
-		        + "                                        where date(pp.date_completed) is null and p.name in = 'MCH - Mother Services'\n"
+		        + "                                        where date(pp.date_completed) is null and p.name = 'MCH - Mother Services'\n"
 		        + "                                        group by pp.patient_id\n"
 		        + "                                        having max(date(pp.date_enrolled)) <= date(:endDate))pp on fup.patient_id = pp.patient_id\n"
 		        + "                   join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV'\n"
