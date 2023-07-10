@@ -20,21 +20,21 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
  * virologic non-suppression
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
-public class SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
+public class SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
 	
 	public static final long serialVersionUID = 1L;
 	
 	/**
 	 * Default Constructor
 	 */
-	public SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition() {
+	public SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition() {
 		super();
 	}
 	
 	/**
 	 * Constructor to populate name only
 	 */
-	public SimsPregBFRepeatVLAfterUnsuppressedVLStatusDataDefinition(String name) {
+	public SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition(String name) {
 		super(name);
 	}
 	
