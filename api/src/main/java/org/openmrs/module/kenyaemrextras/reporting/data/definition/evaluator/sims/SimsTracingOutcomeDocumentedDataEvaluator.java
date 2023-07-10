@@ -36,7 +36,7 @@ public class SimsTracingOutcomeDocumentedDataEvaluator implements PersonDataEval
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,if(tracing_outcome is not null and numberOfTracing > 1 ,'Y','N') from (\n"
+		String qry = "select a.patient_id,if(tracing_outcome is not null and tracing_outcome > 0 and numberOfTracing > 1 ,'Y','N') from (\n"
 		        + "    select e.patient_id,t.tracing_outcome,t.tracingDate, t.numberOfTracing from kenyaemr_etl.etl_hiv_enrollment e\n"
 		        + "    left outer join (\n"
 		        + "        select trace.patient_id as patient_id,count(trace.visit_date) as numberOfTracing,\n"
