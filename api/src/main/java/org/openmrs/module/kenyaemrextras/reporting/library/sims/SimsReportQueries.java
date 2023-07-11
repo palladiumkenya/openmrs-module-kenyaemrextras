@@ -1299,7 +1299,7 @@ public class SimsReportQueries {
 		        + "    having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
 		        + "    (\n"
 		        + "    ((timestampdiff(DAY,date(latest_tca),date(\"2022-10-30\")) <= 30) and ((date(d.effective_disc_date) > date(\"2022-10-30\") or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
-		        + "    and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=10 and age <= 19\n"
+		        + "    and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age >=10 and age <= 15\n"
 		        + "    )\n"
 		        + "    )\n"
 		        + ") t\n"
