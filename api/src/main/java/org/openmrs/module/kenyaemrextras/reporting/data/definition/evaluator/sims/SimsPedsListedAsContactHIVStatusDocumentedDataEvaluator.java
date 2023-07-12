@@ -26,7 +26,8 @@ import java.util.Map;
 
 /**
  * Evaluates whether child listed as a contact has HIV status document KHP3-3824:Updated to include
- * children contacts only as well as checking HTS for HIV status documentation
+ * children contacts only as well as checking HTS for HIV status documentation Revised to check for
+ * HTS tests
  */
 @Handler(supports = SimsPedsListedAsContactsHIVStatusDocumentedDataDefinition.class, order = 50)
 public class SimsPedsListedAsContactHIVStatusDocumentedDataEvaluator implements PersonDataEvaluator {
@@ -40,21 +41,9 @@ public class SimsPedsListedAsContactHIVStatusDocumentedDataEvaluator implements 
 		
 		String qry = "select d.patient_id,\n"
 		        + "       IF(relationship is null, 'N/A',\n"
-		        + "          if(find_in_set('not known', group_concat(case ifnull(c.hivStatus, 'was null')\n"
-		        + "                                                       when 'was null' then 'not known'\n"
-		        + "                                                       when '1067' then 'not known'\n"
-		        + "                                                       when '0' then 'not known'\n"
-		        + "                                                       when 'Unknown' then 'not known'\n"
-		        + "                                                       when '664' then 'Negative'\n"
-		        + "                                                       when '703' then 'Positive'\n"
-		        + "                                                       when 'Negative' then 'Negative'\n"
-		        + "                                                       when 'Positive' then 'Positive'\n"
-		        + "                                                       else c.hivStatus end)) != 0 or\n"
-		        + "             find_in_set('not known', group_concat(case ifnull(c.hts_status, 'was null')\n"
+		        + "          if(find_in_set('not known', group_concat(case ifnull(c.hts_status, 'was null')\n"
 		        + "                                                       when 'was null' then 'not known'\n"
 		        + "                                                       when 'Inconclusive' then 'not known'\n"
-		        + "                                                       when 'Negative' then 'Negative'\n"
-		        + "                                                       when 'Positive' then 'Positive'\n"
 		        + "                                                       else c.hts_status end)) != 0, 'N', 'Y')) AS hivstatus\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
 		        + "         left join (select c.id                  as contact_id,\n"
@@ -69,7 +58,8 @@ public class SimsPedsListedAsContactHIVStatusDocumentedDataEvaluator implements 
 		        + "                                        from kenyaemr_etl.etl_hts_test hts\n"
 		        + "                                        where date(hts.visit_date) <= date(:endDate)) hts\n"
 		        + "                                       on c.patient_id = hts.patient_id\n"
-		        + "                    where c.relationship_type = 1528 and timestampdiff(YEAR, date(c.birth_date), date(:endDate)) < 15\n"
+		        + "                    where c.relationship_type = 1528\n"
+		        + "                      and timestampdiff(YEAR, date(c.birth_date), date(:endDate)) < 15\n"
 		        + "                      and c.voided = 0) c on d.patient_id = c.idx_patient_id\n"
 		        + "group by d.patient_id;";
 		
