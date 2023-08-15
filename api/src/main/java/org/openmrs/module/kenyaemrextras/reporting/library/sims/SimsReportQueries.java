@@ -380,6 +380,60 @@ public class SimsReportQueries {
 		
 	}
 	
+	/**
+	 * Returns peds currently on ART
+	 * 
+	 * @return
+	 */
+	public static String pedsCurrentlyOnArtQuery() {
+		String qry = "select t.patient_id from (\n"
+		        + "      select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
+		        + "              greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
+		        + "              greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
+		        + "              greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
+		        + "              d.patient_id as disc_patient,\n"
+		        + "              d.effective_disc_date as effective_disc_date,\n"
+		        + "              max(d.visit_date) as date_discontinued,\n"
+		        + "              de.patient_id as started_on_drugs,\n"
+		        + "              de.date_started,\n"
+		        + "              timestampdiff(YEAR ,p.dob,date(:endDate)) as age,\n"
+		        + "              pp.patient_id as pmtct_client,\n"
+		        + "              c.client_id as kp_client\n"
+		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "              join kenyaemr_etl.etl_patient_demographics p on p.patient_id=fup.patient_id\n"
+		        + "              join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id=e.patient_id\n"
+		        + "              left outer join kenyaemr_etl.etl_drug_event de on e.patient_id = de.patient_id and de.program='HIV'\n"
+		        + "              left outer JOIN\n"
+		        + "                  (select patient_id, coalesce(date(effective_discontinuation_date),visit_date) visit_date,max(date(effective_discontinuation_date)) as effective_disc_date from kenyaemr_etl.etl_patient_program_discontinuation\n"
+		        + "                  where date(visit_date) <= date(:endDate) and program_name='HIV'\n"
+		        + "                  group by patient_id\n"
+		        + "                  ) d on d.patient_id = fup.patient_id\n"
+		        + "                      left join (select pp.patient_id\n"
+		        + "                                 from patient_program pp\n"
+		        + "                                          inner join program p on p.program_id = pp.program_id\n"
+		        + "                                 where date(pp.date_completed) is null\n"
+		        + "                                   and p.name = 'MCH - Mother Services'\n"
+		        + "                                 group by pp.patient_id\n"
+		        + "                                 having max(date(pp.date_enrolled)) <= date(:endDate)) pp\n"
+		        + "                                on fup.patient_id = pp.patient_id\n"
+		        + "                      left join (select c.client_id,d.kp_disc_date,d.disc_client\n"
+		        + "                                 from kenyaemr_etl.etl_contact c\n"
+		        + "                                          left join (select d.patient_id as disc_client,max(date(d.visit_date)) as kp_disc_date from kenyaemr_etl.etl_patient_program_discontinuation d where d.program_name = 'KP')d on c.client_id = d.disc_client\n"
+		        + "                                 where date(c.visit_date) <= date(:endDate)\n"
+		        + "                                 group by c.client_id\n"
+		        + "                                 having d.kp_disc_date < max(date(c.visit_date)) or disc_client is null\n"
+		        + "              ) c on fup.patient_id = c.client_id\n"
+		        + "      where fup.visit_date <= date(:endDate)\n"
+		        + "      group by patient_id\n"
+		        + "      having (started_on_drugs is not null and started_on_drugs <> '') and (\n"
+		        + "          (\n"
+		        + "              ((timestampdiff(DAY,date(latest_tca),date(:endDate)) <= 30) and ((date(d.effective_disc_date) > date(:endDate) or date(enroll_date) > date(d.effective_disc_date)) or d.effective_disc_date is null))\n"
+		        + "                  and (date(latest_vis_date) >= date(date_discontinued) or date(latest_tca) >= date(date_discontinued) or disc_patient is null) and age <15 and pmtct_client is null\n"
+		        + "              and kp_client is null\n" + "              )         )      ) t  order by RAND() limit 10;";
+		return qry;
+		
+	}
+	
 	public static String adultARTClientsReceivedHighImpactServices() {
 		String qry = "select t.patient_id\n"
 		        + "from (select fup.visit_date,\n"

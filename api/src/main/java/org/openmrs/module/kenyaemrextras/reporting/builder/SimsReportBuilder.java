@@ -95,6 +95,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		DataSetDefinition pedOnArtWithPresumptiveTBDSD = pedsOnARTWithPresumptiveTBDatasetDefinition("S_02_29");
 		DataSetDefinition pedsOnArtScreenedNegTBAndEverOnTPTDSD = pedsOnArtScreenedNegTBAndEverOnTPTDatasetDefinition("S_02_27");
 		DataSetDefinition pedsMissedRecentAppointmentDSD = pedsMissedRecentAppointmentDatasetDefinition("S_02_19");
+		DataSetDefinition pedsOnARTDSD = pedsOnARTDatasetDefinition("S_02_32");
 		DataSetDefinition txCurrKPsWithClinicalVisitLast12MonthsDSD = txCurrKPsWithClinicalVisitLast12MonthsDatasetDefinition("S_03_02");
 		DataSetDefinition txCurrKPsWithClinicalVisitLast3MonthsDSD = txCurrKPsWithClinicalVisitLast3MonthsDatasetDefinition("S_03_05");
 		DataSetDefinition txNewKPsRetestDSD = txNewKPsHIVRetestDatasetDefinition("S_03_08");
@@ -145,6 +146,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		                    .map(adultsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                pedsOnArtVLMonitoringDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                pedsMissedRecentAppointmentDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
+		                pedsOnARTDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                pedsNewlyInitiatedOnArtdDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                pedOnArtWithPresumptiveTBDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
 		                pedsOnArtVirallyUnsupressedDSD, "startDate=${startDate},endDate=${endDate}"), ReportUtils.map(
@@ -442,11 +444,6 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		negativeTBResultsAndEverOnTPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		negativeTBResultsAndEverOnTPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Negative TB Result Ever on TPT", negativeTBResultsAndEverOnTPTDataDefinition, indParams, null);
-		
-		SimsGPHighImpactServicesDataDefinition highImpactServicesDataDefinition = new SimsGPHighImpactServicesDataDefinition();
-		highImpactServicesDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		highImpactServicesDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("High Impact Services", negativeTBResultsAndEverOnTPTDataDefinition, indParams, null);
 		
 		CohortDefinition cd = new S0207CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -1657,6 +1654,42 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
 		cd.setName("Peds Non Virally suppressed");
+		dsd.addRowFilter(cd, indParams);
+		
+		return dsd;
+	}
+	
+	protected PatientDataSetDefinition pedsOnARTDatasetDefinition(String datasetName) {
+		
+		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
+		String indParams = "startDate=${startDate},endDate=${endDate}";
+		
+		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
+		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
+		DataConverter identifierFormatter = new ObjectFormatter("{identifier}");
+		DataDefinition identifierDef = new ConvertedPatientDataDefinition("identifier", new PatientIdentifierDataDefinition(
+		        upn.getName(), upn), identifierFormatter);
+		
+		DataConverter nameFormatter = new ObjectFormatter("{familyName}, {givenName}");
+		DataDefinition nameDef = new ConvertedPersonDataDefinition("name", new PreferredNameDataDefinition(), nameFormatter);
+		dsd.addColumn("id", new PersonIdDataDefinition(), "");
+		dsd.addColumn("Name", nameDef, "");
+		dsd.addColumn("CCC No", identifierDef, "");
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+		
+		SimsPedsHighImpactServicesDataDefinition pedsReceivedHighImpactServices = new SimsPedsHighImpactServicesDataDefinition();
+		pedsReceivedHighImpactServices.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		pedsReceivedHighImpactServices.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Peds received High impact services", pedsReceivedHighImpactServices, indParams, null);
+		
+		CohortDefinition cd = new S0232CohortDefinition();
+		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+		cd.setName("Peds Currently on ART");
 		dsd.addRowFilter(cd, indParams);
 		
 		return dsd;
