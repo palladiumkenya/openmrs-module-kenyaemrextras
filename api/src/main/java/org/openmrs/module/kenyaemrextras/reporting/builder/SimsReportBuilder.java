@@ -15,15 +15,18 @@ import org.openmrs.module.kenyacore.report.ReportDescriptor;
 import org.openmrs.module.kenyacore.report.ReportUtils;
 import org.openmrs.module.kenyacore.report.builder.AbstractHybridReportBuilder;
 import org.openmrs.module.kenyacore.report.builder.Builds;
+import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDataDefinition;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.metadata.CommonMetadata;
 import org.openmrs.module.kenyaemr.metadata.MchMetadata;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.hei.HEIIdDataDefinition;
+import org.openmrs.module.kenyaemr.calculation.library.hiv.LastestVLTakenWithinIntervalCalculation;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.S0302CohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.sims.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.EverOnIPTDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.*;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.VLDoneWithinIntervalBooleanResultsConverter;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.data.DataDefinition;
 import org.openmrs.module.reporting.data.converter.BirthdateConverter;
@@ -697,7 +700,7 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		
-		SimsPedsRecentVLResultsDataDefinition pedsRecentVLResultsDataDefinition = new SimsPedsRecentVLResultsDataDefinition();
+		SimsRecentVLResultsDataDefinition pedsRecentVLResultsDataDefinition = new SimsRecentVLResultsDataDefinition();
 		pedsRecentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		pedsRecentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Peds Recent VL Results", pedsRecentVLResultsDataDefinition, indParams, null);
@@ -705,7 +708,9 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsPedsRecentVLTestOrderedDataDefinition pedsRecentVLTestOrderedDataDefinition = new SimsPedsRecentVLTestOrderedDataDefinition();
 		pedsRecentVLTestOrderedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		pedsRecentVLTestOrderedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Ped Test Ordered", pedsRecentVLTestOrderedDataDefinition, indParams, null);
+		//dsd.addColumn("Ped Test Ordered", pedsRecentVLTestOrderedDataDefinition, indParams, null);
+		dsd.addColumn("Ped Test Ordered", new CalculationDataDefinition("Test Ordered",
+		        new LastestVLTakenWithinIntervalCalculation()), "", new VLDoneWithinIntervalBooleanResultsConverter());
 		
 		CohortDefinition cd = new S0226To28CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -746,8 +751,9 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsRecentVLTestOrderedDataDefinition recentVLTestOrderedDataDefinition = new SimsRecentVLTestOrderedDataDefinition();
 		recentVLTestOrderedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		recentVLTestOrderedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Test Ordered", recentVLTestOrderedDataDefinition, indParams, null);
-		
+		//dsd.addColumn("Test Ordered", recentVLTestOrderedDataDefinition, indParams, null);
+		dsd.addColumn("Test Ordered", new CalculationDataDefinition("Test Ordered",
+		        new LastestVLTakenWithinIntervalCalculation()), "", new VLDoneWithinIntervalBooleanResultsConverter());
 		CohortDefinition cd = new S0207CohortDefinition();
 		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -1110,9 +1116,10 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsKpRecentVLTestOrderedDataDefinition kPRecentVLTestOrderedDataDefinition = new SimsKpRecentVLTestOrderedDataDefinition();
 		kPRecentVLTestOrderedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		kPRecentVLTestOrderedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("KP Test Ordered", kPRecentVLTestOrderedDataDefinition, indParams, null);
-		
-		SimsKpRecentVLResultsDataDefinition kpRecentVLResultsDataDefinition = new SimsKpRecentVLResultsDataDefinition();
+		//dsd.addColumn("KP Test Ordered", kPRecentVLTestOrderedDataDefinition, indParams, null);
+		dsd.addColumn("KP Test Ordered", new CalculationDataDefinition("KP Test Ordered",
+		        new LastestVLTakenWithinIntervalCalculation()), "", new VLDoneWithinIntervalBooleanResultsConverter());
+		SimsRecentVLResultsDataDefinition kpRecentVLResultsDataDefinition = new SimsRecentVLResultsDataDefinition();
 		kpRecentVLResultsDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		kpRecentVLResultsDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("KP Recent VL Results", kpRecentVLResultsDataDefinition, indParams, null);
@@ -1153,12 +1160,12 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		enhancedAdherenceDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Date", enhancedAdherenceDateDataDefinition, indParams, null);
 		
-		SimsEACAfterUnsuppressedVLStatusDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEACAfterUnsuppressedVLStatusDataDefinition();
+		SimsEnhancedAdherenceDocumentedDataDefinition enhancedAdherenceDocumentedDataDefinition = new SimsEnhancedAdherenceDocumentedDataDefinition();
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		enhancedAdherenceDocumentedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Enhance Adherence Documented", enhancedAdherenceDocumentedDataDefinition, indParams, null);
 		
-		SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition followUpVLTakenDataDefinition = new SimsRepeatVLAfterUnsuppressedVLStatusDataDefinition();
+		SimsFollowUpVLTakenDataDefinition followUpVLTakenDataDefinition = new SimsFollowUpVLTakenDataDefinition();
 		followUpVLTakenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		followUpVLTakenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Follow Up VL", followUpVLTakenDataDefinition, indParams, null);
@@ -1994,9 +2001,10 @@ public class SimsReportBuilder extends AbstractHybridReportBuilder {
 		SimsPregBFVLOrderedWithinIntervalStatusDataDefinition simsVLOrderedWithinInterval = new SimsPregBFVLOrderedWithinIntervalStatusDataDefinition();
 		simsVLOrderedWithinInterval.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsVLOrderedWithinInterval.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("S_04_03 Q2", simsVLOrderedWithinInterval, indParams, null);
-		
-		SimsPregBFLastVLResultStatusDataDefinition simsRecentVLResultStatus = new SimsPregBFLastVLResultStatusDataDefinition();
+		//dsd.addColumn("S_04_03 Q2", simsVLOrderedWithinInterval, indParams, null);
+		dsd.addColumn("S_04_03 Q2", new CalculationDataDefinition("S_04_03 Q2",
+		        new LastestVLTakenWithinIntervalCalculation()), "", new VLDoneWithinIntervalBooleanResultsConverter());
+		SimsRecentVLResultsDataDefinition simsRecentVLResultStatus = new SimsRecentVLResultsDataDefinition();
 		simsRecentVLResultStatus.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		simsRecentVLResultStatus.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("S_04_03 Q3", simsRecentVLResultStatus, indParams, null);
