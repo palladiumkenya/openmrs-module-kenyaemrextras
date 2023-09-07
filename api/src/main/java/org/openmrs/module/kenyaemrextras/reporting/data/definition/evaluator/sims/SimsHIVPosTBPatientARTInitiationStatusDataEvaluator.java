@@ -37,7 +37,7 @@ public class SimsHIVPosTBPatientARTInitiationStatusDataEvaluator implements Pers
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, a.art_client, if(a.art_client is not null, 'Y', 'N') as on_art\n"
+		String qry = "select a.patient_id, if(a.art_client is not null, 'Y', 'N') as on_art\n"
 		        + "from (select dem.patient_id,\n"
 		        + "             disc.effective_disc_date as disc_date,\n"
 		        + "             max(e.visit_date)        as enr_date,\n"

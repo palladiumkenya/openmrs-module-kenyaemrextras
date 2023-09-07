@@ -2360,7 +2360,7 @@ public class SimsReportQueries {
 		        + "    where date(visit_date) <= date(:endDate)\n" + "      and program_name = 'TB'\n"
 		        + "    group by patient_id\n" + ") disc on dem.patient_id = disc.patient_id\n"
 		        + "where (t.patient_id is not null or h.patient_id is not null)\n"
-		        + " and timestampdiff(YEAR,dem.dob,date(:endDate) >= 18)\n" + "group by e.patient_id\n"
+		        + " and timestampdiff(YEAR,dem.dob,date(:endDate)) >= 18\n" + "group by e.patient_id\n"
 		        + "having disc_patient is null\n" + "    or latest_enrollment >= disc_date  )a\n"
 		        + " order by RAND() limit 10;";
 		return qry;
