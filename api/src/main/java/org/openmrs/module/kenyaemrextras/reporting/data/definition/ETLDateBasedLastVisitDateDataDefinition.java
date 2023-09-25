@@ -14,6 +14,8 @@ import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationPropertyCachingStrategy;
 import org.openmrs.module.reporting.evaluation.caching.Caching;
 
+import java.util.Date;
+
 /**
  * Last visit date Data Definition
  */
@@ -42,6 +44,6 @@ public class ETLDateBasedLastVisitDateDataDefinition extends BaseDataDefinition 
 	 * @see org.openmrs.module.reporting.data.DataDefinition#getDataType()
 	 */
 	public Class<?> getDataType() {
-		return Double.class;
+		return Date.class;
 	}
 }
