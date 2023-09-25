@@ -222,7 +222,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
+
 		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
 		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
@@ -234,7 +234,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
+
 		dsd.addColumn("Next Appointment Date", nextAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
 		        DATE_FORMAT));
 		

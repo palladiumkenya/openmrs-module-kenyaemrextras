@@ -37,7 +37,7 @@ public class DQALastVLDateDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select patient_id,\n"
-		        + " DATE_FORMAT(max(date(visit_date)), '%d/%m/%Y') as vlDate from kenyaemr_etl.etl_laboratory_extract where lab_test in (1305,856)\n"
+		        + " max(date(visit_date)) as vlDate from kenyaemr_etl.etl_laboratory_extract where lab_test in (1305,856)\n"
 		        + " and date(visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
 		        + " GROUP BY patient_id;";
 		
