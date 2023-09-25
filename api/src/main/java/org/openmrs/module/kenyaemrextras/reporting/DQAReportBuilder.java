@@ -229,13 +229,14 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams, null);
-		
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		        DATE_FORMAT));
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams, null);
+		dsd.addColumn("Next Appointment Date", nextAppointmentDateDataDefinition, "endDate=${endDate}", new DateConverter(
+		        DATE_FORMAT));
 		
 		DQACohortCategoryDataDefinition cohortCategoryDataDefinition = new DQACohortCategoryDataDefinition();
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
