@@ -25,7 +25,7 @@ jobs:
           git clone -b master https://github.com/palladiumkenya/openmrs-module-kenyaemrextras.git openmrs-module-kenyaemrextras
           cd /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras
           git status 
-          mvn clean install -DskipTests
+          sudo mvn clean install -DskipTests
           sudo rm -rf /var/lib/OpenMRS/modules/kenyaemrextras-*.omod 
           sudo cp /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyaemrextras/omod/target/kenyaemrextras-*.omod /var/lib/OpenMRS/modules/
           sudo chown -R tomcat:tomcat /var/lib/OpenMRS/modules/
