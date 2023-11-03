@@ -57,7 +57,6 @@ public class MonthlySurgeLtfuCohortDefinitionEvaluator implements CohortDefiniti
 		String qry = " select t.patient_id\n"
 		        + "from(\n"
 		        + "select fup.visit_date,fup.patient_id, max(e.visit_date) as enroll_date,\n"
-		        + "greatest(max(e.visit_date), ifnull(max(date(e.transfer_in_date)),'0000-00-00')) as latest_enrolment_date,\n"
 		        + "greatest(max(fup.visit_date), ifnull(max(d.visit_date),'0000-00-00')) as latest_vis_date,\n"
 		        + "greatest(mid(max(concat(fup.visit_date,fup.next_appointment_date)),11), ifnull(max(d.visit_date),'0000-00-00')) as latest_tca,\n"
 		        + "d.patient_id as disc_patient,\n"
