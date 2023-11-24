@@ -60,6 +60,7 @@ public class TxcurrWRAWithNoChildrenContactsCohortDefinitionEvaluator implements
 		        + "             max(d.visit_date)                                                      as date_discontinued,\n"
 		        + "             d.effective_disc_date                                                  as effective_disc_date,\n"
 		        + "             de.patient_id                                                          as started_on_drugs,\n"
+				+ "             e.patient_type                                                          as patient_type,\n"
 		        + "             mid(max(concat(date(de.date_started), ifnull(de.discontinued, 0))), 11) as on_drugs\n"
 		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "               left join (select c.id, c.patient_related_to\n"
