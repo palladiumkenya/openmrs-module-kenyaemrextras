@@ -74,7 +74,7 @@ public class TxCurrPregnantAndBfCohortDefinitionEvaluator implements CohortDefin
 		        + "         join kenyaemr_etl.etl_hiv_enrollment e on fup.patient_id = e.patient_id\n"
 		        + "         inner join (select de.patient_id,\n"
 		        + "                            min(date(de.date_started)) as date_started,\n"
-		        + "                            de.program                 as program\n"
+		        + "                            de.program                 as program,\n"
 		        + "                            de.discontinued            as discontinued\n"
 		        + "                          from kenyaemr_etl.etl_drug_event de\n"
 		        + "                          group by de.patient_id) de\n"
