@@ -72,7 +72,7 @@ public class FacilityClinicalAssessmentReportBuilder extends AbstractReportBuild
 		cohortDsd.addColumn("TX_CURR", " (Current on ART)",
 		    ReportUtils.map(datimIndicators.currentlyOnArt(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_NEW", " (Started on ART)",
-		    ReportUtils.map(datimIndicators.newlyStartedARTByAgeSex(), "startDate=${startDate},endDate=${endDate}"), "");
+		    ReportUtils.map(datimIndicators.startedOnArt(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_ML(IIT)", " (Clients who Interrupted treatment)",
 		    ReportUtils.map(assessmentIndicatorLibrary.txML(), "startDate=${startDate},endDate=${endDate}"), "");
 		cohortDsd.addColumn("TX_RTT", "(Clients restarting treatment after interruption)",
