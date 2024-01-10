@@ -36,9 +36,9 @@ public class DQAWeightDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id,mid(max(concat(date(t.visit_date), t.weight)), 11) as weight\n"
-		        + "         from kenyaemr_etl.etl_patient_triage t where date(t.visit_date) <= date(:endDate)\n"
-		        + "        GROUP BY t.patient_id;";
+		String qry = "  select t.patient_id, if (mid(max(concat(date (t.visit_date), t.weight)), 11) is null,'Missing',mid(max(concat(date (t.visit_date), t.weight)), 11)) as weight\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup t where date (t.visit_date) <= date (:endDate)\n"
+		        + "    GROUP BY t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -36,14 +36,9 @@ public class DQATBScreeningLastVisitDataEvaluator implements PersonDataEvaluator
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,\n"
-		        + "       if(a.person_present = 161642, 'NA',\n"
-		        + "          if( a.tb_screened in (1660, 1662, 142177), 'Yes', 'No')) as tb_screened\n"
-		        + "from (select tb.patient_id,\n"
-		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.resulting_tb_status, 0))), 11) as tb_screened,\n"
-		        + "             mid(max(concat(date(tb.visit_date), ifnull(tb.person_present, 0))), 11)      as person_present\n"
-		        + "      from kenyaemr_etl.etl_tb_screening tb\n" + "      where tb.visit_date <= date(:endDate)\n"
-		        + "      group by tb.patient_id) a;";
+		String qry = "  select tb.patient_id,\n"
+		        + "    if (mid(max(concat(date (tb.visit_date),tb.person_present)),11) = 161642, 'NA',mid(max(concat(date (tb.visit_date), tb.screened_for_tb)), 11)) as screened_for_tb\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup tb where tb.visit_date <= date (:endDate) group by tb.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
