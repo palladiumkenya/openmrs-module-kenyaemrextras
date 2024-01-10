@@ -38,7 +38,11 @@ public class DQATBScreeningLastVisitOutcomeDataEvaluator implements PersonDataEv
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select a.patient_id,\n"
+<<<<<<< HEAD
 		        + "    if(person_present = 978 and screened_for_tb = 'Yes',case a.tb_status when 1660 then 'No TB signs' when 1662 then 'TB Confirmed' when 142177 then 'Presumed TB' end,'Missing') as tb_status\n"
+=======
+		        + "    if(person_present = 978 and screened_for_tb = 'Yes',case a.tb_status when 1660 then 'No TB' when 1662 then 'TB Confirmed' when 142177 then 'Pr TB' end,null) as tb_status\n"
+>>>>>>> 7ede41b (Removed ccc 10 digit and format validation.Revised Current on ART regimen as either DTG-based or not,Height values,included BMI in MUAC column, revised TPT status outcomes, added TB screening outcomes, TPT start date and TPT outcome date variables)
 		        + "    from (select tb.patient_id,\n"
 		        + "    mid(max(concat(date (tb.visit_date), ifnull(tb.tb_status, 0))), 11) as tb_status,\n"
 		        + "    mid(max(concat(date (tb.visit_date),tb.person_present)),11) as person_present,\n"

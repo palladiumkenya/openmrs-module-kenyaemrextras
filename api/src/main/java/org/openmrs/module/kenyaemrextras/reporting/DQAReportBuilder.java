@@ -313,8 +313,13 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", cccIdentifierDef, "");
 		//dsd.addColumn("CCC No 10 Digits", identifierDef, "");
 		//dsd.addColumn("CCC No Format", identifierDef, "");
+<<<<<<< HEAD
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
+=======
+		dsd.addColumn("Sex", new GenderDataDefinition(), "", new DQADefaultYesDataConverter());
+		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new DQADefaultYesDataConverter());
+>>>>>>> 7ede41b (Removed ccc 10 digit and format validation.Revised Current on ART regimen as either DTG-based or not,Height values,included BMI in MUAC column, revised TPT status outcomes, added TB screening outcomes, TPT start date and TPT outcome date variables)
 		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
 		
 		DQAWeightDataDefinition weightDataDefinition = new DQAWeightDataDefinition();
@@ -352,7 +357,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		muacDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
+		dsd.addColumn("MUAC_BMI", muacDataDefinition, indParams, null);
 		
 		DQABMIDataDefinition bmiDataDefinition = new DQABMIDataDefinition();
 		bmiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
