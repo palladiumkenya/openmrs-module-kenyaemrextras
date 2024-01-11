@@ -36,15 +36,15 @@ public class DQALastVLDateDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select x.patient_id,\n" +
-				"       if(x.visit_date is not null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'Yes',\n" +
-				"          if(x.visit_date is null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'No',\n" +
-				"             if(timestampdiff(DAY,enr.visit_date,date(:endDate))  < 90,'NA', ''))) as vl_result_validity\n" +
-				"from kenyaemr_etl.etl_laboratory_extract x\n" +
-				"         inner join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id= x.patient_id\n" +
-				"where x.lab_test in (1305,856)\n" +
-				"  and date(x.visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n" +
-				"GROUP BY x.patient_id;";
+		String qry = "select x.patient_id,\n"
+		        + "       if(x.visit_date is not null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'Yes',\n"
+		        + "          if(x.visit_date is null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'No',\n"
+		        + "             if(timestampdiff(DAY,enr.visit_date,date(:endDate))  < 90,'NA', ''))) as vl_result_validity\n"
+		        + "from kenyaemr_etl.etl_laboratory_extract x\n"
+		        + "         inner join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id= x.patient_id\n"
+		        + "where x.lab_test in (1305,856)\n"
+		        + "  and date(x.visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
+		        + "GROUP BY x.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
