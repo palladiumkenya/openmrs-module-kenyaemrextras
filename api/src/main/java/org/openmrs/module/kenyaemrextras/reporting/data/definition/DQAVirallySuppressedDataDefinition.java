@@ -21,16 +21,16 @@ import java.util.Date;
  */
 @Caching(strategy = ConfigurationPropertyCachingStrategy.class)
 public class DQAVirallySuppressedDataDefinition extends BaseDataDefinition implements PersonDataDefinition {
-	
+
 	public static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Default Constructor
 	 */
 	public DQAVirallySuppressedDataDefinition() {
 		super();
 	}
-	
+
 	/**
 	 * Constructor to populate name only
 	 */

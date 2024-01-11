@@ -19,7 +19,6 @@ import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDa
 import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
-import org.openmrs.module.kenyaemr.reporting.calculation.converter.SimpleResultDateConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVisitDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLNextAppointmentDateDataDefinition;
@@ -28,7 +27,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicat
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAUnverifiedPatientsCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultResultsConverter;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.DQAIndicatorLibrary;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -41,15 +40,19 @@ import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.*;
+import org.openmrs.module.reporting.data.person.definition.BirthdateDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.ConvertedPersonDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.GenderDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.PersonIdDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.PreferredNameDataDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,7 +154,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("id", new PersonIdDataDefinition(), "");
 		dsd.addColumn("Name", nameDef, "");
 		dsd.addColumn("CCC No", identifierDef, "");
-		//dsd.addColumn("CCC No Format", identifierDef, "");
+		dsd.addColumn("CCC No Format", identifierDef, "");
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
 		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
@@ -192,41 +195,17 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		
 		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
 		
-		DQABMIValueDataDefinition bmiDataDefinition = new DQABMIValueDataDefinition();
-		bmiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		bmiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("BMI", bmiDataDefinition, indParams, null);
-		
 		DQATBScreeningStatusLastVisitDataDefinition tbScreeningStatusDataDefinition = new DQATBScreeningStatusLastVisitDataDefinition();
 		tbScreeningStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		tbScreeningStatusDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("TB Screening status", tbScreeningStatusDataDefinition, indParams, null);
 		
-		DQATBScreeningLastVisitOutcomeDataDefinition tbScreeningOutcomeDataDefinition = new DQATBScreeningLastVisitOutcomeDataDefinition();
-		tbScreeningOutcomeDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		tbScreeningOutcomeDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("TB Screening Outcome", tbScreeningOutcomeDataDefinition, indParams, null);
-		
-		DQATPTStartDateDataDefinition dqatptStartDateDataDefinition = new DQATPTStartDateDataDefinition();
-		dqatptStartDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dqatptStartDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("TPT Start date", dqatptStartDateDataDefinition, indParams, null);
-		
 		EverOnIPTDataDefinition everOnIPTDataDefinition = new EverOnIPTDataDefinition();
 		everOnIPTDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		everOnIPTDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("TPT Status", everOnIPTDataDefinition, indParams, null);
-		
-		DQATPTOutcomeDateDataDefinition dqatptOutcomeDateDataDefinition = new DQATPTOutcomeDateDataDefinition();
-		dqatptOutcomeDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dqatptOutcomeDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("TPT Outcome date", dqatptOutcomeDateDataDefinition, indParams, null);
 		
 		LastNutritionAssessmentDataDefinition lastNutritionAssessmentDataDefinition = new LastNutritionAssessmentDataDefinition();
 		lastNutritionAssessmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -243,8 +222,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Valid routine viral load", lastVLDateDataDefinition, indParams, new DQADefaultResultsConverter());
-		
+		dsd.addColumn("Valid routine viral load", lastVLDateDataDefinition, indParams, null);
+
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -275,18 +254,6 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams);
-		
-		DQABaselineScreeningCrAGDataDefinition baselineScreeningCrAGDataDefinition = new DQABaselineScreeningCrAGDataDefinition();
-		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, indParams, null);
-		
-		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
-		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams,
-		    new DQADefaultResultsConverter());
-		
 		return dsd;
 	}
 	
@@ -313,34 +280,30 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("CCC No", cccIdentifierDef, "");
 		//dsd.addColumn("CCC No 10 Digits", identifierDef, "");
 		//dsd.addColumn("CCC No Format", identifierDef, "");
-<<<<<<< HEAD
-		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
-		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-=======
 		dsd.addColumn("Sex", new GenderDataDefinition(), "", new DQADefaultYesDataConverter());
 		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new DQADefaultYesDataConverter());
->>>>>>> 7ede41b (Removed ccc 10 digit and format validation.Revised Current on ART regimen as either DTG-based or not,Height values,included BMI in MUAC column, revised TPT status outcomes, added TB screening outcomes, TPT start date and TPT outcome date variables)
 		dsd.addSortCriteria("Category", SortCriteria.SortDirection.ASC);
 		
 		DQAWeightDataDefinition weightDataDefinition = new DQAWeightDataDefinition();
 		weightDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		weightDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Weight", weightDataDefinition, indParams, null);
+		dsd.addColumn("Weight", weightDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
 		DQAHeightDataDefinition heightDataDefinition = new DQAHeightDataDefinition();
 		heightDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		heightDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Height", heightDataDefinition, indParams, null);
+		dsd.addColumn("Height", heightDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		
 		ETLArtStartDateDataDefinition artInitiationDateDataDefinition = new ETLArtStartDateDataDefinition();
 		artInitiationDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		artInitiationDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("ART Initiation date", artInitiationDateDataDefinition, indParams, null);
+		dsd.addColumn("ART Initiation date", artInitiationDateDataDefinition, indParams,
+		    new DQADefaultDataCompletenessDataConverter());
 		
-		DQACurrentDTGRegimenDataDefinition currentRegimenDataDefinition = new DQACurrentDTGRegimenDataDefinition();
+		DQACurrentRegimenDataDefinition currentRegimenDataDefinition = new DQACurrentRegimenDataDefinition();
 		currentRegimenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
@@ -358,12 +321,6 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("MUAC_BMI", muacDataDefinition, indParams, null);
-		
-		DQABMIDataDefinition bmiDataDefinition = new DQABMIDataDefinition();
-		bmiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		bmiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("BMI", bmiDataDefinition, indParams, null);
 		
 		DQATBScreeningLastVisitDataDefinition tbScreeningDataDefinition = new DQATBScreeningLastVisitDataDefinition();
 		tbScreeningDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -399,31 +356,35 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastNutritionAssessmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastNutritionAssessmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Nutrition Assessment done", lastNutritionAssessmentDataDefinition, indParams, null);
+		dsd.addColumn("Nutrition Assessment done", lastNutritionAssessmentDataDefinition, indParams,
+		    new DQADefaultDataCompletenessDataConverter());
 		
-		//		LastDSDModelDataDefinition lastDSDModelDataDefinition = new LastDSDModelDataDefinition();
-		//		lastDSDModelDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		//		lastDSDModelDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		//
-		//		dsd.addColumn("DSD model", lastDSDModelDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
-		
+//		LastDSDModelDataDefinition lastDSDModelDataDefinition = new LastDSDModelDataDefinition();
+//		lastDSDModelDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+//		lastDSDModelDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+//
+//		dsd.addColumn("DSD model", lastDSDModelDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, new DQADefaultResultsConverter());
+		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams,
+		    new DQADefaultDataCompletenessDataConverter());
 		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams, null);
+		dsd.addColumn("Last Clinical encounter date", lastVisitDateDataDefinition, indParams,
+		    new DQADefaultYesDataConverter());
 		
 		ETLNextAppointmentDateDataDefinition nextAppointmentDateDataDefinition = new ETLNextAppointmentDateDataDefinition();
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nextAppointmentDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams, null);
+		dsd.addColumn("Next appointment date", nextAppointmentDateDataDefinition, indParams,
+		    new DQADefaultYesDataConverter());
 		
 		DQACohortCategoryDataDefinition cohortCategoryDataDefinition = new DQACohortCategoryDataDefinition();
 		cohortCategoryDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -434,26 +395,25 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		nupiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nupiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("NUPI", nupiDataDefinition, indParams, null);
+		dsd.addColumn("NUPI", nupiDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
-		        new DateConfirmedHivPositiveCalculation()), "", new SimpleResultDateConverter());
+		        new DateConfirmedHivPositiveCalculation()), "", new DQADefaultDataCompletenessDataConverter());
 		
 		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
-		
+
 		DQABaselineScreeningCrAGDataDefinition baselineScreeningCrAGDataDefinition = new DQABaselineScreeningCrAGDataDefinition();
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, indParams, null);
-		
+		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition,  "");
+
 		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
 		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams,
-		    new DQADefaultResultsConverter());
-		
+		dsd.addColumn("Client virally suppressed   ", virallySuppressedDataDefinition, "");
+
 		return dsd;
 	}
 	

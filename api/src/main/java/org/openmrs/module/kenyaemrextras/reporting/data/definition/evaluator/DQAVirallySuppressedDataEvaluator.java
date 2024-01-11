@@ -10,6 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQABaselineScreeningCrAGDataDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAVirallySuppressedDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
@@ -36,14 +37,13 @@ public class DQAVirallySuppressedDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select patient_id,\n"
-		        + "     mid(max(concat(x.visit_date,\n"
-		        + "         if(x.lab_test = 856 and x.test_result >= 200, 'No',\n"
-		        + "     if(x.lab_test = 856 and x.test_result between 50 and 199, 'Yes',\n"
-		        + "     if((x.lab_test= 856 and x.test_result <50) or (x.lab_test=1305 and x.test_result = 1302), 'Yes ',''))))),11) as suppression_status\n"
-		        + "   from kenyaemr_etl.etl_laboratory_extract x\n" + "       where x.lab_test in (1305,856)\n"
-		        + "       and date(x.visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
-		        + "       GROUP BY x.patient_id;";
+		String qry = "select patient_id,\n" +
+				"        mid(max(concat(visit_date, if(lab_test = 856 and test_result >= 200, 'No',\n" +
+				"        if(lab_test = 856 and test_result between 50 and 199, 'Yes',\n" +
+				"        if((lab_test= 856 and test_result <50) or (lab_test=1305 and test_result = 1302), 'Yes ',''))), '' )),11) as suppression_status\n" +
+				"      from kenyaemr_etl.etl_laboratory_extract\n" +
+				"      where coalesce(date(date_test_requested),date(visit_date)) <= date(:endDate)\n" +
+				"      GROUP BY patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
