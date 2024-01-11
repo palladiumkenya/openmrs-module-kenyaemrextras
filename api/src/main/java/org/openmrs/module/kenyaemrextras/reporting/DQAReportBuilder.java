@@ -258,12 +258,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQABaselineScreeningCrAGDataDefinition baselineScreeningCrAGDataDefinition = new DQABaselineScreeningCrAGDataDefinition();
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, "");
+		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, indParams, null);
 		
 		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
 		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, "");
+		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams, null);
 		
 		return dsd;
 	}
@@ -380,8 +380,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams,
-		    new DQADefaultDataCompletenessDataConverter());
+		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
 		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -418,12 +417,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQABaselineScreeningCrAGDataDefinition baselineScreeningCrAGDataDefinition = new DQABaselineScreeningCrAGDataDefinition();
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, "");
+		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition, indParams, null);
 		
 		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
 		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, "");
+		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams, null);
 		
 		return dsd;
 	}
