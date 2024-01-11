@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAMUACDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATPTOutcomeDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates MUAC status on last visit Data Definition
+ * Evaluates TPT outcome date Data Definition
  */
-@Handler(supports = DQAMUACDataDefinition.class, order = 50)
-public class DQAMUACDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQATPTOutcomeDateDataDefinition.class, order = 50)
+public class DQATPTOutcomeDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,17 +36,10 @@ public class DQAMUACDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,\n"
-		        + "    if ((muac is null or muac ='') and (weight is null or height is null),'Missing',if((a.pregnancy_status = 1065 or age <= 5) and (muac is not null or muac <> ''), muac, if((a.pregnancy_status is null or a.pregnancy_status = 1066) and (age > 5), ROUND(weight/(height * height),2),\n"
-		        + "    'Missing'))) as muac_bmi\n" + "    from (select fup.patient_id,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.pregnancy_status)), 11) as pregnancy_status,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.muac)), 11) as muac,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.weight)), 11) as weight,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.height)), 11)/100 as height,\n"
-		        + "    timestampdiff(YEAR, d.DOB, date (:endDate)) as age\n"
-		        + "    from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "    inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "    where fup.visit_date <= date (:endDate) group by fup.patient_id) a;";
+		String qry = "select i.patient_id,\n" + "date_format(o.visit_date,'%d/%m/%Y') as tpt_completion_date\n"
+		        + "from kenyaemr_etl.etl_ipt_initiation i\n"
+		        + "inner join kenyaemr_etl.etl_ipt_outcome o on i.patient_id = o.patient_id\n"
+		        + "where date (i.visit_date) <= date (:endDate) and date (o.visit_date) <= date (:endDate);";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
