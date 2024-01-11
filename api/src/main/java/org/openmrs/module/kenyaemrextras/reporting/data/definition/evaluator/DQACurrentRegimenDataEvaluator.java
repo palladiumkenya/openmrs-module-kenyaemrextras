@@ -36,7 +36,7 @@ public class DQACurrentRegimenDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select d.patient_id, if (mid(max(concat(d.date_started, d.regimen)), 11) like '%DTG%','DTG-based regimen','Non-DTG-based regimen') as is_DTG_based\n"
+		String qry = "select d.patient_id, if (mid(max(concat(d.date_started, d.regimen)), 11) as regimenName\n"
 		        + "\t from kenyaemr_etl.etl_drug_event d\n"
 		        + "\t where d.program='HIV' and date(d.date_started) <= date(:endDate)\n" + "\t group by d.patient_id ";
 		
