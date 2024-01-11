@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQALastVLDateDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQABaselineScreeningCrAGDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAVirallySuppressedDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates last VL date Data Definition
+ * Evaluates Clients whether is virally suppressed Data Definition Evaluator
  */
-@Handler(supports = DQALastVLDateDataDefinition.class, order = 50)
-public class DQALastVLDateDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQAVirallySuppressedDataDefinition.class, order = 50)
+public class DQAVirallySuppressedDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,15 +37,13 @@ public class DQALastVLDateDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select x.patient_id,\n" +
-				"       if(x.visit_date is not null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'Yes',\n" +
-				"          if(x.visit_date is null and timestampdiff(DAY,enr.visit_date,date(:endDate)) >= 90,'No',\n" +
-				"             if(timestampdiff(DAY,enr.visit_date,date(:endDate))  < 90,'NA', ''))) as vl_result_validity\n" +
-				"from kenyaemr_etl.etl_laboratory_extract x\n" +
-				"         inner join kenyaemr_etl.etl_hiv_enrollment enr on enr.patient_id= x.patient_id\n" +
-				"where x.lab_test in (1305,856)\n" +
-				"  and date(x.visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n" +
-				"GROUP BY x.patient_id;";
+		String qry = "select patient_id,\n" +
+				"        mid(max(concat(visit_date, if(lab_test = 856 and test_result >= 200, 'No',\n" +
+				"        if(lab_test = 856 and test_result between 50 and 199, 'Yes',\n" +
+				"        if((lab_test= 856 and test_result <50) or (lab_test=1305 and test_result = 1302), 'Yes ',''))), '' )),11) as suppression_status\n" +
+				"      from kenyaemr_etl.etl_laboratory_extract\n" +
+				"      where coalesce(date(date_test_requested),date(visit_date)) <= date(:endDate)\n" +
+				"      GROUP BY patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

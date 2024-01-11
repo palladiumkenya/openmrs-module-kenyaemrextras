@@ -222,9 +222,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
-		
+		dsd.addColumn("Valid routine viral load", lastVLDateDataDefinition, indParams, null);
+
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVisitDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -360,12 +359,12 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		dsd.addColumn("Nutrition Assessment done", lastNutritionAssessmentDataDefinition, indParams,
 		    new DQADefaultDataCompletenessDataConverter());
 		
-		LastDSDModelDataDefinition lastDSDModelDataDefinition = new LastDSDModelDataDefinition();
-		lastDSDModelDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		lastDSDModelDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("DSD model", lastDSDModelDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
-		
+//		LastDSDModelDataDefinition lastDSDModelDataDefinition = new LastDSDModelDataDefinition();
+//		lastDSDModelDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+//		lastDSDModelDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+//
+//		dsd.addColumn("DSD model", lastDSDModelDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -404,7 +403,17 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
-		
+
+		DQABaselineScreeningCrAGDataDefinition baselineScreeningCrAGDataDefinition = new DQABaselineScreeningCrAGDataDefinition();
+		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		baselineScreeningCrAGDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Baseline screening for CrAG", baselineScreeningCrAGDataDefinition,  "");
+
+		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
+		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		dsd.addColumn("Client virally suppressed   ", virallySuppressedDataDefinition, "");
+
 		return dsd;
 	}
 	
