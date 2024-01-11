@@ -10,8 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitDataDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitOutcomeDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACurrentDTGRegimenDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQACurrentRegimenDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -25,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates TB screening outcome on last visit Data Definition
+ * Evaluates if current regimen is DTG based Data Definition
  */
-@Handler(supports = DQATBScreeningLastVisitOutcomeDataDefinition.class, order = 50)
-public class DQATBScreeningLastVisitOutcomeDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQACurrentDTGRegimenDataDefinition.class, order = 50)
+public class DQACurrentDTGBasedRegimenDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -37,14 +37,9 @@ public class DQATBScreeningLastVisitOutcomeDataEvaluator implements PersonDataEv
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id,\n"
-		        + "    if(person_present = 978 and screened_for_tb = 'Yes',case a.tb_status when 1660 then 'No TB signs' when 1662 then 'TB Confirmed' when 142177 then 'Presumed TB' end,null) as tb_status\n"
-		        + "    from (select tb.patient_id,\n"
-		        + "    mid(max(concat(date (tb.visit_date), ifnull(tb.tb_status, 0))), 11) as tb_status,\n"
-		        + "    mid(max(concat(date (tb.visit_date),tb.person_present)),11) as person_present,\n"
-		        + "    mid(max(concat(date (tb.visit_date), tb.screened_for_tb)), 11) as screened_for_tb\n"
-		        + "    from kenyaemr_etl.etl_patient_hiv_followup tb where tb.visit_date <= date (:endDate)\n"
-		        + "    group by tb.patient_id) a;";
+		String qry = "select d.patient_id, if (mid(max(concat(d.date_started, d.regimen)), 11) like '%DTG%','DTG-based regimen','Non-DTG-based regimen') as is_DTG_based\n"
+		        + "\t from kenyaemr_etl.etl_drug_event d\n"
+		        + "\t where d.program='HIV' and date(d.date_started) <= date(:endDate)\n" + "\t group by d.patient_id ";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
