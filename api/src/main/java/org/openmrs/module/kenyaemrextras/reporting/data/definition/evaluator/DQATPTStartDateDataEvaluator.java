@@ -36,15 +36,10 @@ public class DQATPTStartDateDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-<<<<<<< HEAD
-		String qry = "select e.patient_id,i.ipt_initiation_date as tpt_start_date from kenyaemr_etl.etl_hiv_enrollment e left join\n"
+		String qry = "select e.patient_id,if(i.ipt_initiation_date is null,'Missing',i.ipt_initiation_date) as tpt_start_date from kenyaemr_etl.etl_hiv_enrollment e left join\n"
 		        + "(select i.patient_id, date_format(i.visit_date,'%d/%m/%Y') as ipt_initiation_date from\n"
 		        + "        kenyaemr_etl.etl_ipt_initiation i where date(i.visit_date) <= date(:endDate))i on e.patient_id = i.patient_id\n"
 		        + "group by e.patient_id;";
-=======
-		String qry = "select i.patient_id, date_format(i.visit_date,'%d/%m/%Y') as ipt_initiation_date from\n"
-		        + "kenyaemr_etl.etl_ipt_initiation i where date(i.visit_date) <= date(:endDate);";
->>>>>>> 7ede41b (Removed ccc 10 digit and format validation.Revised Current on ART regimen as either DTG-based or not,Height values,included BMI in MUAC column, revised TPT status outcomes, added TB screening outcomes, TPT start date and TPT outcome date variables)
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
