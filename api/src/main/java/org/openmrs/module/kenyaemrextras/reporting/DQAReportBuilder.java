@@ -27,6 +27,7 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQADuplicat
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAUnverifiedPatientsCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultResultsConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.DQAIndicatorLibrary;
@@ -240,7 +241,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQALastVLDateDataDefinition lastVLDateDataDefinition = new DQALastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Valid routine viral load", lastVLDateDataDefinition, indParams, null);
+		dsd.addColumn("Valid routine viral load", lastVLDateDataDefinition, indParams, new DQADefaultResultsConverter());
 		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -281,7 +282,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
 		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams, null);
+		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams,
+		    new DQADefaultResultsConverter());
 		
 		return dsd;
 	}
@@ -398,7 +400,7 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, null);
+		dsd.addColumn("Latest VL result documented", lastVLDateDataDefinition, indParams, new DQADefaultResultsConverter());
 		
 		ETLLastVisitDateDataDefinition lastVisitDateDataDefinition = new ETLLastVisitDateDataDefinition();
 		lastVisitDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -440,7 +442,8 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		DQAVirallySuppressedDataDefinition virallySuppressedDataDefinition = new DQAVirallySuppressedDataDefinition();
 		virallySuppressedDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		virallySuppressedDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams, null);
+		dsd.addColumn("Client virally suppressed", virallySuppressedDataDefinition, indParams,
+		    new DQADefaultResultsConverter());
 		
 		return dsd;
 	}
