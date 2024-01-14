@@ -19,6 +19,7 @@ import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDa
 import org.openmrs.module.kenyaemr.calculation.library.hiv.DateConfirmedHivPositiveCalculation;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
+import org.openmrs.module.kenyaemr.reporting.calculation.converter.SimpleResultDateConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLArtStartDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLLastVisitDateDataDefinition;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.ETLNextAppointmentDateDataDefinition;
@@ -28,7 +29,6 @@ import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.DQAUnverifi
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultDataCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultResultsConverter;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQADefaultYesDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.converter.DQAIdentifierCompletenessDataConverter;
 import org.openmrs.module.kenyaemrextras.reporting.library.SurgeReport.DQAIndicatorLibrary;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -41,19 +41,15 @@ import org.openmrs.module.reporting.data.converter.DateConverter;
 import org.openmrs.module.reporting.data.converter.ObjectFormatter;
 import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.BirthdateDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.ConvertedPersonDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.GenderDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.PersonIdDataDefinition;
-import org.openmrs.module.reporting.data.person.definition.PreferredNameDataDefinition;
+import org.openmrs.module.reporting.data.person.definition.*;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -194,7 +190,13 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		muacDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("MUAC_BMI", muacDataDefinition, indParams, null);
+		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
+		
+		DQABMIValueDataDefinition bmiDataDefinition = new DQABMIValueDataDefinition();
+		bmiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		bmiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("BMI", bmiDataDefinition, indParams, null);
 		
 		DQATBScreeningStatusLastVisitDataDefinition tbScreeningStatusDataDefinition = new DQATBScreeningStatusLastVisitDataDefinition();
 		tbScreeningStatusDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -350,7 +352,13 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		muacDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		muacDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("MUAC_BMI", muacDataDefinition, indParams, null);
+		dsd.addColumn("MUAC", muacDataDefinition, indParams, null);
+		
+		DQABMIDataDefinition bmiDataDefinition = new DQABMIDataDefinition();
+		bmiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+		bmiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		dsd.addColumn("BMI", bmiDataDefinition, indParams, null);
 		
 		DQATBScreeningLastVisitDataDefinition tbScreeningDataDefinition = new DQATBScreeningLastVisitDataDefinition();
 		tbScreeningDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -421,9 +429,9 @@ public class DQAReportBuilder extends AbstractHybridReportBuilder {
 		nupiDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		nupiDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
-		dsd.addColumn("NUPI", nupiDataDefinition, indParams, new DQADefaultDataCompletenessDataConverter());
+		dsd.addColumn("NUPI", nupiDataDefinition, indParams, null);
 		dsd.addColumn("Date confirmed positive", new CalculationDataDefinition("Date confirmed positive",
-		        new DateConfirmedHivPositiveCalculation()), "", new DateArtStartDateConverter());
+		        new DateConfirmedHivPositiveCalculation()), "", new SimpleResultDateConverter());
 		
 		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
 		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
