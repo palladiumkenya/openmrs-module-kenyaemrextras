@@ -48,7 +48,7 @@ public class DQABMIDataEvaluator implements PersonDataEvaluator {
 		        + "             timestampdiff(YEAR, d.DOB, date(:endDate))                       as age\n"
 		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
 		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;\n";
+		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
