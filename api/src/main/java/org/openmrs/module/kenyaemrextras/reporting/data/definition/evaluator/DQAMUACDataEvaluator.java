@@ -37,16 +37,15 @@ public class DQAMUACDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select a.patient_id,\n"
-		        + "    if ((muac is null or muac ='') and (weight is null or height is null),'Missing',if((a.pregnancy_status = 1065 or age <= 5) and (muac is not null or muac <> ''), muac, if((a.pregnancy_status is null or a.pregnancy_status = 1066) and (age > 5), ROUND(weight/(height * height),2),\n"
-		        + "    'Missing'))) as muac_bmi\n" + "    from (select fup.patient_id,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.pregnancy_status)), 11) as pregnancy_status,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.muac)), 11) as muac,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.weight)), 11) as weight,\n"
-		        + "    mid(max(concat(date (fup.visit_date), fup.height)), 11)/100 as height,\n"
-		        + "    timestampdiff(YEAR, d.DOB, date (:endDate)) as age\n"
-		        + "    from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "    inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "    where fup.visit_date <= date (:endDate) group by fup.patient_id) a;";
+		        + "       if((a.pregnancy_status = 1065 or age <= 5) and muac is NULL, 'Missing',\n"
+		        + "          if(((a.pregnancy_status = 1066 or pregnancy_status is null) and age > 5), 'NA', a.muac)) as MUAC_Status\n"
+		        + "from (select fup.patient_id,\n"
+		        + "             mid(max(concat(date(fup.visit_date), fup.pregnancy_status)), 11) as pregnancy_status,\n"
+		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac,\n"
+		        + "             timestampdiff(YEAR, d.DOB, date(:endDate))                       as age\n"
+		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
+		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
