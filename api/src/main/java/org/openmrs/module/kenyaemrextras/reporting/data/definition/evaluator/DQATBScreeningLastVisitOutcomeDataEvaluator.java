@@ -10,7 +10,8 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAMUACValueDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitOutcomeDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates MUAC value on last visit Data Definition
+ * Evaluates TB screening outcome on last visit Data Definition
  */
-@Handler(supports = DQAMUACValueDataDefinition.class, order = 50)
-public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQATBScreeningLastVisitOutcomeDataDefinition.class, order = 50)
+public class DQATBScreeningLastVisitOutcomeDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,11 +37,14 @@ public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, a.muac as muac\n" + "from (select fup.patient_id,\n"
-		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac\n"
-		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
+		String qry = "select a.patient_id,\n"
+		        + "    if(person_present = 978 and screened_for_tb = 'Yes',case a.tb_status when 1660 then 'No TB signs' when 1662 then 'TB Confirmed' when 142177 then 'Presumed TB' end,'Missing') as tb_status\n"
+		        + "    from (select tb.patient_id,\n"
+		        + "    mid(max(concat(date (tb.visit_date), ifnull(tb.tb_status, 0))), 11) as tb_status,\n"
+		        + "    mid(max(concat(date (tb.visit_date),tb.person_present)),11) as person_present,\n"
+		        + "    mid(max(concat(date (tb.visit_date), tb.screened_for_tb)), 11) as screened_for_tb\n"
+		        + "    from kenyaemr_etl.etl_patient_hiv_followup tb where tb.visit_date <= date (:endDate)\n"
+		        + "    group by tb.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAMUACValueDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATPTOutcomeDateDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates MUAC value on last visit Data Definition
+ * Evaluates TPT outcome date Data Definition
  */
-@Handler(supports = DQAMUACValueDataDefinition.class, order = 50)
-public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQATPTOutcomeDateDataDefinition.class, order = 50)
+public class DQATPTOutcomeDateDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,11 +36,10 @@ public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, a.muac as muac\n" + "from (select fup.patient_id,\n"
-		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac\n"
-		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
+		String qry = "select i.patient_id,\n" + "date_format(o.visit_date,'%d/%m/%Y') as tpt_completion_date\n"
+		        + "from kenyaemr_etl.etl_ipt_initiation i\n"
+		        + "inner join kenyaemr_etl.etl_ipt_outcome o on i.patient_id = o.patient_id\n"
+		        + "where date (i.visit_date) <= date (:endDate) and date (o.visit_date) <= date (:endDate);";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
