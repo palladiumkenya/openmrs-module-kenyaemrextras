@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAMUACValueDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAVirallySuppressedDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates MUAC value on last visit Data Definition
+ * Evaluates Clients whether is virally suppressed Data Definition Evaluator
  */
-@Handler(supports = DQAMUACValueDataDefinition.class, order = 50)
-public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQAVirallySuppressedDataDefinition.class, order = 50)
+public class DQAVirallySuppressedDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,11 +36,14 @@ public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, a.muac as muac\n" + "from (select fup.patient_id,\n"
-		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac\n"
-		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
+		String qry = "select patient_id,\n"
+		        + "     mid(max(concat(x.visit_date,\n"
+		        + "         if(x.lab_test = 856 and x.test_result >= 200, 'No',\n"
+		        + "     if(x.lab_test = 856 and x.test_result between 50 and 199, 'Yes',\n"
+		        + "     if((x.lab_test= 856 and x.test_result <50) or (x.lab_test=1305 and x.test_result = 1302), 'Yes ',''))))),11) as suppression_status\n"
+		        + "   from kenyaemr_etl.etl_laboratory_extract x\n" + "       where x.lab_test in (1305,856)\n"
+		        + "       and date(x.visit_date) between date_sub(date(:endDate) , interval 12 MONTH) and date(:endDate)\n"
+		        + "       GROUP BY x.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

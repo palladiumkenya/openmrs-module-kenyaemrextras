@@ -10,7 +10,7 @@
 package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQAMUACValueDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATPTStatusDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates MUAC value on last visit Data Definition
+ * Evaluates DQA TPT Status Data Definition
  */
-@Handler(supports = DQAMUACValueDataDefinition.class, order = 50)
-public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = DQATPTStatusDataDefinition.class, order = 50)
+public class DQATPTStatusDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,11 +36,18 @@ public class DQAMUACValueDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, a.muac as muac\n" + "from (select fup.patient_id,\n"
-		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac\n"
-		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
+		String qry = "select a.patient_id,\n"
+		        + "if (a.on_tb = 1065, 'NA',if(a.ipt_patient is not null and a.outcome is null,'Continuing',if(a.ipt_patient is null, 'Missing', case a.outcome when 1267 then 'Completed' when 5240 then 'Defaulted' when 159836 then 'Discontinued' end))) as tpt_status\n"
+		        + "from (select fup.patient_id,\n"
+		        + "i.patient_id as ipt_patient,\n"
+		        + "i.outcome,\n"
+		        + "mid(max(concat(date (fup.visit_date), fup.on_anti_tb_drugs)), 11) as on_tb\n"
+		        + "from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "left join (select i.patient_id,o.outcome\n"
+		        + "from kenyaemr_etl.etl_ipt_initiation i\n"
+		        + "left join (select o.patient_id,o.outcome from kenyaemr_etl.etl_ipt_outcome o where o.visit_date <= date (:endDate)) o on i.patient_id = o.patient_id\n"
+		        + "where i.visit_date <= date (:endDate)) i on fup.patient_id = i.patient_id\n"
+		        + "where fup.visit_date <= date (:endDate) group by fup.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -37,15 +37,15 @@ public class DQAMUACDataEvaluator implements PersonDataEvaluator {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
 		String qry = "select a.patient_id,\n"
-		        + "       if((a.pregnancy_status is null or a.pregnancy_status = 1066) and (age > 5), 'NA',\n"
-		        + "          if((a.pregnancy_status = 1065 or age <= 5) and (muac is not null or muac <> '') , 'Yes', 'No')) as muac\n"
-		        + "from  (select fup.patient_id,\n"
-		        + "              mid(max(concat(date(fup.visit_date), fup.pregnancy_status)), 11) as pregnancy_status,\n"
-		        + "              mid(max(concat(date(fup.visit_date), fup.muac)), 11) as muac,\n"
-		        + "              timestampdiff(YEAR, d.DOB, date(:endDate)) as age\n"
-		        + "       from kenyaemr_etl.etl_patient_hiv_followup fup\n"
-		        + "                inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
-		        + "       where fup.visit_date <= date(:endDate)\n" + "       group by fup.patient_id)a;";
+		        + "       if((a.pregnancy_status = 1065 or age <= 5) and muac is NULL, 'Missing',\n"
+		        + "          if(((a.pregnancy_status = 1066 or pregnancy_status is null) and age > 5), 'NA', a.muac)) as MUAC_Status\n"
+		        + "from (select fup.patient_id,\n"
+		        + "             mid(max(concat(date(fup.visit_date), fup.pregnancy_status)), 11) as pregnancy_status,\n"
+		        + "             mid(max(concat(date(fup.visit_date), fup.muac)), 11)             as muac,\n"
+		        + "             timestampdiff(YEAR, d.DOB, date(:endDate))                       as age\n"
+		        + "      from kenyaemr_etl.etl_patient_hiv_followup fup\n"
+		        + "               inner join kenyaemr_etl.etl_patient_demographics d on fup.patient_id = d.patient_id\n"
+		        + "      where fup.visit_date <= date(:endDate)\n" + "      group by fup.patient_id) a;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
