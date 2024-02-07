@@ -120,7 +120,7 @@
 
     <bean id="kenyaemr.extras.report.HIVARTReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="b6714885-0fec-4e1e-ab55-a38c457ec8bd" />
-        <property name="name" value="HIV ART Report" />
+        <property name="name" value="HIV ART Report (QAR)" />
         <property name="description" value="A report to assess Quality of Care" />
         <property name="apps">
             <set>
@@ -131,7 +131,7 @@
     </bean>
     <bean id="kenyaemr.extras.report.HIVHTSReport" class="org.openmrs.module.kenyacore.report.HybridReportDescriptor">
         <property name="targetUuid" value="d8e6c12c-204e-45c4-91ce-90a0fca7837a" />
-        <property name="name" value="HIV HTS Report" />
+        <property name="name" value="HIV HTS Report (QAR)" />
         <property name="description" value="A report to assess Quality of Care" />
         <property name="apps">
             <set>
