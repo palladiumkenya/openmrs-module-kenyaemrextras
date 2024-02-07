@@ -19,10 +19,8 @@ import org.openmrs.module.kenyacore.report.data.patient.definition.CalculationDa
 import org.openmrs.module.kenyaemr.calculation.library.hiv.art.DateOfEnrollmentArtCalculation;
 import org.openmrs.module.kenyaemr.metadata.HivMetadata;
 import org.openmrs.module.kenyaemr.reporting.calculation.converter.DateArtStartDateConverter;
-import org.openmrs.module.kenyaemr.reporting.data.converter.HTSEntryPointConverter;
 import org.openmrs.module.kenyaemr.reporting.data.converter.definition.art.*;
 import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.ARTPedsQualityOfCareCohortDefinition;
-import org.openmrs.module.kenyaemrextras.reporting.cohort.definition.HTSAdolescentsQualityOfCareCohortDefinition;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.*;
 import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsCTXDispensedDataDefinition;
 import org.openmrs.module.metadatadeploy.MetadataUtils;
@@ -47,8 +45,8 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-@Builds({ "kenyaemr.extras.report.qualityOfCareReport" })
-public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBuilder {
+@Builds({ "kenyaemr.extras.report.HIVARTReport" })
+public class HIVARTReportBuilder extends AbstractHybridReportBuilder {
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	
@@ -80,14 +78,6 @@ public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBu
 		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
 	}
 	
-	protected Mapped<CohortDefinition> htsAdolescentsCohort() {
-		CohortDefinition cd = new HTSAdolescentsQualityOfCareCohortDefinition();
-		cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		cd.setName("HTS Adolescents");
-		return ReportUtils.map(cd, "startDate=${startDate},endDate=${endDate}");
-	}
-	
 	String paramMapping = "startDate=${startDate},endDate=${endDate}";
 	
 	@Override
@@ -97,12 +87,7 @@ public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBu
 		activePedsDataSetDefinition.addRowFilter(activePedsCohort());
 		DataSetDefinition activePedsDSD = activePedsDataSetDefinition;
 		
-		PatientDataSetDefinition htsAdolescentsDataSetDefinition = htsAdolescentsDefinition("htsAdolescents");
-		htsAdolescentsDataSetDefinition.addRowFilter(htsAdolescentsCohort());
-		DataSetDefinition htsPedsDSD = htsAdolescentsDataSetDefinition;
-		
-		return Arrays.asList(ReportUtils.map(htsPedsDSD, "startDate=${startDate},endDate=${endDate}"),
-		    ReportUtils.map(activePedsDSD, "startDate=${startDate},endDate=${endDate}"));
+		return Arrays.asList(ReportUtils.map(activePedsDSD, "startDate=${startDate},endDate=${endDate}"));
 		
 	}
 	
@@ -157,12 +142,8 @@ public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBu
 		currentRegimenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		
 		dsd.addColumn("Current Regimen", currentRegimenDataDefinition, indParams, null);
-		dsd.addColumn("Baseline CD4 Date", new BaselineCD4DateDataDefinition(), "");
-		
-		DQABaselineCD4DataDefinition baselineCD4DataDefinition = new DQABaselineCD4DataDefinition();
-		baselineCD4DataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		baselineCD4DataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Baseline CD4", baselineCD4DataDefinition, indParams);
+		dsd.addColumn("Baseline CD4 Date", new BaselineCD4DateDataDefinition(), "", null);
+		dsd.addColumn("Baseline CD4", new DQABaselineCD4DataDefinition(), "", null);
 		
 		ETLLastVLDateDataDefinition lastVLDateDataDefinition = new ETLLastVLDateDataDefinition();
 		lastVLDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -172,7 +153,7 @@ public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBu
 		ETLLastVLResultDataDefinition lastVLResultDataDefinition = new ETLLastVLResultDataDefinition();
 		lastVLResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		lastVLResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Valid VL result", lastVLResultDataDefinition, paramMapping, null);
+		dsd.addColumn("Last VL result", lastVLResultDataDefinition, paramMapping, null);
 		
 		dsd.addColumn("CTX dispensed", new SimsCTXDispensedDataDefinition(), "");
 		
@@ -198,56 +179,4 @@ public class QualityOfCareAssessmentReportBuilder extends AbstractHybridReportBu
 		return dsd;
 	}
 	
-	protected PatientDataSetDefinition htsAdolescentsDefinition(String datasetName) {
-		
-		PatientDataSetDefinition dsd = new PatientDataSetDefinition(datasetName);
-		String indParams = "startDate=${startDate},endDate=${endDate}";
-		
-		dsd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		PatientIdentifierType upn = MetadataUtils.existing(PatientIdentifierType.class,
-		    HivMetadata._PatientIdentifierType.UNIQUE_PATIENT_NUMBER);
-		
-		dsd.addColumn("id", new PersonIdDataDefinition(), "");
-		
-		dsd.addColumn("Date of Birth", new BirthdateDataDefinition(), "", new BirthdateConverter(DATE_FORMAT));
-		dsd.addColumn("Age", new AgeDataDefinition(), "");
-		dsd.addColumn("Sex", new GenderDataDefinition(), "", null);
-		
-		HTSEntryPointDataDefinition entryPointDataDefinition = new HTSEntryPointDataDefinition();
-		entryPointDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		entryPointDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Entry Point", entryPointDataDefinition, indParams, new HTSEntryPointConverter());
-		
-		HTSDateDataDefinition htsDateDataDefinition = new HTSDateDataDefinition();
-		htsDateDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		htsDateDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Date tested", htsDateDataDefinition, indParams, null);
-		
-		FinalHTSResultDataDefinition finalHTSResultDataDefinition = new FinalHTSResultDataDefinition();
-		finalHTSResultDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		finalHTSResultDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Final result", finalHTSResultDataDefinition, indParams, null);
-		
-		FinalHTSResultGivenDataDefinition finalHTSResultGivenDataDefinition = new FinalHTSResultGivenDataDefinition();
-		finalHTSResultGivenDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		finalHTSResultGivenDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		dsd.addColumn("Results Received", finalHTSResultGivenDataDefinition, indParams, null);
-		
-		RetestedBeforeARTInititionDataDefinition confirmatoryTestBeforeEnrollmentDataDefinition = new RetestedBeforeARTInititionDataDefinition();
-		confirmatoryTestBeforeEnrollmentDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		confirmatoryTestBeforeEnrollmentDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("Confirmatory Tests Done Before Enrollment", confirmatoryTestBeforeEnrollmentDataDefinition,
-		    indParams, null);
-		
-		ReferredForServicesDataDefinition referredForServicesDataDefinition = new ReferredForServicesDataDefinition();
-		referredForServicesDataDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		referredForServicesDataDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		dsd.addColumn("Referred for Services", referredForServicesDataDefinition, indParams, null);
-		
-		return dsd;
-	}
 }
