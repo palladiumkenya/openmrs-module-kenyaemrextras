@@ -71,7 +71,7 @@ public class ARTPedsQualityOfServiceCohortDefinitionEvaluator implements CohortD
 		        + "    ) d on d.patient_id = fup.patient_id\n"
 		        + "    where fup.visit_date <= date (:endDate)\n"
 		        + "    group by patient_id\n"
-		        + "    having timestampdiff(YEAR ,dob, date (:endDate)) < 15 and (patient_type is null or patient_type != 164931) and on_drugs != 1 and\n"
+		        + "    having timestampdiff(YEAR ,dob, date (:endDate)) < 15 and\n"
 		        + "    timestampdiff(MONTH, date (latest_vis_date), date (:endDate)) <= 6 and (\n"
 		        + "    (\n"
 		        + "    ((timestampdiff(DAY, date (latest_tca), date (:endDate)) <= 30 and ((date (d.effective_disc_date) > date (:endDate) or date (enroll_date) > date (d.effective_disc_date)) or d.effective_disc_date is null))\n"
