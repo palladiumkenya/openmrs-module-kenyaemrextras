@@ -36,8 +36,8 @@ public class ReferredForServicesDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id, concat_ws('\\n\\r',t.referral_for, t.neg_referral_for, t.neg_referral_specify) as referred\n"
-		        + "    from kenyaemr_etl.etl_hts_test t where t.visit_date between date (:startDate) and date (:endDate);";
+		String qry = "select t.patient_id, mid(max(concat(t.visit_date,concat_ws('\\\\n\\\\r',t.referral_for, t.neg_referral_for, t.neg_referral_specify))),11) as referred\n"
+		        + "from kenyaemr_etl.etl_hts_test t where t.visit_date <= date (:endDate) group by t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -37,16 +37,16 @@ public class RetestedBeforeARTInititionDataEvaluator implements PersonDataEvalua
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select a.patient_id, if (retestDate is null or hts_test_result = 'Negative','NA', if (hts_test_result = 'Positive' and retestDate <= enr_date ,'Y','N' )) as retested_before_enrollment from (\n"
-		        + "    select a.patient_id, x.enr_date,h.retestDate,h.hts_test_result from kenyaemr_etl.etl_patient_demographics a\n"
-		        + "    left outer join (\n"
-		        + "    select t.patient_id, max(t.visit_date) as retestDate, mid(max(concat(date (t.visit_date),t.final_test_result)),11) as hts_test_result,\n"
-		        + "    mid(max(concat(date (t.visit_date),t.test_type)),11) as test_type from kenyaemr_etl.etl_hts_test t\n"
-		        + "    GROUP BY t.patient_id\n"
-		        + "    ) h on a.patient_id = h.patient_id left outer join (\n"
-		        + "    select d.patient_id, min(d.visit_date) as enr_date from kenyaemr_etl.etl_hiv_enrollment d\n"
-		        + "    GROUP BY d.patient_id ) x on a.patient_id = x.patient_id GROUP BY a.patient_id) a\n"
-		        + "    group by patient_id;";
+		String qry = "select a.patient_id, if (retestDate is null or hts_test_result = 'Negative','NA', if (test_type = 2 and hts_test_result = 'Positive' and retestDate <= enr_date ,'Y','N' )) as retested_before_enrollment from (\n"
+		        + "select a.patient_id, x.enr_date,h.retestDate,h.hts_test_result,h.test_type from kenyaemr_etl.etl_patient_demographics a\n"
+		        + "left outer join (\n"
+		        + "select t.patient_id, max(t.visit_date) as retestDate, mid(max(concat(date (t.visit_date),t.final_test_result)),11) as hts_test_result,\n"
+		        + "mid(max(concat(date (t.visit_date),t.test_type)),11) as test_type from kenyaemr_etl.etl_hts_test t where date (t.visit_date) <= date (:endDate)\n"
+		        + "GROUP BY t.patient_id\n"
+		        + ") h on a.patient_id = h.patient_id left outer join (\n"
+		        + "select d.patient_id, min(d.visit_date) as enr_date from kenyaemr_etl.etl_hiv_enrollment d\n"
+		        + "GROUP BY d.patient_id ) x on a.patient_id = x.patient_id GROUP BY a.patient_id) a\n"
+		        + "group by patient_id;\n";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
