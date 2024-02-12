@@ -36,8 +36,8 @@ public class FinalHTSResultDataEvaluator implements PersonDataEvaluator {
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select t.patient_id, mid(max(concat(t.visit_date,t.final_test_result)),11) as final_test_result from kenyaemr_etl.etl_hts_test t where date(t.visit_date) between\n"
-		        + "date(:startDate) and date(:endDate) group by t.patient_id;";
+		String qry = "select t.patient_id, mid(max(concat(t.visit_date,t.final_test_result)),11) as final_test_result from kenyaemr_etl.etl_hts_test t where date(t.visit_date) <=\n"
+		        + "date(:endDate) group by t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -48,7 +48,7 @@ public class HTSAdolescentsQualityOfServiceCohortDefinitionEvaluator implements 
 		
 		Cohort newCohort = new Cohort();
 		
-		String qry = "SELECT t.patient_id from kenyaemr_etl.etl_hts_test t inner join kenyaemr_etl.etl_patient_demographics p on p.patient_id=t.patient_id and p.voided = 0 where t.voided = 0 and date(t.visit_date) BETWEEN date(:startDate) AND date(:endDate)\n"
+		String qry = "SELECT t.patient_id from kenyaemr_etl.etl_hts_test t inner join kenyaemr_etl.etl_patient_demographics p on p.patient_id=t.patient_id and p.voided = 0 where t.voided = 0  and date(t.visit_date) <= date(:endDate) and timestampdiff(MONTH,date(t.visit_date),date(:endDate)) <= 6\n"
 		        + "and timestampdiff(YEAR ,p.dob, date (t.visit_date)) between 10 and 19 order by t.visit_date desc limit 10;";
 		
 		SqlQueryBuilder builder = new SqlQueryBuilder();
