@@ -36,10 +36,12 @@ public class SimsScreenedPositiveForCervicalCancerDataEvaluator implements Perso
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select cs.patient_id,if(cs.screening_result =\"Negative\",'NA', if(cs.screening_result =\"Positive\" and cs.treatment_method is not null, 'Y','N'))\n"
-		        + "from kenyaemr_etl.etl_cervical_cancer_screening cs \n"
-		        + "where  cs.visit_date between date_sub(date(:endDate) , interval 90 DAY) and date(:endDate)\n"
-		        + "GROUP BY cs.patient_id";
+		String qry = "select cs.patient_id,\n"
+		        + "       if(cs.pap_smear_screening_result = 'Negative' or cs.via_vili_screening_result = 'Negative', 'NA',\n"
+		        + "          if((cs.pap_smear_screening_result in ('High grade lesion','Invasive Cancer','Atypical squamous cells(ASC-US/ASC-H)','AGUS') or cs.via_vili_screening_result in ('Positive', 'Suspicious for Cancer')) and (cs.via_vili_treatment_method is not null or cs.pap_smear_treatment_method is not null), 'Y', 'N'))\n"
+		        + "from kenyaemr_etl.etl_cervical_cancer_screening cs\n"
+		        + "where cs.visit_date between date_sub(date(:endDate), interval 90 DAY) and date(:endDate)\n"
+		        + "GROUP BY cs.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
