@@ -7,10 +7,10 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
+package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsScreenedPostiveForCervicalCancerDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.FinalHTSResultGivenDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates
+ * Evaluates final results given Data Definition
  */
-@Handler(supports = SimsScreenedPostiveForCervicalCancerDataDefinition.class, order = 50)
-public class SimsScreenedPositiveForCervicalCancerDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = FinalHTSResultGivenDataDefinition.class, order = 50)
+public class FinalHTSResultGivenDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,12 +36,8 @@ public class SimsScreenedPositiveForCervicalCancerDataEvaluator implements Perso
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select cs.patient_id,\n"
-		        + "       if(cs.pap_smear_screening_result = 'Negative' or cs.via_vili_screening_result = 'Negative', 'NA',\n"
-		        + "          if((cs.pap_smear_screening_result in ('High grade lesion','Invasive Cancer','Atypical squamous cells(ASC-US/ASC-H)','AGUS') or cs.via_vili_screening_result in ('Positive', 'Suspicious for Cancer')) and (cs.via_vili_treatment_method is not null or cs.pap_smear_treatment_method is not null), 'Y', 'N'))\n"
-		        + "from kenyaemr_etl.etl_cervical_cancer_screening cs\n"
-		        + "where cs.visit_date between date_sub(date(:endDate), interval 90 DAY) and date(:endDate)\n"
-		        + "GROUP BY cs.patient_id;";
+		String qry = "select t.patient_id, mid(max(concat(t.visit_date,t.patient_given_result)),11) as final_test_result_given from kenyaemr_etl.etl_hts_test t where date(t.visit_date) between\n"
+		        + "date(:startDate) and date(:endDate) group by t.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");

@@ -7,10 +7,11 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator.sims;
+package org.openmrs.module.kenyaemrextras.reporting.data.definition.evaluator;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.kenyaemrextras.reporting.data.definition.sims.SimsScreenedPostiveForCervicalCancerDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.DQATBScreeningLastVisitOutcomeDataDefinition;
+import org.openmrs.module.kenyaemrextras.reporting.data.definition.RetestedBeforeARTInititionDataDefinition;
 import org.openmrs.module.reporting.data.person.EvaluatedPersonData;
 import org.openmrs.module.reporting.data.person.definition.PersonDataDefinition;
 import org.openmrs.module.reporting.data.person.evaluator.PersonDataEvaluator;
@@ -24,10 +25,10 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Evaluates
+ * Evaluates Retested Before ART Initition Data Definition
  */
-@Handler(supports = SimsScreenedPostiveForCervicalCancerDataDefinition.class, order = 50)
-public class SimsScreenedPositiveForCervicalCancerDataEvaluator implements PersonDataEvaluator {
+@Handler(supports = RetestedBeforeARTInititionDataDefinition.class, order = 50)
+public class RetestedBeforeARTInititionDataEvaluator implements PersonDataEvaluator {
 	
 	@Autowired
 	private EvaluationService evaluationService;
@@ -36,12 +37,16 @@ public class SimsScreenedPositiveForCervicalCancerDataEvaluator implements Perso
 	        throws EvaluationException {
 		EvaluatedPersonData c = new EvaluatedPersonData(definition, context);
 		
-		String qry = "select cs.patient_id,\n"
-		        + "       if(cs.pap_smear_screening_result = 'Negative' or cs.via_vili_screening_result = 'Negative', 'NA',\n"
-		        + "          if((cs.pap_smear_screening_result in ('High grade lesion','Invasive Cancer','Atypical squamous cells(ASC-US/ASC-H)','AGUS') or cs.via_vili_screening_result in ('Positive', 'Suspicious for Cancer')) and (cs.via_vili_treatment_method is not null or cs.pap_smear_treatment_method is not null), 'Y', 'N'))\n"
-		        + "from kenyaemr_etl.etl_cervical_cancer_screening cs\n"
-		        + "where cs.visit_date between date_sub(date(:endDate), interval 90 DAY) and date(:endDate)\n"
-		        + "GROUP BY cs.patient_id;";
+		String qry = "select a.patient_id, if (retestDate is null or hts_test_result = 'Negative','NA', if (hts_test_result = 'Positive' and retestDate <= enr_date ,'Y','N' )) as retested_before_enrollment from (\n"
+		        + "    select a.patient_id, x.enr_date,h.retestDate,h.hts_test_result from kenyaemr_etl.etl_patient_demographics a\n"
+		        + "    left outer join (\n"
+		        + "    select t.patient_id, max(t.visit_date) as retestDate, mid(max(concat(date (t.visit_date),t.final_test_result)),11) as hts_test_result,\n"
+		        + "    mid(max(concat(date (t.visit_date),t.test_type)),11) as test_type from kenyaemr_etl.etl_hts_test t\n"
+		        + "    GROUP BY t.patient_id\n"
+		        + "    ) h on a.patient_id = h.patient_id left outer join (\n"
+		        + "    select d.patient_id, min(d.visit_date) as enr_date from kenyaemr_etl.etl_hiv_enrollment d\n"
+		        + "    GROUP BY d.patient_id ) x on a.patient_id = x.patient_id GROUP BY a.patient_id) a\n"
+		        + "    group by patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
 		Date startDate = (Date) context.getParameterValue("startDate");
