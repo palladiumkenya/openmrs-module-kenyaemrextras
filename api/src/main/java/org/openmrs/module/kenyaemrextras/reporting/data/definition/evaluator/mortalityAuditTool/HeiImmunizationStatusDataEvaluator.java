@@ -38,7 +38,7 @@ public class HeiImmunizationStatusDataEvaluator implements PersonDataEvaluator {
 		String qry = "select  m.patient_id,\n"
 		        + "  (case m.fully_immunized when 1065 then 'UpToDate' when 1066 then 'Not documented' end) as immunization_status\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "  inner join  kenyaemr_etl.etl_hei_immunization m on d.patient_id = m.patient_id\n"
+		        + "  inner join  kenyaemr_etl.etl_immunization m on d.patient_id = m.patient_id\n"
 		        + "  inner join kenyaemr_etl.etl_patient_program_discontinuation disc on disc.patient_id = m.patient_id\n"
 		        + "where  disc.program_name in ('MCH Child HEI','MCH Child') and disc.discontinuation_reason = 160432\n"
 		        + "group by m.patient_id;";
