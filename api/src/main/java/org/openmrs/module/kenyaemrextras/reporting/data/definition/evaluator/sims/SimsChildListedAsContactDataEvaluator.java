@@ -45,7 +45,7 @@ public class SimsChildListedAsContactDataEvaluator implements PersonDataEvaluato
 		        + " else t.hivStatus end)) != 0, 'N', 'Y')) AS hivstatus\n"
 		        + "from kenyaemr_etl.etl_patient_demographics d\n"
 		        + "left join (\n"
-		        + "select c.id    as contact_id, c.patient_related_to  as patient_id,c.baseline_hiv_status as hivStatus, c.relationship_type   as relationship\n"
+		        + "select c.patient_id    as contact_id, c.patient_related_to  as patient_id,c.baseline_hiv_status as hivStatus, c.relationship_type   as relationship\n"
 		        + "from kenyaemr_etl.etl_patient_contact c\n" + "where c.relationship_type =1528\n"
 		        + "and c.voided = 0) t on d.patient_id = t.patient_id\n" + "group by d.patient_id;";
 		
