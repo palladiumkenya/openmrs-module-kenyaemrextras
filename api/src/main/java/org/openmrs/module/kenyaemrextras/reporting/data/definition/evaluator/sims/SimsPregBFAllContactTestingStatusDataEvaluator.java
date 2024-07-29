@@ -44,10 +44,10 @@ public class SimsPregBFAllContactTestingStatusDataEvaluator implements PersonDat
 		        + "        when 'Negative' then 'Negative' when 'Positive' then 'Positive' \n"
 		        + "        else t.hivStatus end)) != 0, 'N', 'Y')) AS hivstatus\n"
 		        + "        from kenyaemr_etl.etl_patient_demographics d          left join ( \n"
-		        + "            select c.id    as contact_id,            c.patient_related_to  as patient_id, \n"
+		        + "            select c.patient_id    as contact_id,            c.patient_related_to  as patient_id, \n"
 		        + "                   c.baseline_hiv_status as hivStatus,            c.relationship_type   as relationship \n"
 		        + "            from kenyaemr_etl.etl_patient_contact c \n"
-		        + "            where c.relationship_type in (971, 972, 1528, 162221, 163565, 970, 5617) \n"
+		        + "            where c.relationship_type in (2, 3, 8, 7, 6) \n"
 		        + "              and c.voided = 0) t on d.patient_id = t.patient_id\n" + "group by d.patient_id;";
 		
 		SqlQueryBuilder queryBuilder = new SqlQueryBuilder();
