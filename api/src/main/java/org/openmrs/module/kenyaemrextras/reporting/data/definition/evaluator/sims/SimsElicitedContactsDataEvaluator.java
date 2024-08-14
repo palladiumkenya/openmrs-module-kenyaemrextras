@@ -58,9 +58,7 @@ public class SimsElicitedContactsDataEvaluator implements PersonDataEvaluator {
 		        + "                                                       when 'Negative' then 'Negative'\n"
 		        + "                                                       when 'Positive' then 'Positive'\n"
 		        + "                                                       else c.hts_status end)) != 0, 'N', 'Y')) AS hivstatus\n"
-		        + "from kenyaemr_etl.etl_patient_demographics d\n"
-		        + "         left join (select c.id                  as contact_id,\n"
-		        + "                           c.patient_id,\n"
+		        + "from kenyaemr_etl.etl_patient_demographics d\n" + "         left join (select c.patient_id,\n"
 		        + "                           c.patient_related_to  as idx_patient_id,\n"
 		        + "                           c.baseline_hiv_status as hivStatus,\n"
 		        + "                           c.relationship_type   as relationship,\n"
@@ -71,7 +69,7 @@ public class SimsElicitedContactsDataEvaluator implements PersonDataEvaluator {
 		        + "                                        from kenyaemr_etl.etl_hts_test hts\n"
 		        + "                                        where date(hts.visit_date) <= date(:endDate)) hts\n"
 		        + "                                       on c.patient_id = hts.patient_id\n"
-		        + "                    where c.relationship_type in (162221, 163565, 5617, 157351)\n"
+		        + "                    where c.relationship_type in (8, 7, 6, 9)\n"
 		        + "                      and c.voided = 0) c on d.patient_id = c.idx_patient_id\n"
 		        + "group by d.patient_id;";
 		
