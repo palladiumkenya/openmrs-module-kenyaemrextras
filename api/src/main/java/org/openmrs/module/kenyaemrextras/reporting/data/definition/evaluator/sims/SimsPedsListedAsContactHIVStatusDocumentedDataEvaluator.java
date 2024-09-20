@@ -57,7 +57,7 @@ public class SimsPedsListedAsContactHIVStatusDocumentedDataEvaluator implements 
 		        + "                                        where date(hts.visit_date) <= date(:endDate)) hts\n"
 		        + "                                       on c.patient_id = hts.patient_id\n"
 		        + "                    where c.relationship_type = 3\n"
-		        + "                      and timestampdiff(YEAR, date(c.birth_date), date(:endDate)) < 15\n"
+		        + "                      and timestampdiff(YEAR, date(d.DOB), date(:endDate)) < 15\n"
 		        + "                      and c.voided = 0) c on d.patient_id = c.idx_patient_id\n"
 		        + "group by d.patient_id;";
 		

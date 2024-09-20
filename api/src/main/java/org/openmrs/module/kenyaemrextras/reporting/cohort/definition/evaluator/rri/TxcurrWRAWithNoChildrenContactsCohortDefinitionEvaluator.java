@@ -80,7 +80,7 @@ public class TxcurrWRAWithNoChildrenContactsCohortDefinitionEvaluator implements
 		        + "            group by patient_id) d on d.patient_id = fup.patient_id\n"
 		        + "      where fup.visit_date <= date(:endDate)\n"
 		        + "        and p.gender = 'F'\n"
-		        + "        and timestampdiff(YEAR, date(p.dob), date(:endDate)) between 15 and 49 -- and timestampdiff(YEAR, date(c.birth_date), date(:endDate)) < 15\n"
+		        + "        and timestampdiff(YEAR, date(p.dob), date(:endDate)) between 15 and 49\n"
 		        + "      group by patient_id\n"
 		        + "      having (started_on_drugs is not null and started_on_drugs <> '')\n"
 		        + "         and contact_id is null\n"
